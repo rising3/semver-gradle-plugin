@@ -1,0 +1,84 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+    id 'com.gradle.plugin-publish' version '0.13.0'
+    id 'java'
+    id 'groovy'
+    id 'jacoco'
+    id "com.diffplug.spotless" version "5.11.0"
+    id 'eclipse'
+    id 'idea'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation 'org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r'
+    testImplementation 'org.spockframework:spock-core:1.3-groovy-2.5'
+}
+
+group = 'com.github.rising3'
+
+gradlePlugin {
+    plugins {
+        semver {
+            id = 'com.github.rising3.semver'
+            implementationClass = 'com.github.rising3.gradle.semver.plugins.SemVerGradlePlugin'
+            displayName = 'Gradle plugin for Updates the project version.'
+            description = 'A plugin that can updating the semantic versions like `yarn version` command.'
+        }
+    }
+}
+
+pluginBundle {
+    website = 'https://github.com/rising3/semver-gradle-plugin'
+    vcsUrl = 'https://github.com/rising3/semver-gradle-plugin.git'
+    tags = ['semver', 'semantic-versioning', 'semantic', 'version', 'release', 'git', 'yarn']
+}
+
+sourceSets {
+    functionalTest {
+    }
+}
+
+gradlePlugin.testSourceSets(sourceSets.functionalTest)
+configurations.functionalTestImplementation.extendsFrom(configurations.testImplementation)
+
+tasks.register('functionalTest', Test) {
+    testClassesDirs = sourceSets.functionalTest.output.classesDirs
+    classpath = sourceSets.functionalTest.runtimeClasspath
+}
+
+tasks.named('check') {
+    dependsOn(tasks.functionalTest)
+}
+
+test {
+    finalizedBy jacocoTestReport
+}
+
+jacoco {
+    toolVersion = "0.8.6"
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.enabled false
+        csv.enabled false
+    }
+}
+
+spotless {
+    java {
+        importOrder()
+        removeUnusedImports()
+        googleJavaFormat()
+        prettier()
+    }
+    groovy {
+        importOrder()
+    }
+}
