@@ -20,3 +20,5 @@ gradle-app.setting
 .DS_Store
 
 .attach_*
+
+*.bak
