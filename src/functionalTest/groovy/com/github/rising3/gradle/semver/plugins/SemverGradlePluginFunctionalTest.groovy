@@ -20,9 +20,19 @@ class SemverGradlePluginFunctionalTest extends Specification {
         }
         new File(projectDir, "build.gradle").withWriter() {
             it << """\
+                |buildscript {
+                |   repositories {
+                |       jcenter()
+                |   }
+                |   dependencies {
+                |//       classpath 'org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r'
+                |//       classpath files('../libs/semver-gradle-plugin-0.1.0.jar')
+                |   }
+                |}
                 |plugins {
                 |   id('com.github.rising3.semver')
                 |}
+                |// apply plugin: 'com.github.rising3.semver'
                 |semver {
                 |   noGitCommand = false
                 |   noGitTagVersion = false

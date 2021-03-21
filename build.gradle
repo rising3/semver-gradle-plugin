@@ -75,7 +75,7 @@ spotless {
     java {
         importOrder()
         removeUnusedImports()
-        googleJavaFormat()
+        googleJavaFormat('1.8').aosp()
         prettier()
     }
     groovy {

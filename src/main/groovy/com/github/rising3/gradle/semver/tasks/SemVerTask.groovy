@@ -84,7 +84,7 @@ class SemVerTask extends DefaultTask {
 		}
 
 		props['version'] = semver.current
-		VersionProp.save(filename, props, 'Over writen by Gradle semver plugin')
+		VersionProp.save(filename, props, 'Over writen by semver plugin')
 		if (!project.semver.noGitCommand) {
 			gitAction(semver, filename)
 		}
