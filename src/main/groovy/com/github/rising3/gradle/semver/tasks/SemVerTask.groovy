@@ -77,7 +77,7 @@ class SemVerTask extends DefaultTask {
 		} else if(isPrerelease) {
 			semver = SemVer.parse(props['version']).incPrerelease(usePreid)
 		} else {
-			def question = "info Current version: $version\nquestion New version: "
+			def question = "info Current version: ${props['version']}\nquestion New version: "
 			def inputHandler = getServices().get(UserInputHandler.class)
 			def inputVersion = inputHandler.askQuestion(question, props['version'])
 			semver = SemVer.parse(inputVersion)
