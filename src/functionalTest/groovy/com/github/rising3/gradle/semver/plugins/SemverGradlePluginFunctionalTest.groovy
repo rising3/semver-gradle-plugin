@@ -26,7 +26,7 @@ class SemverGradlePluginFunctionalTest extends Specification {
                 |   }
                 |   dependencies {
                 |//       classpath 'org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r'
-                |//       classpath files('../libs/semver-gradle-plugin-0.1.0.jar')
+                |//       classpath files('../libs/semver-gradle-plugin-0.1.1.jar')
                 |   }
                 |}
                 |plugins {
