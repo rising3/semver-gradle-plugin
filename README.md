@@ -17,9 +17,9 @@ plugins {
 }
 ```
 
-## Updating verions
+## Updating versions
 
-Using the `semver` glradle plugin you can update the version of your package via the gradle task.
+Using the `semver` gradle plugin you can update the version of your package via the gradle task.
 
 For example,starting with this `gradle.properties` file:
 
@@ -50,11 +50,11 @@ We will get this updated `gradle.properties` file:
 version=1.0.2
 ```
 
-> **Note:** The new version you enter muse be a valid [SeVer](https://classic.yarnpkg.com/en/docs/dependency-versions#toc-semantic-versioning) version.
+> **Note:** The new version you enter must be a valid [SemVer](https://classic.yarnpkg.com/en/docs/dependency-versions#toc-semantic-versioning) version.
 
 ## Git tags
 
-if you run `semver` task withn a Git repository an annotated Git tag will be created by default following the format `v0.0.0`.
+if you run `semver` task within a Git repository an annotated Git tag will be created by default following the format `v0.0.0`.
 
 You can customize the git tag that is created or disable this behavior by using `semver extension`.
 
