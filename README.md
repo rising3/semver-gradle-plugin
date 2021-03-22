@@ -13,7 +13,7 @@ You need to add the following lines to your `build.gradle` file:
 
 ```
 plugins {
-    id 'com.github.riging3.semver' version '0.1.0'
+    id 'com.github.riging3.semver' version '0.1.1'
 }
 ```
 
