@@ -4,10 +4,6 @@ buildscript {
         mavenCentral()
         jcenter()
     }
-// local install
-//    dependencies {
-//        classpath 'com.github.rising3:semver-gradle-plugin:0.1.1'
-//    }
 }
 
 plugins {
@@ -21,10 +17,8 @@ plugins {
     id "com.diffplug.spotless" version "5.11.0"
     id 'eclipse'
     id 'idea'
+    id 'com.github.rising3.semver' version '0.1.1'
 }
-
-// local install
-// apply plugin: 'com.github.rising3.semver'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
