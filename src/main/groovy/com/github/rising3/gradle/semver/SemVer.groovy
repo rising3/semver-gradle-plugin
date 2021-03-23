@@ -63,6 +63,9 @@ class SemVer {
 	 * @param prerelease prerelease
 	 */
 	def SemVer(int major, int minor, int patch, String preid, Integer prerelease) {
+		if (prerelease == null) {
+			assert preid == null && prerelease == null
+		}
 		this.major = major
 		this.minor = minor
 		this.patch = patch
@@ -179,30 +182,24 @@ class SemVer {
 	 * @return SemVer
 	 */
 	static SemVer parse(String s)	{
-		def nums = s.find(/\d{1,}\.\d{1,}\.\d{1,}/).split(/\./)
-		def pre = s.find(/\-\w{0,}\.{0,}\d{1,}/)
-		if (pre == null) {
-			new SemVer(nums[0].toInteger(), nums[1].toInteger(), nums[2].toInteger())
-		} else {
-			def preids = pre.substring(1).split(/\./)
-			if (preids.length == 2) {
-				new SemVer(nums[0].toInteger(), nums[1].toInteger(), nums[2].toInteger(), preids[0], preids[1].toInteger())
-			} else {
-				new SemVer(nums[0].toInteger(), nums[1].toInteger(), nums[2].toInteger(), null, preids[0].toInteger())
-			}
-		}
-	}
+		assert s
 
-	/**
-	 * Valid semantic versioning string.
-	 *
-	 * @param s semantic versioning string
-	 * @return SemVer, or invalid is null
-	 */
-	static SemVer valid(String s) {
-		try {
-			parse(s)
-		} catch(Exception e) {
+		def p = [
+				s.find(/^\d{1,}\.\d{1,}\.\d{1,}\-\w{1,}\.\d{1,}$/),
+				s.find(/^\d{1,}\.\d{1,}\.\d{1,}\-\d{1,}$/),
+				s.find(/^\d{1,}\.\d{1,}\.\d{1,}$/),
+		]
+
+		if (p[0]) {
+			def v = p[0].replaceAll(/\-/, '.').split(/\./)
+			new SemVer(v[0].toInteger(), v[1].toInteger(), v[2].toInteger(), v[3], v[4].toInteger())
+		} else if (p[1]) {
+			def v = p[1].replaceAll(/\-/, '.').split(/\./)
+			new SemVer(v[0].toInteger(), v[1].toInteger(), v[2].toInteger(), null, v[3].toInteger())
+		} else if (p[2]) {
+			def v = p[2].split(/\./)
+			new SemVer(v[0].toInteger(), v[1].toInteger(), v[2].toInteger())
+		} else {
 			null
 		}
 	}
