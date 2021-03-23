@@ -20,15 +20,6 @@ class SemverGradlePluginFunctionalTest extends Specification {
         }
         new File(projectDir, "build.gradle").withWriter() {
             it << """\
-                |buildscript {
-                |   repositories {
-                |       jcenter()
-                |   }
-                |   dependencies {
-                |//       classpath 'org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r'
-                |//       classpath files('../libs/semver-gradle-plugin-0.1.1.jar')
-                |   }
-                |}
                 |plugins {
                 |   id('com.github.rising3.semver')
                 |}
@@ -41,135 +32,38 @@ class SemverGradlePluginFunctionalTest extends Specification {
         }
     }
 
-    def "can run semver task with --new-version"() {
-        given:
-        def runner = GradleRunner.create()
-        runner.forwardOutput()
-        runner.withPluginClasspath()
-        runner.withArguments("semver", "--new-version", "0.1.0")
-        runner.withProjectDir(projectDir)
-
-        when:
-        def result = runner.build()
-
-        then:
-        result.output.contains('info New version: 0.1.0')
-    }
-
-    def "can run semver task with --major"() {
-        given:
-        def runner = GradleRunner.create()
-        runner.forwardOutput()
-        runner.withPluginClasspath()
-        runner.withArguments("semver", "--major")
-        runner.withProjectDir(projectDir)
-
-        when:
-        def result = runner.build()
-
-        then:
-        result.output.contains('info New version: 1.0.0')
-    }
-
-    def "can run semver task with --minor"() {
-        given:
-        def runner = GradleRunner.create()
-        runner.forwardOutput()
-        runner.withPluginClasspath()
-        runner.withArguments("semver", "--minor")
-        runner.withProjectDir(projectDir)
-
-        when:
-        def result = runner.build()
-
-        then:
-        result.output.contains('info New version: 0.1.0')
-    }
-
-    def "can run semver task with --patch"() {
-        given:
-        def runner = GradleRunner.create()
-        runner.forwardOutput()
-        runner.withPluginClasspath()
-        runner.withArguments("semver", "--patch")
-        runner.withProjectDir(projectDir)
-
-        when:
-        def result = runner.build()
-
-        then:
-        result.output.contains('info New version: 0.0.1')
-    }
-
-    def "can run semver task with --prerelease"() {
+    def "can run semver task"() {
         given:
         new File(projectDir, "gradle.properties").withWriter() {
-            it << "version=1.2.3-RC.1"
+            it << c
         }
         def runner = GradleRunner.create()
         runner.forwardOutput()
         runner.withPluginClasspath()
-        runner.withArguments("semver", "--prerelease", "--preid", "RC")
         runner.withProjectDir(projectDir)
+        runner.withArguments(args as String[])
 
-        when:
-        def result = runner.build()
+        expect:
+        runner.build().output.contains(s)
 
-        then:
-        result.output.contains('info New version: 1.2.3-RC.2')
-    }
-
-    def "can run semver task with --prmajor"() {
-        given:
-        new File(projectDir, "gradle.properties").withWriter() {
-            it << "version=1.2.3-RC.1"
-        }
-        def runner = GradleRunner.create()
-        runner.forwardOutput()
-        runner.withPluginClasspath()
-        runner.withArguments("semver", "--premajor", "--preid", "RC")
-        runner.withProjectDir(projectDir)
-
-        when:
-        def result = runner.build()
-
-        then:
-        result.output.contains('info New version: 2.0.0-RC.1')
-    }
-
-    def "can run semver task with --prminor"() {
-        given:
-        new File(projectDir, "gradle.properties").withWriter() {
-            it << "version=1.2.3-RC.1"
-        }
-        def runner = GradleRunner.create()
-        runner.forwardOutput()
-        runner.withPluginClasspath()
-        runner.withArguments("semver", "--preminor", "--preid", "RC")
-        runner.withProjectDir(projectDir)
-
-        when:
-        def result = runner.build()
-
-        then:
-        result.output.contains('info New version: 1.3.0-RC.1')
-    }
-
-    def "can run semver task with --prepatch"() {
-        given:
-        new File(projectDir, "gradle.properties").withWriter() {
-            it << "version=1.2.3-RC.1"
-        }
-        def runner = GradleRunner.create()
-        runner.forwardOutput()
-        runner.withPluginClasspath()
-        runner.withArguments("semver", "--prepatch", "--preid", "RC")
-        runner.withProjectDir(projectDir)
-
-        when:
-        def result = runner.build()
-
-        then:
-        result.output.contains('info New version: 1.2.4-RC.1')
+        where:
+        c | args || s
+        '' | ['semver', '--major'] | 'info New version: 1.0.0'
+        '' | ['semver', '--minor'] | 'info New version: 0.1.0'
+        '' | ['semver', '--patch'] | 'info New version: 0.0.1'
+        '' | ['semver', '--prerelease', '--preid', 'RC'] | 'info New version: 0.0.0-RC.1'
+        '' | ['semver', '--premajor', '--preid', 'RC'] | 'info New version: 1.0.0-RC.1'
+        '' | ['semver', '--preminor', '--preid', 'RC'] | 'info New version: 0.1.0-RC.1'
+        '' | ['semver', '--prepatch', '--preid', 'RC'] | 'info New version: 0.0.1-RC.1'
+        'version=1.2.3' | ['semver', '--major'] | 'info New version: 2.0.0'
+        'version=1.2.3' | ['semver', '--minor'] | 'info New version: 1.3.0'
+        'version=1.2.3' | ['semver', '--patch'] | 'info New version: 1.2.4'
+        'version=1.2.3-RC.1' | ['semver', '--major'] | 'info New version: 2.0.0'
+        'version=1.2.3-RC.1' | ['semver', '--minor'] | 'info New version: 1.3.0'
+        'version=1.2.3-RC.1' | ['semver', '--patch'] | 'info New version: 1.2.4'
+        'version=1.2.3-RC.1' | ['semver', '--prerelease', '--preid', 'RC'] | 'info New version: 1.2.3-RC.2'
+        'version=1.2.3-RC.1' | ['semver', '--premajor', '--preid', 'RC'] | 'info New version: 2.0.0-RC.1'
+        'version=1.2.3-RC.1' | ['semver', '--preminor', '--preid', 'RC'] | 'info New version: 1.3.0-RC.1'
+        'version=1.2.3-RC.1' | ['semver', '--prepatch', '--preid', 'RC'] | 'info New version: 1.2.4-RC.1'
     }
 }
