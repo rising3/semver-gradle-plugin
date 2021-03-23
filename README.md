@@ -17,6 +17,8 @@ plugins {
 }
 ```
 
+[More...](https://plugins.gradle.org/plugin/com.github.rising3.semver)
+
 ## Updating versions
 
 Using the `semver` gradle plugin you can update the version of your package via the gradle task.
