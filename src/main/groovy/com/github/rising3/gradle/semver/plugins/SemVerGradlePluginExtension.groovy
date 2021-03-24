@@ -26,11 +26,6 @@ class SemVerGradlePluginExtension {
     String versionGitMessage = 'v%s'
 
     /**
-     * pre-identifier
-     */
-    String preid = ''
-
-    /**
      * Disable git command.
      */
     boolean noGitCommand = false
