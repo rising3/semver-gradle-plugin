@@ -23,12 +23,18 @@ class SemverGradlePluginFunctionalTest extends Specification {
                 |plugins {
                 |   id('com.github.rising3.semver')
                 |}
-                |// apply plugin: 'com.github.rising3.semver'
                 |semver {
                 |   noGitCommand = false
                 |   noGitTagVersion = false
                 |}
-                """.stripMargin()
+                |tasks.semver.configure {
+                |   doFirst {
+                |       println 'first'
+                |   }
+                |   doLast {
+                |       println 'last'
+                |   }
+                |}""".stripMargin()
         }
     }
 
@@ -48,6 +54,7 @@ class SemverGradlePluginFunctionalTest extends Specification {
 
         where:
         c | args || s
+        '' | ['semver', '--new-version', "1.0.0"] | 'info New version: 1.0.0'
         '' | ['semver', '--major'] | 'info New version: 1.0.0'
         '' | ['semver', '--minor'] | 'info New version: 0.1.0'
         '' | ['semver', '--patch'] | 'info New version: 0.0.1'
@@ -65,5 +72,6 @@ class SemverGradlePluginFunctionalTest extends Specification {
         'version=1.2.3-RC.1' | ['semver', '--premajor', '--preid', 'RC'] | 'info New version: 2.0.0-RC.1'
         'version=1.2.3-RC.1' | ['semver', '--preminor', '--preid', 'RC'] | 'info New version: 1.3.0-RC.1'
         'version=1.2.3-RC.1' | ['semver', '--prepatch', '--preid', 'RC'] | 'info New version: 1.2.4-RC.1'
+        'version=1.0.0' | ['semver', '--new-version', "1.0.0"] | 'info No change version: 1.0.0'
     }
 }

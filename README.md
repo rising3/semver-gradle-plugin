@@ -77,6 +77,44 @@ semver {
     boolean noGitCommand = false
 }
 ```
+## Version lifecycle methods
+
+The `semver` task runs based on [Gradle build lifecycle](https://docs.gradle.org/current/userguide/build_lifecycle.html).
+
+You can use the following mechanism of Gradle to execute another task before and after executing the `semver` task.
+
+* dependsOn
+* reconfigure
+
+Executing the `semver` task overrides `project.version`, e.g. `project.version` will in the doFirst() hold the version before the version change, and in the doLast() it will hold the version after the version change.
+
+Here is an example of what a `build.gradle` file:
+
+``` groovy
+tasks.semver.dependsOn test
+
+tasks.semver.configure {
+    doFirst {
+        println "doFirst preversion: $project.version"
+    }
+    doLast {
+        println "doLast postversion: $project.version"
+    }
+}
+```
+
+Executed `semver` task would look something like this:
+
+```
+info Current version: 0.1.1
+question New version:  (default: 0.1.1): 0.1.2
+
+
+> Task :semver
+doFirst preversion: 0.1.1
+info New version: 0.1.2
+doLast postversion: 0.1.2
+```
 
 ## Task options
 
@@ -122,14 +160,16 @@ Adds an identifier specified by <pre-identifier> to be used to prefix premajor, 
 
 ## Plugin Extension
 
-property | Description | default
---- | --- | ---
-filename |  | 'gradle.properties'
-versionTagPrefix | | 'v'
-versionGitMessage | | 'v%s'
-preid | | ''
-noGitCommand | | false
-noGitTagVersion | | false
+The plugin defines an extension with the namespace `semver`. The following properties can be configured:
+
+Property Name | Type | Default value |  Description
+--- | --- | ---| ---
+filename | String | 'gradle.properties' | Change the filename of `version` property.
+versionTagPrefix | String | 'v' | Change the prefix of the git tag.
+versionGitMessage | String  | 'v%s' | Change the git message. Where %s is the version string.
+noGitCommand | boolean | false | Even enable or disable the git command behavior entirely.
+noGitTagVersion |boolean  | false | Even enable or disable the git tagging behavior entirely.
+
 
 ### Example
 

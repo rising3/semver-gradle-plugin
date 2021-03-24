@@ -4,6 +4,9 @@ buildscript {
         mavenCentral()
         jcenter()
     }
+    dependencies {
+        classpath 'com.github.rising3:semver-gradle-plugin:0.1.1'
+    }
 }
 
 plugins {
@@ -17,8 +20,10 @@ plugins {
     id "com.diffplug.spotless" version "5.11.0"
     id 'eclipse'
     id 'idea'
-    id 'com.github.rising3.semver' version '0.1.1'
+//    id 'com.github.rising3.semver' version '0.1.1'
 }
+
+apply plugin: 'com.github.rising3.semver'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -57,12 +62,22 @@ pluginBundle {
     tags = ['semver', 'semantic-versioning', 'semantic', 'version', 'release', 'git', 'yarn']
 }
 
+jar {
+    manifest {
+        attributes(
+                'Implementation-Title': 'semver-gradle-plugin',
+                'Implementation-Version': project.version,
+        )
+    }
+}
+
 sourceSets {
     functionalTest {
     }
 }
 
 gradlePlugin.testSourceSets(sourceSets.functionalTest)
+
 configurations.functionalTestImplementation.extendsFrom(configurations.testImplementation)
 
 tasks.register('functionalTest', Test) {
@@ -99,5 +114,16 @@ spotless {
     }
     groovy {
         importOrder()
+    }
+}
+
+tasks.semver.dependsOn test
+
+tasks.semver.configure {
+    doFirst {
+        println "doFirst preversion: $project.version"
+    }
+    doLast {
+        println "doLast postversion: $project.version"
     }
 }
