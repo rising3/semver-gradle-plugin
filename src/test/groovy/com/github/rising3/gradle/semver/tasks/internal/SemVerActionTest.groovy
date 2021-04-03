@@ -1,6 +1,5 @@
 package com.github.rising3.gradle.semver.tasks.internal
 
-
 import spock.lang.Specification
 
 class SemVerActionTest extends Specification {
@@ -32,7 +31,7 @@ class SemVerActionTest extends Specification {
 
         then:
         result != null
-        result.current == '1.0.0'
+        result.toString() == '1.0.0'
         !target.isNewVersion()
         !target.isUserInteraction()
     }
@@ -46,7 +45,7 @@ class SemVerActionTest extends Specification {
 
         then:
         result != null
-        result.current == '1.0.1'
+        result.toString() == '1.0.1'
         target.isNewVersion()
         !target.isUserInteraction()
     }
@@ -60,7 +59,7 @@ class SemVerActionTest extends Specification {
 
         then:
         result != null
-        result.current == '2.0.0'
+        result.toString() == '2.0.0'
         target.isNewVersion()
         !target.isUserInteraction()
     }
@@ -74,7 +73,7 @@ class SemVerActionTest extends Specification {
 
         then:
         result != null
-        result.current == '1.1.0'
+        result.toString() == '1.1.0'
         target.isNewVersion()
         !target.isUserInteraction()
     }
@@ -88,7 +87,7 @@ class SemVerActionTest extends Specification {
 
         then:
         result != null
-        result.current == '1.0.1'
+        result.toString() == '1.0.1'
         target.isNewVersion()
         !target.isUserInteraction()
     }
@@ -102,7 +101,7 @@ class SemVerActionTest extends Specification {
 
         then:
         result != null
-        result.current == '2.0.0-M.1'
+        result.toString() == '2.0.0-M.1'
         target.isNewVersion()
         !target.isUserInteraction()
     }
@@ -116,7 +115,7 @@ class SemVerActionTest extends Specification {
 
         then:
         result != null
-        result.current == '1.1.0-M.1'
+        result.toString() == '1.1.0-M.1'
         target.isNewVersion()
         !target.isUserInteraction()
     }
@@ -130,7 +129,7 @@ class SemVerActionTest extends Specification {
 
         then:
         result != null
-        result.current == '1.0.1-M.1'
+        result.toString() == '1.0.1-M.1'
         target.isNewVersion()
         !target.isUserInteraction()
     }
@@ -144,7 +143,7 @@ class SemVerActionTest extends Specification {
 
         then:
         result != null
-        result.current == '1.0.0-M.1'
+        result.toString() == '1.0.0-M.1'
         target.isNewVersion()
         !target.isUserInteraction()
     }

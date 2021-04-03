@@ -1,6 +1,7 @@
 package com.github.rising3.gradle.semver.tasks.internal
 
-import com.github.rising3.gradle.semver.SemVer
+import com.github.rising3.semver.SemVer
+
 
 /**
  * SemVer Action.
@@ -114,7 +115,7 @@ class SemVerAction {
      * @return true ... new version.
      */
     def boolean isNewVersion() {
-        semver != null && version != semver.current
+        semver != null && version != semver.toString()
     }
 
     @Override
