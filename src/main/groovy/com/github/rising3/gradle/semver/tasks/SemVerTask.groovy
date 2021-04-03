@@ -54,6 +54,14 @@ class SemVerTask extends DefaultTask {
 	String preid = ''
 
 	/**
+	 * Constructor.
+	 */
+	SemVerTask() {
+		this.group = "Release"
+		this.description = "Updating versions."
+	}
+
+	/**
 	 * Default task action.
 	 */
 	@TaskAction
