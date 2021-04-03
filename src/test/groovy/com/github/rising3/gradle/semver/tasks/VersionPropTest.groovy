@@ -1,6 +1,6 @@
 package com.github.rising3.gradle.semver.tasks
 
-import com.github.rising3.gradle.semver.SemVer
+
 import spock.lang.Specification
 
 import java.nio.file.Paths

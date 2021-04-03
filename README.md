@@ -4,7 +4,7 @@ Gradle plugin for Updates the project version.
 A plugin that can updating the semantic versions like `yarn version` command.
 
 **Prerequisites:**
-* java 8 or higher
+* Java 8 or higher
 * Gradle 6.x or higher
 
 ## Installation

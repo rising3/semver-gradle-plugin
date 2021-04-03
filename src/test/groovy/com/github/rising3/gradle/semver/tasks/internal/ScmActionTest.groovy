@@ -1,6 +1,6 @@
 package com.github.rising3.gradle.semver.tasks.internal
 
-import com.github.rising3.gradle.semver.SemVer
+
 import com.github.rising3.gradle.semver.scm.ScmProvider
 import spock.lang.Specification
 
