@@ -175,7 +175,7 @@ class SemVer implements Comparable {
 
     @Override
     int compareTo(Object o) {
-        assert SemVer.class == o.class
+        assert SemVer.class == o?.class
         def other = o as SemVer
         def cmp = this.major <=> other.major
         if (!cmp) {

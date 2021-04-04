@@ -30,12 +30,13 @@ import java.nio.file.StandardCopyOption
 final class VersionProp {
 
 	/**
-	 * load version prop.
+	 * load version.
 	 *
 	 * @param filename prop filename.
 	 * @return Properties.
 	 */
 	static Properties load(String filename) {
+		assert filename
 		def src = Paths.get(filename)
 		log.debug("src: {}", src)
 		def props = new Properties()
@@ -51,13 +52,14 @@ final class VersionProp {
 	}
 
 	/**
-	 * save version prop.
+	 * save version.
 	 *
 	 * @param filename prop filename.
 	 * @param props Properties.
 	 * @param comment comment for prop.
 	 */
 	static void save(String filename, Properties props, String comment) {
+		assert filename && props && comment
 		def src = Paths.get(filename)
 		log.debug("src: {}", src)
 		if (Files.exists(src)) {

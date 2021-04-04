@@ -36,7 +36,7 @@ class ScmActionTest extends Specification {
         target.setVersionTagPrefix('ver')
 
         when:
-        target('1.0.0', 'filename')
+        target('1.0.0', ['filename'])
 
         then:
         1 * scm.add('filename')
@@ -52,7 +52,7 @@ class ScmActionTest extends Specification {
         target.setVersionTagPrefix('v')
 
         when:
-        target('1.0.0', 'filename')
+        target('1.0.0', ['filename'])
 
         then:
         0 * scm.add('filename')
@@ -68,7 +68,7 @@ class ScmActionTest extends Specification {
         target.setVersionTagPrefix('v')
 
         when:
-        target('1.0.0', 'filename')
+        target('1.0.0', ['filename'])
 
         then:
         1 * scm.add('filename')

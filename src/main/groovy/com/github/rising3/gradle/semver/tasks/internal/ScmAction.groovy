@@ -62,13 +62,13 @@ class ScmAction {
      * Default method.
      *
      * @param String version
-     * @param filename filename
+     * @param filenames filename list
      */
-    def call(String version, String filename) {
+    def call(String version, List<String> filenames) {
         assert scm !=null
 
         if (!noCommand) {
-            scm.add(filename)
+            filenames.forEach({ scm.add(it) })
             def message = String.format(versionMessage, version)
             scm.commit(message)
             if (!noTagVersion) {

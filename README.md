@@ -54,6 +54,15 @@ version=1.0.2
 
 > **Note:** The new version you enter must be a valid [SemVer](https://classic.yarnpkg.com/en/docs/dependency-versions#toc-semantic-versioning) version.
 
+Added support for versioning of package.json.
+
+CASE | gradle.properties | package.json
+--- | --- | ---
+Not exists | CREATE | -
+gradle.properties exists | UPDATE | -
+package.json exists | - | UPDATE
+gradle.properties,<BR>package.json exists| UPDATE | UPDATE
+
 ## Git tags
 
 if you run `semver` task within a Git repository an annotated Git tag will be created by default following the format `v0.0.0`.
@@ -68,13 +77,13 @@ semver {
     versionTagPrefix = 'v'
 
     // Or you can change the git message using versionGitMessage where %s is the version string:
-    String versionGitMessage = 'v%s'
+    versionGitMessage = 'v%s'
 
     // You can even enable or disable the git tagging behavior entirely by using noGitTagVersion:
-    boolean noGitTagVersion = false
+    noGitTagVersion = false
 
     // You can even enable or disable the git command behavior entirely by using noGitCommand:
-    boolean noGitCommand = false
+    noGitCommand = false
 }
 ```
 ## Version lifecycle methods
@@ -169,7 +178,7 @@ versionTagPrefix | String | 'v' | Change the prefix of the git tag.
 versionGitMessage | String  | 'v%s' | Change the git message. Where %s is the version string.
 noGitCommand | boolean | false | Even enable or disable the git command behavior entirely.
 noGitTagVersion |boolean  | false | Even enable or disable the git tagging behavior entirely.
-
+noPackageJson |boolean  | false | Even enable or disable versioning the package.json.
 
 ### Example
 
@@ -181,6 +190,7 @@ semver {
     versionGitMessage = 'v%s'
     noGitTagVersion = false
     noGitCommand = false
+    noPackageJson = false
 }
 ```
 
