@@ -40,7 +40,7 @@ class GitProviderTest extends Specification {
 
     def "git add"() {
         when:
-        target.add('README.md')
+        target.add(['README.md'])
 
         then:
         target.status().getAdded().size() == 1
@@ -48,7 +48,7 @@ class GitProviderTest extends Specification {
 
     def "git commit"() {
         when:
-        target.add('README.md')
+        target.add(['README.md'])
         target.commit('test')
 
         then:
@@ -60,7 +60,7 @@ class GitProviderTest extends Specification {
 
     def "git tag"() {
         when:
-        target.add('README.md')
+        target.add(['README.md'])
         target.commit('test')
         target.tag('new-tag', 'message', true)
 

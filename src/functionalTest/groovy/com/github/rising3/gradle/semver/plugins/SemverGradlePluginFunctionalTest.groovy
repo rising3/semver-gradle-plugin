@@ -51,6 +51,13 @@ class SemverGradlePluginFunctionalTest extends Specification {
                 |   }
                 |}""".stripMargin()
         }
+        new File(projectDir, "package.json").withWriter() {
+            it << """\
+                |{
+                |    "name": "semver",
+                |    "version": "0.0.0"
+                |}""".stripMargin()
+        }
     }
 
     def "can run semver task"() {

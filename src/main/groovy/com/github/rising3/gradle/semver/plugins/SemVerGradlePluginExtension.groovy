@@ -49,4 +49,9 @@ class SemVerGradlePluginExtension {
      * Disable git tag version.
      */
     boolean noGitTagVersion = false
+
+    /**
+     * Disable package.json
+     */
+    boolean noPackageJson = false
 }

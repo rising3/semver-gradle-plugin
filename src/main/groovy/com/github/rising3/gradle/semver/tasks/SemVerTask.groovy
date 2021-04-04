@@ -15,6 +15,7 @@
  */
 package com.github.rising3.gradle.semver.tasks
 
+import com.github.rising3.gradle.semver.SemVer
 import com.github.rising3.gradle.semver.scm.GitProvider
 import com.github.rising3.gradle.semver.tasks.internal.ScmAction
 import com.github.rising3.gradle.semver.tasks.internal.SemVerAction
@@ -24,6 +25,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 
+import java.nio.file.Files
 import java.nio.file.Paths
 
 /**
@@ -82,9 +84,16 @@ class SemVerTask extends DefaultTask {
 	@TaskAction
 	def action() {
 		final filename = "$project.projectDir/$project.semver.filename"
+		final packageJson = "$project.projectDir/package.json"
+		final isFilename = Files.exists(Paths.get(filename))
+		final isPackageJson = Files.exists(Paths.get(packageJson))
 		final props = VersionProp.load(filename)
+		final json = VersionJson.load(packageJson)
+
 		if (project.version == 'unspecified') {
-			project.version = props['version']
+			def pv = SemVer.parse(props['version'])
+			def jv = SemVer.parse(json.content.version as String)
+			project.version = pv.compareTo(jv) == 1 ? pv.toString() : jv.toString()
 		}
 
 		final SemVerAction semVerAction = newSemVerAction()
@@ -100,9 +109,18 @@ class SemVerTask extends DefaultTask {
 
 		if (semVerAction.isNewVersion()) {
 			project.version = semVerAction.toString()
-			props['version'] = project.version
-			VersionProp.save(filename, props, 'Over writen by semver plugin')
-			newScmAction()(project.version, Paths.get(filename).getFileName().toString())
+			def files = []
+			if (!isPackageJson || (isPackageJson && isFilename)) {
+				props['version'] = project.version
+				VersionProp.save(filename, props, 'Over writen by semver plugin')
+				files.push(Paths.get(filename).getFileName().toString())
+			}
+			if (isPackageJson && !project.semver.noPackageJson) {
+				json.content.version = project.version
+				VersionJson.save(packageJson, json)
+				files.push(Paths.get(packageJson).getFileName().toString())
+			}
+			newScmAction()(project.version, files)
 			println "info New version: $project.version"
 		} else {
 			println "info No change version: $project.version"
