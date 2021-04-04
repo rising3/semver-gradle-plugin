@@ -1,5 +1,4 @@
-# semver-gradle-plugin
-
+# semver-gradle-plugin [![CI](https://github.com/rising3/semver-gradle-plugin/actions/workflows/build.yml/badge.svg)](https://github.com/rising3/semver-gradle-plugin/actions/workflows/build.yml)
 Gradle plugin for Updates the project version.
 A plugin that can updating the semantic versions like `yarn version` command.
 
