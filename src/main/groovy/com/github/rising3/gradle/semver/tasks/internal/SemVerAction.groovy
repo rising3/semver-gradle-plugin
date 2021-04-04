@@ -119,7 +119,7 @@ class SemVerAction {
      *
      * @return true ... user interaction.
      */
-    def boolean isUserInteraction() {
+    boolean isUserInteraction() {
         call() == null
     }
 
@@ -128,7 +128,7 @@ class SemVerAction {
      *
      * @return true ... new version.
      */
-    def boolean isNewVersion() {
+    boolean isNewVersion() {
         semver != null && version != semver.toString()
     }
 

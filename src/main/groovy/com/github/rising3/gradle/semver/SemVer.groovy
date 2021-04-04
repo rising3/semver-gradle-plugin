@@ -57,7 +57,7 @@ class SemVer implements Comparable {
     /**
      * Constructor.
      */
-    def SemVer() {
+    SemVer() {
     }
 
     /**
@@ -67,7 +67,7 @@ class SemVer implements Comparable {
      * @param minor minor
      * @param patch patch
      */
-    def SemVer(int major, int minor, int patch) {
+    SemVer(int major, int minor, int patch) {
         this(major, minor, patch, null, null)
     }
 
@@ -80,7 +80,7 @@ class SemVer implements Comparable {
      * @param preid pre-identifier
      * @param prerelease prerelease
      */
-    def SemVer(int major, int minor, int patch, String preid, Integer prerelease) {
+    SemVer(int major, int minor, int patch, String preid, Integer prerelease) {
         if (prerelease == null) {
             assert preid == null && prerelease == null
         }
@@ -96,7 +96,7 @@ class SemVer implements Comparable {
      *
      * @return SemVer
      */
-    def SemVer incMajor() {
+    SemVer incMajor() {
         new SemVer(major + 1, 0, 0)
     }
 
@@ -105,7 +105,7 @@ class SemVer implements Comparable {
      *
      * @return SemVer
      */
-    def SemVer incMinor() {
+    SemVer incMinor() {
         new SemVer(major, minor + 1, 0)
     }
 
@@ -114,7 +114,7 @@ class SemVer implements Comparable {
      *
      * @return SemVer
      */
-    def SemVer incPatch() {
+    SemVer incPatch() {
         new SemVer(major, minor, patch + 1)
     }
 
@@ -124,7 +124,7 @@ class SemVer implements Comparable {
      * @param preid pre-identifier
      * @return SemVer
      */
-    def SemVer incPremajor(String preid) {
+    SemVer incPremajor(String preid) {
         def prerelease = calcPrerelease(preid)
         new SemVer(major + 1, 0, 0, preid, prerelease)
     }
@@ -135,7 +135,7 @@ class SemVer implements Comparable {
      * @param preid pre-identifier
      * @return SemVer
      */
-    def SemVer incPreminor(String preid) {
+    SemVer incPreminor(String preid) {
         def prerelease = calcPrerelease(preid)
         new SemVer(major, minor + 1, 0, preid, prerelease)
     }
@@ -146,7 +146,7 @@ class SemVer implements Comparable {
      * @param preid pre-identifier
      * @return SemVer
      */
-    def SemVer incPrepatch(String preid) {
+    SemVer incPrepatch(String preid) {
         def prerelease = calcPrerelease(preid)
         new SemVer(major, minor, patch + 1, preid, prerelease)
     }
@@ -157,7 +157,7 @@ class SemVer implements Comparable {
      * @param preid pre-identifier
      * @return SemVer
      */
-    def SemVer incPrerelease(String preid) {
+    SemVer incPrerelease(String preid) {
         def prerelease = calcPrerelease(preid)
         new SemVer(major, minor, patch, preid, this.preid == preid ? prerelease + 1 : DEFAULT_PRERELEASE_NO)
     }
