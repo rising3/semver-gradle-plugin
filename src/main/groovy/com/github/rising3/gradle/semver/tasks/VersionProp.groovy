@@ -16,7 +16,6 @@
 package com.github.rising3.gradle.semver.tasks
 
 import groovy.util.logging.Slf4j
-import org.gradle.api.Project
 
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -33,7 +32,7 @@ final class VersionProp {
 	/**
 	 * load version prop.
 	 *
-	 * @param filename prop flename.
+	 * @param filename prop filename.
 	 * @return Properties.
 	 */
 	static Properties load(String filename) {
@@ -54,7 +53,7 @@ final class VersionProp {
 	/**
 	 * save version prop.
 	 *
-	 * @param filename prop flename.
+	 * @param filename prop filename.
 	 * @param props Properties.
 	 * @param comment comment for prop.
 	 */

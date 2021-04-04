@@ -62,7 +62,7 @@ class GitProvider implements ScmProvider {
 	 *
 	 * @return Status
 	 */
-	def Status status() {
+	Status status() {
 		git?.status()?.call()
 	}
 
@@ -71,7 +71,7 @@ class GitProvider implements ScmProvider {
 	 *
 	 * @return ReflogEntries
 	 */
-	def Collection<ReflogEntry> reflog() {
+	Collection<ReflogEntry> reflog() {
 		git?.reflog()?.call()
 	}
 
@@ -80,7 +80,7 @@ class GitProvider implements ScmProvider {
 	 *
 	 * @return RevCommits
 	 */
-	def Iterable<RevCommit> log() {
+	Iterable<RevCommit> log() {
 		git?.log()?.call()
 	}
 
@@ -89,7 +89,7 @@ class GitProvider implements ScmProvider {
 	 *
 	 * @return tag list.
 	 */
-	def List<Ref> tagList() {
+	List<Ref> tagList() {
 		git?.tagList()?.call()
 	}
 
