@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 rising3 <micho.nakagawa@gmail.com>
+ * Copyright (C) 2021 rising3 <michio.nakagawa@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
