@@ -224,14 +224,14 @@ class SemVer implements Comparable {
         }
         def v = p[0].replaceAll(/-/, '.').split(/\./)
         switch (v.size()) {
-        case 5:
-            new SemVer(v[0].toInteger(), v[1].toInteger(), v[2].toInteger(), v[3], v[4].toInteger())
-            break
-        case 4:
-            new SemVer(v[0].toInteger(), v[1].toInteger(), v[2].toInteger(), null, v[3].toInteger())
-            break
-        default:
-            new SemVer(v[0].toInteger(), v[1].toInteger(), v[2].toInteger())
+            case 5:
+                new SemVer(v[0].toInteger(), v[1].toInteger(), v[2].toInteger(), v[3], v[4].toInteger())
+                break
+            case 4:
+                new SemVer(v[0].toInteger(), v[1].toInteger(), v[2].toInteger(), null, v[3].toInteger())
+                break
+            default:
+                new SemVer(v[0].toInteger(), v[1].toInteger(), v[2].toInteger())
         }
     }
 }

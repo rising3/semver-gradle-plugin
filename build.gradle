@@ -5,7 +5,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "com.github.rising3:semver-gradle-plugin:0.2.2"
+        classpath "com.github.rising3:semver-gradle-plugin:0.3.0"
     }
 }
 
@@ -20,7 +20,7 @@ plugins {
     id "com.diffplug.spotless" version "5.11.0"
     id "eclipse"
     id "idea"
-//    id 'com.github.rising3.semver' version '0.2.2'
+//    id 'com.github.rising3.semver' version '0.3.0'
 }
 
 apply plugin: "com.github.rising3.semver"
@@ -107,14 +107,20 @@ jacocoTestReport {
 }
 
 spotless {
+    format 'misc', {
+        // define the files to apply `misc` to
+        target '*.gradle', '*.md', '.gitignore'
+        indentWithSpaces(2)
+        endWithNewline()
+    }
     java {
         importOrder()
         removeUnusedImports()
-        googleJavaFormat("1.8").aosp()
-        prettier()
+        googleJavaFormat("1.8")
     }
     groovy {
         importOrder()
+        // greclipse("4.17.0")
     }
 }
 
