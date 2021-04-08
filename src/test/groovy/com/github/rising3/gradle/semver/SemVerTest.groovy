@@ -57,6 +57,13 @@ class SemVerTest extends Specification {
         SemVer.parse("0.0.0-5") | SemVer.parse("0.0.0-5") | 0
         SemVer.parse("0.0.0-5") | SemVer.parse("0.0.0-1") | 1
         SemVer.parse("0.0.0-5") | SemVer.parse("0.0.0-9") | -1
+        SemVer.parse("1.0.0-alpha") | SemVer.parse("1.0.0-alpha.1") | -1
+        SemVer.parse("1.0.0-alpha.1") | SemVer.parse("1.0.0-alpha.beta") | -1
+        SemVer.parse("1.0.0-alpha.beta") | SemVer.parse("1.0.0-beta") | -1
+        SemVer.parse("1.0.0-beta") | SemVer.parse("1.0.0-beta.2") | -1
+        SemVer.parse("1.0.0-beta.2") | SemVer.parse("1.0.0-beta.11") | -1
+        SemVer.parse("1.0.0-beta.11") | SemVer.parse("1.0.0-rc.1") | -1
+        SemVer.parse("1.0.0-rc.1") | SemVer.parse("1.0.0") | -1
     }
 
     def "Increment version"() {
@@ -68,13 +75,15 @@ class SemVerTest extends Specification {
         '1.2.3'        | 'incMajor'      | null  || '2.0.0'
         '1.2.3'        | 'incMinor'      | null  || '1.3.0'
         '1.2.3'        | 'incPatch'      | null  || '1.2.4'
-        '1.2.3-RC.2'   | 'incPremajor'   | null  || '2.0.0-1'
+        '1.2.3-RC'     | 'incPremajor'   | null  || '2.0.0-0'
+        '1.2.3-RC'     | 'incPremajor'   | 'RC'  || '2.0.0-RC.0'
+        '1.2.3-RC.2'   | 'incPremajor'   | null  || '2.0.0-0'
         '1.2.3-RC.2'   | 'incPremajor'   | 'RC'  || '2.0.0-RC.2'
-        '1.2.3-RC.2'   | 'incPreminor'   | null  || '1.3.0-1'
+        '1.2.3-RC.2'   | 'incPreminor'   | null  || '1.3.0-0'
         '1.2.3-RC.2'   | 'incPreminor'   | 'RC'  || '1.3.0-RC.2'
-        '1.2.3-RC.2'   | 'incPrepatch'   | null  || '1.2.4-1'
+        '1.2.3-RC.2'   | 'incPrepatch'   | null  || '1.2.4-0'
         '1.2.3-RC.2'   | 'incPrepatch'   | 'RC'  || '1.2.4-RC.2'
-        '1.2.3-RC.2'   | 'incPrerelease' | null  || '1.2.3-1'
+        '1.2.3-RC.2'   | 'incPrerelease' | null  || '1.2.3-0'
         '1.2.3-RC.2'   | 'incPrerelease' | 'RC'  || '1.2.3-RC.3'
     }
 
@@ -101,6 +110,9 @@ class SemVerTest extends Specification {
         '1.2.3.4-2'     || new IllegalArgumentException()
         '1.2.3'         || '1.2.3'
         '1.2.3-2'       || '1.2.3-2'
+        '1.2.3-RC'      || '1.2.3-RC.0'
         '1.2.3-RC.2'    || '1.2.3-RC.2'
+        '1.2.3-RC.M'    || '1.2.3-RC.M.0'
+        '1.2.3-RC.M.2'  || '1.2.3-RC.M.2'
     }
 }

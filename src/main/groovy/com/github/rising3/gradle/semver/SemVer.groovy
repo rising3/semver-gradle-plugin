@@ -27,7 +27,7 @@ class SemVer implements Comparable {
     /**
      * Default pre-release number.
      */
-    private static final int DEFAULT_PRERELEASE_NO = 1
+    private static final int DEFAULT_PRERELEASE_NO = 0
 
     /**
      * major.
@@ -177,6 +177,8 @@ class SemVer implements Comparable {
     int compareTo(Object o) {
         assert SemVer.class == o?.class
         def other = o as SemVer
+
+        // compare major.minor.patch
         def cmp = this.major <=> other.major
         if (!cmp) {
             cmp = this.minor <=> other.minor
@@ -184,13 +186,21 @@ class SemVer implements Comparable {
         if (!cmp) {
             cmp = this.patch <=> other.patch
         }
-        if (!cmp) {
-            cmp = this.preid <=> other.preid
+
+        // compare pre-id.pre-release
+        def pre = this.preid <=> other.preid
+        if (!pre) {
+            pre = this.prerelease <=> other.prerelease
         }
-        if (!cmp) {
-            cmp = this.prerelease <=> other.prerelease
+
+        // 1.0.0.RC.1 < 1.0.0
+        // https://semver.org/#semantic-versioning-specification-semver
+        if (cmp == 0 && (this.prerelease == null || other.prerelease == null)) {
+            return pre * -1
         }
-        return cmp
+        else {
+            return cmp != 0 ? cmp : pre
+        }
     }
 
     /**
@@ -212,26 +222,59 @@ class SemVer implements Comparable {
      */
     static SemVer parse(String s)	{
         assert s
-
-        def p = [
-                s.find(/^\d+\.\d+\.\d+-\w+\.\d+$/),
-                s.find(/^\d+\.\d+\.\d+-\d+$/),
-                s.find(/^\d+\.\d+\.\d+$/),
-        ].findAll {it != null }
-
-        if (p.isEmpty()) {
+        def r = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?${'$'}/
+        def m = s =~ r
+        if (!m.find()) {
             throw new IllegalArgumentException("Illegal Argument: $s")
         }
-        def v = p[0].replaceAll(/-/, '.').split(/\./)
-        switch (v.size()) {
-            case 5:
-                new SemVer(v[0].toInteger(), v[1].toInteger(), v[2].toInteger(), v[3], v[4].toInteger())
-                break
-            case 4:
-                new SemVer(v[0].toInteger(), v[1].toInteger(), v[2].toInteger(), null, v[3].toInteger())
-                break
-            default:
-                new SemVer(v[0].toInteger(), v[1].toInteger(), v[2].toInteger())
+        def major = m[0][1].toString().toInteger()
+        def minor = m[0][2].toString().toInteger()
+        def patch = m[0][3].toString().toInteger()
+        def wk = m[0][4]?.toString()?.split(/\./)
+        def wkSize = (wk?.size() ?: 0)
+        def preid = null
+        if (wkSize == 1) {
+            preid = toIntOrNull(wk[0]) == null ? wk[0] : null
+        } else if (wkSize > 1) {
+            def t = toIntOrNull(wk?.last()) == null ? 0 : 1
+            preid = joinToString(wk, ".", wkSize - t)
+        }
+        def prerelease = toIntOrNull(m[0][4])
+                ?: toIntOrNull(wk?.last())
+                ?: preid == null ? null : 0
+        new SemVer(major, minor, patch, preid, prerelease)
+    }
+
+    /**
+     * to int.
+     *
+     * @param n number
+     * @return int.If invalid a number format, to null.
+     */
+    private static Integer toIntOrNull(Object n) {
+        try {
+            return Integer.parseInt(n?.toString())
+        } catch (NumberFormatException e) {
+            return null
+        }
+    }
+
+    /**
+     * Join arrays,convert to string.
+     *
+     * @param v array values
+     * @param separator separator
+     * @param limit join  limit of join arrays
+     * @return join string
+     */
+    private static String joinToString(String[] v, String separator = ".", int limit = -1) {
+        assert v
+        if (limit == -1) {
+            return v.join(separator)
+        } else {
+            def wk = []
+            wk.addAll(v.take(limit))
+            return wk.join(separator)
         }
     }
 }
