@@ -116,7 +116,7 @@ class SemVerActionTest extends Specification {
 
         then:
         result != null
-        result.toString() == '2.0.0-M.1'
+        result.toString() == '2.0.0-M.0'
         target.isNewVersion()
         !target.isUserInteraction()
     }
@@ -130,7 +130,7 @@ class SemVerActionTest extends Specification {
 
         then:
         result != null
-        result.toString() == '1.1.0-M.1'
+        result.toString() == '1.1.0-M.0'
         target.isNewVersion()
         !target.isUserInteraction()
     }
@@ -144,7 +144,7 @@ class SemVerActionTest extends Specification {
 
         then:
         result != null
-        result.toString() == '1.0.1-M.1'
+        result.toString() == '1.0.1-M.0'
         target.isNewVersion()
         !target.isUserInteraction()
     }
@@ -158,7 +158,7 @@ class SemVerActionTest extends Specification {
 
         then:
         result != null
-        result.toString() == '1.0.0-M.1'
+        result.toString() == '1.0.0-M.0'
         target.isNewVersion()
         !target.isUserInteraction()
     }
