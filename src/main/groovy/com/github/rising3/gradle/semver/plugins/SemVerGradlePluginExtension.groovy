@@ -46,6 +46,11 @@ class SemVerGradlePluginExtension {
     boolean noGitCommand = false
 
     /**
+     * Disable git init.
+     */
+    boolean noGitInit = true
+
+    /**
      * Disable git tag version.
      */
     boolean noGitTagVersion = false

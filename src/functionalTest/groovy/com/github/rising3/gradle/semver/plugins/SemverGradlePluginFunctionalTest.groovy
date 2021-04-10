@@ -41,6 +41,7 @@ class SemverGradlePluginFunctionalTest extends Specification {
                 |semver {
                 |   noGitCommand = false
                 |   noGitTagVersion = false
+                |   noGitInit = false
                 |}
                 |tasks.semver.configure {
                 |   doFirst {

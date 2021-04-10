@@ -12,7 +12,7 @@ You need to add the following lines to your `build.gradle` file:
 
 ```
 plugins {
-    id 'com.github.riging3.semver' version '0.3.1'
+    id 'com.github.riging3.semver' version '0.4.0'
 }
 ```
 
@@ -176,6 +176,7 @@ filename | String | 'gradle.properties' | Change the filename of `version` prope
 versionTagPrefix | String | 'v' | Change the prefix of the git tag.
 versionGitMessage | String  | 'v%s' | Change the git message. Where %s is the version string.
 noGitCommand | boolean | false | Even enable or disable the git command behavior entirely.
+noGitInit |boolean  | false | Even enable or disable the git init behavior entirely.
 noGitTagVersion |boolean  | false | Even enable or disable the git tagging behavior entirely.
 noPackageJson |boolean  | false | Even enable or disable versioning the package.json.
 
@@ -187,8 +188,9 @@ For example, add with this `build.gradle` file:
 semver {
     versionTagPrefix = 'v'
     versionGitMessage = 'v%s'
-    noGitTagVersion = false
     noGitCommand = false
+    noGitInit = false
+    noGitTagVersion = false
     noPackageJson = false
 }
 ```

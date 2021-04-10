@@ -56,7 +56,8 @@ class GitProvider implements ScmProvider {
 					.build()
 			this.git = new Git(repository)
 		} catch(Exception e) {
-			log.warn("WARN: Not work JGit.", e)
+			log.warn("WARN: Not work JGit.")
+			log.debug(".git is not exist", e)
 		}
 	}
 
