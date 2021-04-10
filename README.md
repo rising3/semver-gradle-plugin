@@ -176,7 +176,7 @@ filename | String | 'gradle.properties' | Change the filename of `version` prope
 versionTagPrefix | String | 'v' | Change the prefix of the git tag.
 versionGitMessage | String  | 'v%s' | Change the git message. Where %s is the version string.
 noGitCommand | boolean | false | Even enable or disable the git command behavior entirely.
-noGitInit |boolean  | false | Even enable or disable the git init behavior entirely.
+noGitInit |boolean  | true | Even enable or disable the git init behavior entirely.
 noGitTagVersion |boolean  | false | Even enable or disable the git tagging behavior entirely.
 noPackageJson |boolean  | false | Even enable or disable versioning the package.json.
 
