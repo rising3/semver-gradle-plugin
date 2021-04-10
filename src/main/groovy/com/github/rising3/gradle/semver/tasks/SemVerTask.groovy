@@ -152,7 +152,7 @@ class SemVerTask extends DefaultTask {
 	 * @return ScmAction
 	 */
 	private ScmAction newScmAction() {
-		ScmAction semVerAction = new ScmAction(new GitProvider(project.rootDir))
+		ScmAction semVerAction = new ScmAction(new GitProvider(project.rootDir, !(project.semver.noGitInit as Boolean)))
 		semVerAction.setNoCommand(project.semver.noGitCommand as Boolean)
 		semVerAction.setNoTagVersion(project.semver.noGitTagVersion as Boolean)
 		semVerAction.setVersionMessage(project.semver.versionGitMessage as String)
