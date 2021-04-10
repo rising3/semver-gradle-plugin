@@ -91,9 +91,9 @@ class SemVerTask extends DefaultTask {
 		final json = VersionJson.load(packageJson)
 
 		if (project.version == 'unspecified') {
-			def pv = SemVer.parse(props['version'])
+			def pv = SemVer.parse(props['version'] as String)
 			def jv = SemVer.parse(json.content.version as String)
-			project.version = pv.compareTo(jv) == 1 ? pv.toString() : jv.toString()
+			project.version = jv < pv ? pv.toString() : jv.toString()
 		}
 
 		final SemVerAction semVerAction = newSemVerAction()
@@ -102,7 +102,7 @@ class SemVerTask extends DefaultTask {
 		if (semVerAction.isUserInteraction()) {
 			def question = "info Current version: ${project.version}\nquestion New version: "
 			def inputHandler = getServices().get(UserInputHandler.class)
-			def inputVersion = inputHandler.askQuestion(question, project.version)
+			def inputVersion = inputHandler.askQuestion(question, project.version as String)
 			semVerAction.setNewVersion(inputVersion)
 			semVerAction()
 		}
@@ -112,7 +112,7 @@ class SemVerTask extends DefaultTask {
 			def files = []
 			if (!isPackageJson || (isPackageJson && isFilename)) {
 				props['version'] = project.version
-				VersionProp.save(filename, props, 'Over writen by semver plugin')
+				VersionProp.save(filename, props, 'Over written by semver plugin')
 				files.push(Paths.get(filename).getFileName().toString())
 			}
 			if (isPackageJson && !project.semver.noPackageJson) {
@@ -120,7 +120,7 @@ class SemVerTask extends DefaultTask {
 				VersionJson.save(packageJson, json)
 				files.push(Paths.get(packageJson).getFileName().toString())
 			}
-			newScmAction()(project.version, files)
+			newScmAction()(project.version as String , files)
 			println "info New version: $project.version"
 		} else {
 			println "info No change version: $project.version"
@@ -133,7 +133,7 @@ class SemVerTask extends DefaultTask {
 	 * @return SemVerAction
 	 */
 	private SemVerAction newSemVerAction() {
-		SemVerAction semVerAction = new SemVerAction(project.version)
+		SemVerAction semVerAction = new SemVerAction(project.version as String)
 		semVerAction.setNewVersion(newVersion)
 		semVerAction.setMajor(major)
 		semVerAction.setMinor(minor)
@@ -152,11 +152,11 @@ class SemVerTask extends DefaultTask {
 	 * @return ScmAction
 	 */
 	private ScmAction newScmAction() {
-		ScmAction semVerAction = new ScmAction(new GitProvider(project.projectDir))
-		semVerAction.setNoCommand(project.semver.noGitCommand)
-		semVerAction.setNoTagVersion(project.semver.noGitTagVersion)
-		semVerAction.setVersionMessage(project.semver.versionGitMessage)
-		semVerAction.setVersionTagPrefix(project.semver.versionTagPrefix)
+		ScmAction semVerAction = new ScmAction(new GitProvider(project.rootDir))
+		semVerAction.setNoCommand(project.semver.noGitCommand as Boolean)
+		semVerAction.setNoTagVersion(project.semver.noGitTagVersion as Boolean)
+		semVerAction.setVersionMessage(project.semver.versionGitMessage as String)
+		semVerAction.setVersionTagPrefix(project.semver.versionTagPrefix as String)
 		semVerAction
 	}
 }
