@@ -83,8 +83,8 @@ class SemVerTask extends DefaultTask {
 	 */
 	@TaskAction
 	def action() {
-		final filename = "$project.projectDir/$project.semver.filename"
-		final packageJson = "$project.projectDir/package.json"
+		final filename = "$project.rootDir/$project.semver.filename"
+		final packageJson = "$project.rootDir/package.json"
 		final isFilename = Files.exists(Paths.get(filename))
 		final isPackageJson = Files.exists(Paths.get(packageJson))
 		final props = VersionProp.load(filename)
