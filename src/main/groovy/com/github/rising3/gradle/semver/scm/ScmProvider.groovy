@@ -24,14 +24,14 @@ interface ScmProvider {
 	/**
 	 * Create an empty SCM repository.
 	 *
-	 * @param projectDir
+	 * @param dir SCM dir.
 	 */
-	void init(File projectDir)
+	void init(File dir)
 
 	/**
 	 * Add file contents to the index.
 	 *
-	 * @param filePattern
+	 * @param filePattern file pattern.
 	 */
 	void add(String filePattern)
 
