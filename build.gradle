@@ -35,7 +35,6 @@ java {
 repositories {
     mavenLocal()
     mavenCentral()
-    jcenter()
     maven() { url = "https://maven.pkg.github.com/rising3/semver" }
 }
 
@@ -86,9 +85,7 @@ tasks.register("functionalTest", Test) {
     classpath = sourceSets.functionalTest.runtimeClasspath
 }
 
-tasks.named("check") {
-    dependsOn(tasks.functionalTest)
-}
+tasks.check.dependsOn functionalTest
 
 test {
     finalizedBy jacocoTestReport
