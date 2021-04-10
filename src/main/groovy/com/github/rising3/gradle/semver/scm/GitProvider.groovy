@@ -41,15 +41,18 @@ class GitProvider implements ScmProvider {
 	/**
 	 * Constructor.
 	 *
-	 * @param projectDir project directory
+	 * @param dir git directory
+	 * @param isInit if '.git' is not exists, execute 'git init'
 	 * @return GitGitProvider
 	 */
-	GitProvider(File projectDir) {
+	GitProvider(File dir, boolean isInit = true) {
+		if (isInit) {
+			init(dir)
+		}
 		try {
-			init(projectDir)
 			Repository repository = new RepositoryBuilder()
 					.readEnvironment()
-					.findGitDir(projectDir)
+					.findGitDir(dir)
 					.build()
 			this.git = new Git(repository)
 		} catch(Exception e) {
@@ -94,10 +97,10 @@ class GitProvider implements ScmProvider {
 	}
 
 	@Override
-	void init(File projectDir){
-		if (!Paths.get(projectDir.toString(), ".git").toFile().exists()) {
-			log.debug("git init ${projectDir}")
-			Git.init()?.setDirectory(projectDir)?.setBare(false)?.call()
+	void init(File dir) {
+		if (!Paths.get(dir.toString(), ".git").toFile().exists()) {
+			log.debug("git init ${dir}")
+			Git.init()?.setDirectory(dir)?.setBare(false)?.call()
 		}
 	}
 
