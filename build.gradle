@@ -5,7 +5,6 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
-        jcenter()
     }
     dependencies {
         classpath "com.github.rising3:semver-gradle-plugin:0.4.0"
@@ -38,14 +37,14 @@ java {
 repositories {
     mavenLocal()
     mavenCentral()
-    maven() { url = "https://maven.pkg.github.com/rising3/semver" }
 }
 
 dependencies {
     implementation gradleApi()
     implementation localGroovy()
     implementation "org.eclipse.jgit:org.eclipse.jgit:5.10.0.202012080955-r"
-    testImplementation "org.spockframework:spock-core:2.0-M5-groovy-3.0"
+    testImplementation platform("org.spockframework:spock-bom:2.0-groovy-3.0")
+    testImplementation "org.spockframework:spock-core"
 }
 
 gradlePlugin {
@@ -96,6 +95,7 @@ tasks.register("functionalTest", Test) {
 tasks.check.dependsOn functionalTest
 
 test {
+    useJUnitPlatform()
     finalizedBy jacocoTestReport
 }
 
