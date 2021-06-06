@@ -83,19 +83,24 @@ sourceSets {
     }
 }
 
-gradlePlugin.testSourceSets(sourceSets.functionalTest)
-
-configurations.functionalTestImplementation.extendsFrom(configurations.testImplementation)
-
-tasks.register("functionalTest", Test) {
+task functionalTest(type: Test) {
+    description = 'Runs the functional tests.'
+    group = 'verification'
     testClassesDirs = sourceSets.functionalTest.output.classesDirs
     classpath = sourceSets.functionalTest.runtimeClasspath
 }
 
 tasks.check.dependsOn functionalTest
 
-test {
+gradlePlugin.testSourceSets(sourceSets.functionalTest)
+
+configurations.functionalTestImplementation.extendsFrom(configurations.testImplementation)
+
+tasks.withType(Test).configureEach {
     useJUnitPlatform()
+}
+
+test {
     finalizedBy jacocoTestReport
 }
 
@@ -129,6 +134,7 @@ spotless {
     }
 }
 
+
 license {
     header = rootProject.file("codequality/HEADER")
     strictCheck = true
@@ -137,7 +143,7 @@ license {
     license.ext["email"] = project.findProperty("email")
 }
 
-tasks.semver.dependsOn test
+tasks.semver.dependsOn check
 
 tasks.semver.configure {
     doFirst {
