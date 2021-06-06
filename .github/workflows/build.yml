@@ -7,19 +7,25 @@ on:
   workflow_dispatch:
 jobs:
   build:
+    environment:
+      name: env_cicd
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v2
         with:
-          java-version: 11
+          distribution: 'adopt'
+          java-version: 15
       - name: version
-        run: gradle -v
+        run: ./gradlew -v
       - name: Create ~/.gradle/gradle.properties
+        env:
+          ENV_AUTHOR: ${{ secrets.author }}
+          ENV_EMAIL: ${{ secrets.email }}
         run: |
           cat << EOS > ~/.gradle/gradle.properties
-          author=rising3
-          email=michio.nakagawa@gmail.com
+          author=$ENV_AUTHOR
+          email=$ENV_EMAIL
           EOS
       - name: Build
-        run: gradle build
+        run: ./gradlew build
