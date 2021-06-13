@@ -59,4 +59,10 @@ class SemVerGradlePluginExtension {
      * Disable package.json
      */
     boolean noPackageJson = false
+
+    /**
+     * Where version info should be stored.
+     * choices are FILE and TAG
+     */
+    String manageVersion = 'FILE'
 }

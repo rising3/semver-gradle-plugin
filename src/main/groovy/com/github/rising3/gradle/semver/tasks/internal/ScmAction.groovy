@@ -73,7 +73,7 @@ class ScmAction {
             scm.commit(message)
             if (!noTagVersion) {
                 def tag = "${versionTagPrefix}${version}"
-                scm.tag(tag, message, true)
+                scm.tag(tag, message, true, false)
             }
         }
     }

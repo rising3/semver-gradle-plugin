@@ -48,6 +48,30 @@ interface ScmProvider {
 	 * @param name tag name
 	 * @param message message
 	 * @param annotated annotated tag object
+	 * @param push will push to remote if true
 	 */
-	void tag(String name, String message, boolean annotated)
+	void tag(String name, String message, boolean annotated, boolean push)
+
+	/**
+	 * returns list of all tags starting with prefix.
+	 * does not include scm-related internals.
+	 * i.e. will return tagname instead of refs/tags/tagname
+	 * in case git is used as SCM
+	 *
+	 * @param prefix
+	 * @return list of all tags starting with prefix
+	 */
+	List<String> getAllTagNamesWithPrefix(String prefix);
+
+	/**
+	 * creates branch with name specified
+	 * @param name
+	 */
+	void createBranch(String name)
+
+	/**
+	 * returns name of current branch
+	 * @return
+	 */
+	String currentBranch();
 }

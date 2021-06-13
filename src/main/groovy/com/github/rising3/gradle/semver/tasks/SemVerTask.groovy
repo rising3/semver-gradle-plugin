@@ -19,6 +19,7 @@ import com.github.rising3.gradle.semver.SemVer
 import com.github.rising3.gradle.semver.scm.GitProvider
 import com.github.rising3.gradle.semver.tasks.internal.ScmAction
 import com.github.rising3.gradle.semver.tasks.internal.SemVerAction
+import groovy.json.JsonBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.internal.tasks.userinput.UserInputHandler
 import org.gradle.api.tasks.Input
@@ -70,6 +71,8 @@ class SemVerTask extends DefaultTask {
 	@Option( option = 'preid', description = 'Adds an identifier specified by <pre-identifier> to be used to prefix premajor, preminor, prepatch or prerelease version increments')
 	String preid = ''
 
+	private GitProvider gitProvider;
+
 	/**
 	 * Constructor.
 	 */
@@ -91,9 +94,7 @@ class SemVerTask extends DefaultTask {
 		final json = VersionJson.load(packageJson)
 
 		if (project.version == 'unspecified') {
-			def pv = SemVer.parse(props['version'] as String)
-			def jv = SemVer.parse(json.content.version as String)
-			project.version = jv < pv ? pv.toString() : jv.toString()
+			project.version = getProjectVersion(props, json)
 		}
 
 		final SemVerAction semVerAction = newSemVerAction()
@@ -110,7 +111,7 @@ class SemVerTask extends DefaultTask {
 		if (semVerAction.isNewVersion()) {
 			project.version = semVerAction.toString()
 			def files = []
-			if (!isPackageJson || (isPackageJson && isFilename)) {
+			if (!isPackageJson || isFilename) {
 				props['version'] = project.version
 				VersionProp.save(filename, props, 'Over written by semver plugin')
 				files.push(Paths.get(filename).getFileName().toString())
@@ -125,6 +126,30 @@ class SemVerTask extends DefaultTask {
 		} else {
 			println "info No change version: $project.version"
 		}
+	}
+
+	private String getProjectVersion(Properties props, JsonBuilder json) {
+		final getVersionFromGitTag = !project.semver.noGitCommand
+				&& !project.semver.noGitTagVersion
+				&& shouldStoreVersionInGit();
+
+		final List<SemVer> versions = [
+				SemVer.parse(props['version'] as String),
+				SemVer.parse(json.content.version as String)]
+
+		if (getVersionFromGitTag) {
+			final VersionScm versionScm = new VersionScm(getGitProvider());
+			final SemVer versionFromScm = versionScm.readLastTagForCurrentBranch()
+			if(versionFromScm != null) {
+				versions.add(versionFromScm);
+			}
+		}
+
+		return versions.max().toString()
+	}
+
+	private boolean shouldStoreVersionInGit() {
+		return project.semver.manageVersion == 'GIT'
 	}
 
 	/**
@@ -152,11 +177,18 @@ class SemVerTask extends DefaultTask {
 	 * @return ScmAction
 	 */
 	private ScmAction newScmAction() {
-		ScmAction semVerAction = new ScmAction(new GitProvider(project.rootDir, !(project.semver.noGitInit as Boolean)))
+		ScmAction semVerAction = new ScmAction(getGitProvider())
 		semVerAction.setNoCommand(project.semver.noGitCommand as Boolean)
 		semVerAction.setNoTagVersion(project.semver.noGitTagVersion as Boolean)
 		semVerAction.setVersionMessage(project.semver.versionGitMessage as String)
 		semVerAction.setVersionTagPrefix(project.semver.versionTagPrefix as String)
 		semVerAction
+	}
+
+	private final GitProvider getGitProvider() {
+		if(gitProvider == null) {
+			gitProvider = new GitProvider(project.rootDir, !(project.semver.noGitInit as Boolean));
+		}
+		return gitProvider;
 	}
 }

@@ -41,7 +41,7 @@ class ScmActionTest extends Specification {
         then:
         1 * scm.add('filename')
         1 * scm.commit('version 1.0.0 release')
-        1 * scm.tag('ver1.0.0', 'version 1.0.0 release', true)
+        1 * scm.tag('ver1.0.0', 'version 1.0.0 release', true, false)
     }
 
     def "No SCM command"() {
@@ -57,7 +57,7 @@ class ScmActionTest extends Specification {
         then:
         0 * scm.add('filename')
         0 * scm.commit('v1.0.0')
-        0 * scm.tag('v1.0.0', 'v1.0.0', true)
+        0 * scm.tag('v1.0.0', 'v1.0.0', true, false)
     }
 
     def "No tag version"() {
@@ -73,6 +73,6 @@ class ScmActionTest extends Specification {
         then:
         1 * scm.add('filename')
         1 * scm.commit('v1.0.0')
-        0 * scm.tag('v1.0.0', 'v1.0.0', true)
+        0 * scm.tag('v1.0.0', 'v1.0.0', true, false)
     }
 }

@@ -15,7 +15,9 @@
  */
 package com.github.rising3.gradle.semver.scm
 
+
 import groovy.util.logging.Slf4j
+import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.Status
 import org.eclipse.jgit.lib.Ref
@@ -33,6 +35,7 @@ import java.nio.file.Paths
  */
 @Slf4j
 class GitProvider implements ScmProvider {
+	private static final String GIT_TAG_PREFIX = "refs/tags/"
 	/**
 	 * JGit.
 	 */
@@ -98,6 +101,24 @@ class GitProvider implements ScmProvider {
 	}
 
 	@Override
+	String currentBranch() {
+		return git?.getRepository()?.getBranch();
+	}
+
+	@Override
+	List<String> getAllTagNamesWithPrefix(String prefix) {
+		final List<String> tagNames = new ArrayList<>();
+		git?.tagList()?.call()?.forEach() { it -> tagNames.add(it.getName())}
+		List<String> tags = new ArrayList<>()
+		tagNames.forEach({it ->
+			if(it.startsWith(GIT_TAG_PREFIX + prefix)){
+				tags.add(it.substring(GIT_TAG_PREFIX.length()));
+			}
+		});
+		return tags
+	}
+
+	@Override
 	void init(File dir) {
 		if (!Paths.get(dir.toString(), ".git").toFile().exists()) {
 			log.debug("git init ${dir}")
@@ -118,8 +139,21 @@ class GitProvider implements ScmProvider {
 	}
 
 	@Override
-	void tag(String name, String message, boolean annotated) {
+	void tag(String name, String message, boolean annotated, boolean push) {
 		log.debug("git ${annotated ? '-a' : ''} ${name} -m '${message}'")
 		git?.tag()?.setAnnotated(annotated)?.setName(name)?.setMessage(message)?.call()
+		if(push) {
+			log.debug("push git tags to remote")
+			git?.push()?.setPushTags()?.call();//TODO: test if this works
+		}
+	}
+
+	@Override
+	void createBranch(String name) {
+		git?.checkout()
+				?.setCreateBranch(true)
+				?.setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.NOTRACK)
+				?.setName(name)
+				?.call();
 	}
 }

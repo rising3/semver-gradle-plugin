@@ -62,7 +62,7 @@ class GitProviderTest extends Specification {
         when:
         target.add(['README.md'])
         target.commit('test')
-        target.tag('new-tag', 'message', true)
+        target.tag('new-tag', 'message', true, false)
 
         then:
         def result = target.tagList()
@@ -72,7 +72,7 @@ class GitProviderTest extends Specification {
 
     def "no head"() {
         when:
-        target.tag('new-tag', 'message', true)
+        target.tag('new-tag', 'message', true, false)
 
         then:
         thrown(NoHeadException)
