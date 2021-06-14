@@ -36,6 +36,11 @@ class SemVerGradlePluginExtension {
     String versionTagPrefix = 'v'
 
     /**
+     * prefix for maintenance branch names
+     */
+    String maintenanceBranchPrefix = 'release_'
+
+    /**
      * version git message.
      */
     String versionGitMessage = 'v%s'

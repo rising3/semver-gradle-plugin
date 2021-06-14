@@ -15,7 +15,7 @@ class VersionGitTest extends Specification {
         newFileWithContents("README.md", "README")
 
         provider = new GitProvider(scmDir)
-        target = new VersionScm(provider)
+        target = new VersionScm(provider,'v','release_')
 
     }
 
@@ -28,7 +28,7 @@ class VersionGitTest extends Specification {
 
     def "VersionGit should return null if not on release branch"() {
         when:
-        SemVer sv = target.readLastTagForCurrentBranch()
+        SemVer sv = target.getVersionFromScm()
         then:
         sv == null;
     }
@@ -43,7 +43,7 @@ class VersionGitTest extends Specification {
         provider.commit('test')
         provider.tag('v1.0.2', 'Release version 1.0.2', true, false)
         when:
-        SemVer sv = target.readLastTagForCurrentBranch()
+        SemVer sv = target.getVersionFromScm()
         then:
         sv.getMajor() == 1
         sv.getMinor() == 0
@@ -67,7 +67,7 @@ class VersionGitTest extends Specification {
 
         provider.tag('v1.0.3', 'Release version 1.0.3', true, false)
         when:
-        SemVer sv = target.readLastTagForCurrentBranch()
+        SemVer sv = target.getVersionFromScm()
         then:
         sv.getMajor() == 1
         sv.getMinor() == 0
@@ -90,12 +90,31 @@ class VersionGitTest extends Specification {
 
         provider.tag('v1.2.3', 'Release version 1.2.3', true, false)
         when:
-        SemVer sv = target.readLastTagForCurrentBranch()
+        SemVer sv = target.getVersionFromScm()
         then:
         sv.getMajor() == 1
         sv.getMinor() == 0
         sv.getPatch() == 2
     }
+
+
+    def "VersionGit should version from branch name if there are no matching tags yet"() {
+        given:
+        provider.add(['README.md'])
+        provider.commit('test')
+        provider.createBranch("release_1.0.x")
+        newFileWithContents("test1", "test1")
+        provider.add(['test1'])
+        provider.commit('test')
+
+        when:
+        SemVer sv = target.getVersionFromScm()
+        then:
+        sv.getMajor() == 1
+        sv.getMinor() == 0
+        sv.getPatch() == 0
+    }
+
 
 
     private void newFileWithContents(String filename, String contents){

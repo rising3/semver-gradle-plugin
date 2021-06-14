@@ -138,8 +138,10 @@ class SemVerTask extends DefaultTask {
 				SemVer.parse(json.content.version as String)]
 
 		if (getVersionFromGitTag) {
-			final VersionScm versionScm = new VersionScm(getGitProvider());
-			final SemVer versionFromScm = versionScm.readLastTagForCurrentBranch()
+			final VersionScm versionScm = new VersionScm(getGitProvider(),
+					project.semver.versionTagPrefix,
+					project.semver.maintenanceBranchPrefix);
+			final SemVer versionFromScm = versionScm.getVersionFromScm()
 			if(versionFromScm != null) {
 				versions.add(versionFromScm);
 			}
@@ -149,7 +151,7 @@ class SemVerTask extends DefaultTask {
 	}
 
 	private boolean shouldStoreVersionInGit() {
-		return project.semver.manageVersion == 'GIT'
+		return VersionStorageType.valueOf((String)project.semver.manageVersion) == VersionStorageType.GIT
 	}
 
 	/**
