@@ -50,6 +50,11 @@ class ScmAction {
     boolean noTagVersion
 
     /**
+     * commit changed files
+     */
+    boolean commitVersionFiles = true;
+
+    /**
      * Constructor.
      *
      * @param scm SCM Provider.
@@ -68,9 +73,11 @@ class ScmAction {
         assert scm !=null
 
         if (!noCommand) {
-            filenames.forEach({ scm.add(it) })
             def message = String.format(versionMessage, version)
-            scm.commit(message)
+            if(commitVersionFiles) {
+                filenames.forEach({ scm.add(it) })
+                scm.commit(message)
+            }
             if (!noTagVersion) {
                 def tag = "${versionTagPrefix}${version}"
                 scm.tag(tag, message, true, false)

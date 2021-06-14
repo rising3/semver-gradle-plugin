@@ -184,6 +184,7 @@ class SemVerTask extends DefaultTask {
 		semVerAction.setNoTagVersion(project.semver.noGitTagVersion as Boolean)
 		semVerAction.setVersionMessage(project.semver.versionGitMessage as String)
 		semVerAction.setVersionTagPrefix(project.semver.versionTagPrefix as String)
+		semVerAction.setCommitVersionFiles(!shouldStoreVersionInGit())
 		semVerAction
 	}
 
