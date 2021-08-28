@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.rising3.gradle.semver.scm
+package com.github.rising3.gradle.semver.git
 
 import groovy.util.logging.Slf4j
 import org.eclipse.jgit.api.Git
@@ -23,6 +23,8 @@ import org.eclipse.jgit.lib.ReflogEntry
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.RepositoryBuilder
 import org.eclipse.jgit.revwalk.RevCommit
+import org.eclipse.jgit.transport.CredentialsProvider
+import org.eclipse.jgit.transport.RefSpec
 
 import java.nio.file.Paths
 
@@ -32,11 +34,16 @@ import java.nio.file.Paths
  * @author rising3
  */
 @Slf4j
-class GitProvider implements ScmProvider {
+class GitProviderImpl implements GitProvider {
 	/**
 	 * JGit.
 	 */
 	private Git git
+
+	/**
+	 * Credential provider.
+	 */
+	private CredentialsProvider cp
 
 	/**
 	 * Constructor.
@@ -45,7 +52,7 @@ class GitProvider implements ScmProvider {
 	 * @param isInit if '.git' is not exists, execute 'git init'
 	 * @return GitGitProvider
 	 */
-	GitProvider(File dir, boolean isInit = true) {
+	GitProviderImpl(File dir, boolean isInit = true) {
 		if (isInit) {
 			init(dir)
 		}
@@ -55,46 +62,12 @@ class GitProvider implements ScmProvider {
 					.findGitDir(dir)
 					.build()
 			this.git = new Git(repository)
+			this.cp = new EnvironmentVariableCredentialsProvider().getCredentials()
+					?: new SystemPropertyCredentialsProvider().getCredentials()
 		} catch(Exception e) {
 			log.warn("WARN: Not work JGit.")
 			log.debug(".git is not exist", e)
 		}
-	}
-
-	/**
-	 * Get git status.
-	 *
-	 * @return Status
-	 */
-	Status status() {
-		git?.status()?.call()
-	}
-
-	/**
-	 * Get Git reflog list.
-	 *
-	 * @return ReflogEntries
-	 */
-	Collection<ReflogEntry> reflog() {
-		git?.reflog()?.call()
-	}
-
-	/**
-	 * Get git log list.
-	 *
-	 * @return RevCommits
-	 */
-	Iterable<RevCommit> log() {
-		git?.log()?.call()
-	}
-
-	/**
-	 * Get git tag list.
-	 *
-	 * @return tag list.
-	 */
-	List<Ref> tagList() {
-		git?.tagList()?.call()
 	}
 
 	@Override
@@ -121,5 +94,38 @@ class GitProvider implements ScmProvider {
 	void tag(String name, String message, boolean annotated) {
 		log.debug("git ${annotated ? '-a' : ''} ${name} -m '${message}'")
 		git?.tag()?.setAnnotated(annotated)?.setName(name)?.setMessage(message)?.call()
+	}
+
+	@Override
+	Status status() {
+		git?.status()?.call()
+	}
+
+	@Override
+	Collection<ReflogEntry> reflog() {
+		git?.reflog()?.call()
+	}
+
+	@Override
+	Iterable<RevCommit> log() {
+		git?.log()?.call()
+	}
+
+	@Override
+	List<Ref> tagList() {
+		git?.tagList()?.call()
+	}
+
+	@Override
+	String getBranch() {
+		git?.getRepository()?.getBranch()
+	}
+
+	@Override
+	void push(String remote, String ref) {
+		def refSpec = new RefSpec("$ref:$ref")
+		cp == null
+				? git?.push()?.setRemote(remote)?.setRefSpecs(refSpec)?.call()
+				: git?.push()?.setRemote(remote)?.setRefSpecs(refSpec)?.setCredentialsProvider(cp)?.call()
 	}
 }

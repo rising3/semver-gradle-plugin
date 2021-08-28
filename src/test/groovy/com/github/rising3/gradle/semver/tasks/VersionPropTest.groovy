@@ -21,9 +21,9 @@ import spock.lang.Specification
 import java.nio.file.Paths
 
 class VersionPropTest extends Specification {
-    def projectDir = new File("build/test/com/github/rising3/gradle/semver/tasks/VersionPropTest")
-    def propPath = Paths.get(projectDir.toString(), "gradle.properties")
-    def propBakPath = Paths.get("${propPath}.bak")
+    private final projectDir = new File("build/test/com/github/rising3/gradle/semver/tasks/VersionPropTest")
+    private final propPath = Paths.get(projectDir.toString(), "gradle.properties")
+    private final propBakPath = Paths.get("${propPath}.bak")
 
     def setup() {
         cleanup()
@@ -36,12 +36,12 @@ class VersionPropTest extends Specification {
         }
     }
 
-    def "load version, not exist file"() {
+    def "Should get default version, if file is not exist"() {
         expect:
         VersionProp.load(propPath.toString())['version'] == '0.0.0'
     }
 
-    def "load version, not exist prop"() {
+    def "Should get default version, if empty"() {
         given:
         propPath.toFile().withWriter() {
             it << ""
@@ -51,7 +51,7 @@ class VersionPropTest extends Specification {
         VersionProp.load(propPath.toString())['version'] == '0.0.0'
     }
 
-    def "load version, exist props"() {
+    def "Should get version, if file is exist"() {
         given:
         propPath.toFile().withWriter() {
             it << "version=1.2.3"
@@ -61,7 +61,7 @@ class VersionPropTest extends Specification {
         VersionProp.load(propPath.toString())['version'] == '1.2.3'
     }
 
-    def "save version, not exist file"() {
+    def "Should save version, if file is not exist"() {
         given:
         def props = new Properties()
         props['version']='1.2.3'
@@ -75,7 +75,7 @@ class VersionPropTest extends Specification {
         !propBakPath.toFile().exists()
     }
 
-    def "save version, exist file"() {
+    def "Should save version, if file is exist"() {
         given:
         propPath.toFile().withWriter() {
             it << "version=1.2.3"

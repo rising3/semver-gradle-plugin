@@ -13,41 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.rising3.gradle.semver.scm
+package com.github.rising3.gradle.semver.tasks
 
 /**
- * SCM Provider.
+ * Git Operation.
  *
- * @author rising3
+ * @author rigin3
  */
-interface ScmProvider {
-	/**
-	 * Create an empty SCM repository.
-	 *
-	 * @param dir SCM dir.
-	 */
-	void init(File dir)
-
-	/**
-	 * Add file contents to the index.
-	 *
-	 * @param filePattern file pattern.
-	 */
-	void add(String filePattern)
-
-	/**
-	 * Record changes to the repository.
-	 *
-	 * @param message message
-	 */
-	void commit(String message)
-
-	/**
-	 * Create a tag object.
-	 *
-	 * @param name tag name
-	 * @param message message
-	 * @param annotated annotated tag object
-	 */
-	void tag(String name, String message, boolean annotated)
+interface GitOperation {
+    /**
+     * Execute git operation.
+     *
+     * @param version version string.
+     * @param filenames add file contents to the index.
+     */
+    def call(String version, List<String> filenames)
 }
