@@ -16,13 +16,14 @@
 package com.github.rising3.gradle.semver.tasks.internal
 
 import com.github.rising3.gradle.semver.SemVer
+import com.github.rising3.gradle.semver.tasks.ResolveNewVersion
 
 /**
- * SemVer Action.
+ * Resolve the new version like a yarn.
  *
  * @author rising3
  */
-class SemVerAction {
+class YarnResolveNewVersion implements ResolveNewVersion {
     /**
      * Project version.
      */
@@ -83,15 +84,11 @@ class SemVerAction {
      *
      * @param version project version.
      */
-    SemVerAction(String version) {
-        this.version = SemVer.parse(version).toString()
+    YarnResolveNewVersion(String version) {
+        this.version = SemVer.parse(version)
     }
 
-    /**
-     * Default method.
-     *
-     * @return SemVer.
-     */
+    @Override
     def call() {
         if (newVersion != null && newVersion != '') {
             semver = SemVer.parse(newVersion)
@@ -114,21 +111,13 @@ class SemVerAction {
         }
     }
 
-    /**
-     * Is user interaction?
-     *
-     * @return true ... user interaction.
-     */
-    boolean isUserInteraction() {
+    @Override
+    def isUserInteraction() {
         call() == null
     }
 
-    /**
-     * Is new version?
-     *
-     * @return true ... new version.
-     */
-    boolean isNewVersion() {
+    @Override
+    def isNewVersion() {
         semver != null && version != semver.toString()
     }
 

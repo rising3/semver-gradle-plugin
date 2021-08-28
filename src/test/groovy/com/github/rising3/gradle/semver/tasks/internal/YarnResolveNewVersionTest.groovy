@@ -17,11 +17,11 @@ package com.github.rising3.gradle.semver.tasks.internal
 
 import spock.lang.Specification
 
-class SemVerActionTest extends Specification {
-    private SemVerAction target
+class YarnResolveNewVersionTest extends Specification {
+    private YarnResolveNewVersion target
 
     def setup() {
-        target = new SemVerAction('1.0.0')
+        target = new YarnResolveNewVersion('1.0.0')
         target.setPreid('M')
     }
 
@@ -37,7 +37,7 @@ class SemVerActionTest extends Specification {
         target.isUserInteraction()
     }
 
-    def "Should not change version"() {
+    def "Should no change version"() {
         given:
         target.setNewVersion('1.0.0')
 

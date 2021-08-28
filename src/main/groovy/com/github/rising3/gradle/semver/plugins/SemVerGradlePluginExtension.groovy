@@ -26,6 +26,11 @@ import org.gradle.api.Project
 @ToString
 class SemVerGradlePluginExtension {
     /**
+     * manage version.
+     */
+    Target target = Target.FILE
+
+    /**
      * filename.
      */
     String filename = Project.GRADLE_PROPERTIES
@@ -51,9 +56,24 @@ class SemVerGradlePluginExtension {
     boolean noGitInit = true
 
     /**
+     * Disable git commit version.
+     */
+    boolean noGitCommitVersion = false
+
+    /**
      * Disable git tag version.
      */
     boolean noGitTagVersion = false
+
+    /**
+     * Disable git push.
+     */
+    boolean noGitPush = true
+
+    /**
+     * Disable git push tag.
+     */
+    boolean noGitPushTag = true
 
     /**
      * Disable package.json
