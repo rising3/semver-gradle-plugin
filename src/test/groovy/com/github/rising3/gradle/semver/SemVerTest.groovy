@@ -31,14 +31,14 @@ class SemVerTest extends Specification {
         1 | 2 | 3 | 'M'  | 1    | '1.2.3-M.1'
     }
 
-    def "to String"() {
+    def "Should to String"() {
         expect:
         SemVer.parse('1.2.3').toString() == '1.2.3'
     }
 
-    def "CompareTo"() {
+    def "Should compare version"() {
         expect:
-        s1.compareTo(s2) == r
+        s1 <=> s2 == r
 
         where:
         s1 | s2 || r
@@ -66,7 +66,7 @@ class SemVerTest extends Specification {
         SemVer.parse("1.0.0-rc.1") | SemVer.parse("1.0.0") | -1
     }
 
-    def "Increment version"() {
+    def "Should increment version"() {
         expect:
         SemVer.parse(s).invokeMethod(m, preid)?.toString() == r
 
@@ -87,7 +87,7 @@ class SemVerTest extends Specification {
         '1.2.3-RC.2'   | 'incPrerelease' | 'RC'  || '1.2.3-RC.3'
     }
 
-    def "Parse version"() {
+    def "Should parse version"() {
         expect:
         try {
             SemVer.parse(s).toString() == r
