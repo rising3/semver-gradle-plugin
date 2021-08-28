@@ -15,10 +15,13 @@
  */
 package com.github.rising3.gradle.semver.tasks
 
-import com.github.rising3.gradle.semver.SemVer
-import com.github.rising3.gradle.semver.scm.GitProvider
-import com.github.rising3.gradle.semver.tasks.internal.ScmAction
-import com.github.rising3.gradle.semver.tasks.internal.SemVerAction
+import com.github.rising3.gradle.semver.git.GitProviderImpl
+import com.github.rising3.gradle.semver.plugins.Target
+import com.github.rising3.gradle.semver.tasks.internal.FileResolveCurrentVersion
+import com.github.rising3.gradle.semver.tasks.internal.DefaultGitOperation
+import com.github.rising3.gradle.semver.tasks.internal.TagResolveCurrentVersion
+import com.github.rising3.gradle.semver.tasks.internal.YarnResolveNewVersion
+import com.github.rising3.gradle.semver.util.VersionUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.internal.tasks.userinput.UserInputHandler
 import org.gradle.api.tasks.Input
@@ -83,80 +86,180 @@ class SemVerTask extends DefaultTask {
 	 */
 	@TaskAction
 	def action() {
+		createTaskTemplate(project.semver.target as Target)()
+	}
+
+	/**
+	 * Create task template.
+	 *
+	 * @param mode task mode.
+	 * @return task template.
+	 */
+	private def createTaskTemplate(mode) {
+		mode == Target.FILE ? new FileTaskTemplate() : new TagTaskTemplate()
+	}
+
+	/**
+	 * Task template.
+	 */
+	private abstract class TaskTemplate {
 		final filename = "$project.rootDir/$project.semver.filename"
 		final packageJson = "$project.rootDir/package.json"
 		final isFilename = Files.exists(Paths.get(filename))
 		final isPackageJson = Files.exists(Paths.get(packageJson))
 		final props = VersionProp.load(filename)
 		final json = VersionJson.load(packageJson)
+		final git = new GitProviderImpl(project.rootDir, !(project.semver.noGitInit as Boolean))
 
-		if (project.version == 'unspecified') {
-			def pv = SemVer.parse(props['version'] as String)
-			def jv = SemVer.parse(json.content.version as String)
-			project.version = jv < pv ? pv.toString() : jv.toString()
+		/**
+		 * Default method.
+		 *
+		 * @return result.
+		 */
+		def call() {
+			prepareTask()
+
+			final currentVersion = resolveCurrentVersion()
+
+			project.version = currentVersion.toString()
+
+			final resolveNewVersion = resolveNewVersion()
+
+			if (resolveNewVersion.isNewVersion()) {
+				if (!VersionUtils.validateViolation(project.version, resolveNewVersion.toString())
+					|| !VersionUtils.validateBranchRange(git.getBranch(), resolveNewVersion.toString())) {
+					throw new InvalidVersionException("Invalid new version: ${resolveNewVersion.toString()}, current version: ${project.version}, current branch: ${git.getBranch()}")
+				}
+				project.version = resolveNewVersion.toString()
+				def files = []
+				if (!isPackageJson || (isPackageJson && isFilename)) {
+					props['version'] = project.version
+					VersionProp.save(filename, props, 'Over written by semver plugin')
+					files.push(Paths.get(filename).getFileName().toString())
+				}
+				if (isPackageJson && !project.semver.noPackageJson) {
+					json.content.version = project.version
+					VersionJson.save(packageJson, json)
+					files.push(Paths.get(packageJson).getFileName().toString())
+				}
+				if (!project.semver.noGitCommand) {
+					executeGitOperation(project.version as String, files)
+				}
+				println "info New version: $project.version"
+			} else {
+				println "info No change version: $project.version"
+			}
 		}
 
-		final SemVerAction semVerAction = newSemVerAction()
-		semVerAction()
+		/**
+		 * Prepare task.
+		 */
+		protected abstract def prepareTask()
 
-		if (semVerAction.isUserInteraction()) {
-			def question = "info Current version: ${project.version}\nquestion New version: "
-			def inputHandler = getServices().get(UserInputHandler.class)
-			def inputVersion = inputHandler.askQuestion(question, project.version as String)
-			semVerAction.setNewVersion(inputVersion)
-			semVerAction()
+		/**
+		 * Resolve current version.
+
+		 * @return ResolveCurrentVersion.
+		 */
+		protected abstract def resolveCurrentVersion()
+
+		/**
+		 * Resolve new version.
+		 *
+		 * @return ResolveNewVersion.
+		 */
+		protected abstract def resolveNewVersion()
+
+		/**
+		 * Execute yarn resolve new version.
+		 *
+		 * @return YarnResolveNewVersion.
+		 */
+		protected def executeYarnResolveNewVersion() {
+			YarnResolveNewVersion resolveNewVersion = new YarnResolveNewVersion(project.version as String)
+			resolveNewVersion.setNewVersion(newVersion)
+			resolveNewVersion.setMajor(major)
+			resolveNewVersion.setMinor(minor)
+			resolveNewVersion.setPatch(patch)
+			resolveNewVersion.setPremajor(premajor)
+			resolveNewVersion.setPreminor(preminor)
+			resolveNewVersion.setPrepatch(prepatch)
+			resolveNewVersion.setPrerelease(prerelease)
+			resolveNewVersion.setPreid(preid)
+
+			resolveNewVersion()
+
+			if (resolveNewVersion.isUserInteraction()) {
+				def question = "info Current version: ${project.version}\nquestion New version: "
+				def inputHandler = getServices().get(UserInputHandler.class)
+				def inputVersion = inputHandler.askQuestion(question, project.version as String)
+				resolveNewVersion.setNewVersion(inputVersion)
+				resolveNewVersion()
+			}
+
+			resolveNewVersion
 		}
 
-		if (semVerAction.isNewVersion()) {
-			project.version = semVerAction.toString()
-			def files = []
-			if (!isPackageJson || (isPackageJson && isFilename)) {
-				props['version'] = project.version
-				VersionProp.save(filename, props, 'Over written by semver plugin')
-				files.push(Paths.get(filename).getFileName().toString())
-			}
-			if (isPackageJson && !project.semver.noPackageJson) {
-				json.content.version = project.version
-				VersionJson.save(packageJson, json)
-				files.push(Paths.get(packageJson).getFileName().toString())
-			}
-			newScmAction()(project.version as String , files)
-			println "info New version: $project.version"
-		} else {
-			println "info No change version: $project.version"
+		/**
+		 * Execute git operation.
+		 *
+		 * @param version version string.
+		 * @param files add file contents to the index.
+		 */
+		protected def executeGitOperation(version, files) {
+			GitOperation gitOperation =  new DefaultGitOperation(
+					git,
+					project.semver.versionGitMessage as String,
+					project.semver.versionTagPrefix as String,
+					project.semver.noGitCommitVersion as Boolean,
+					project.semver.noGitTagVersion as Boolean,
+					project.semver.noGitPush as Boolean,
+					project.semver.noGitPushTag as Boolean)
+
+			gitOperation(version, files)
 		}
 	}
 
 	/**
-	 * New SemVer Action.
-	 *
-	 * @return SemVerAction
+	 * File task template.
 	 */
-	private SemVerAction newSemVerAction() {
-		SemVerAction semVerAction = new SemVerAction(project.version as String)
-		semVerAction.setNewVersion(newVersion)
-		semVerAction.setMajor(major)
-		semVerAction.setMinor(minor)
-		semVerAction.setPatch(patch)
-		semVerAction.setPremajor(premajor)
-		semVerAction.setPreminor(preminor)
-		semVerAction.setPrepatch(prepatch)
-		semVerAction.setPrerelease(prerelease)
-		semVerAction.setPreid(preid)
-		semVerAction
+	private class FileTaskTemplate extends TaskTemplate {
+		@Override
+		protected def prepareTask() {
+		}
+
+		@Override
+		protected def resolveCurrentVersion() {
+			new FileResolveCurrentVersion(filename, packageJson)()
+		}
+
+		@Override
+		protected def resolveNewVersion() {
+			executeYarnResolveNewVersion()
+		}
 	}
 
 	/**
-	 * New SCM Action.
-	 *
-	 * @return ScmAction
+	 * Tag task template.
 	 */
-	private ScmAction newScmAction() {
-		ScmAction semVerAction = new ScmAction(new GitProvider(project.rootDir, !(project.semver.noGitInit as Boolean)))
-		semVerAction.setNoCommand(project.semver.noGitCommand as Boolean)
-		semVerAction.setNoTagVersion(project.semver.noGitTagVersion as Boolean)
-		semVerAction.setVersionMessage(project.semver.versionGitMessage as String)
-		semVerAction.setVersionTagPrefix(project.semver.versionTagPrefix as String)
-		semVerAction
+	private class TagTaskTemplate extends TaskTemplate {
+		@Override
+		protected def prepareTask() {
+			project.semver.noGitCommand = false
+			project.semver.noGitCommitVersion = true
+			project.semver.noGitTagVersion = false
+			project.semver.noGitPush = true
+			project.semver.noGitPushTag =false
+		}
+
+		@Override
+		protected def resolveCurrentVersion() {
+			new TagResolveCurrentVersion(git, project.semver.versionTagPrefix as String)()
+		}
+
+		@Override
+		protected def resolveNewVersion() {
+			executeYarnResolveNewVersion()
+		}
 	}
 }

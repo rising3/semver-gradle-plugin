@@ -22,9 +22,9 @@ import spock.lang.Specification
 import java.nio.file.Paths
 
 class VersionJsonTest extends Specification {
-    def projectDir = new File("build/test/com/github/rising3/gradle/semver/tasks/VersionJsonTest")
-    def jsonPath = Paths.get(projectDir.toString(), "package.json")
-    def jsonBakPath = Paths.get("${jsonPath}.bak")
+    private final projectDir = new File("build/test/com/github/rising3/gradle/semver/tasks/VersionJsonTest")
+    private final jsonPath = Paths.get(projectDir.toString(), "package.json")
+    private final jsonBakPath = Paths.get("${jsonPath}.bak")
 
     def setup() {
         cleanup()
@@ -37,12 +37,12 @@ class VersionJsonTest extends Specification {
         }
     }
 
-    def "load version, not exist file"() {
+    def "Should get default version, if file is not exist"() {
         expect:
         VersionJson.load(jsonPath.toString()).content.version == '0.0.0'
     }
 
-    def "load version, not exist json"() {
+    def "Should get default version, if empty"() {
         given:
         jsonPath.toFile().withWriter() {
             it << ""
@@ -52,7 +52,7 @@ class VersionJsonTest extends Specification {
         VersionJson.load(jsonPath.toString()).content.version == '0.0.0'
     }
 
-    def "load version, exist json"() {
+    def "Should get version, if file is exist"() {
         given:
         jsonPath.toFile().withWriter() {
             it << """{"version": "1.2.3"}"""
@@ -62,7 +62,7 @@ class VersionJsonTest extends Specification {
         VersionJson.load(jsonPath.toString()).content.version == '1.2.3'
     }
 
-    def "save version, not exist file"() {
+    def "Should save version, if file is not exist"() {
         given:
         def json = new JsonBuilder()
         json {
@@ -80,7 +80,7 @@ class VersionJsonTest extends Specification {
         !jsonBakPath.toFile().exists()
     }
 
-    def "save version, exist file"() {
+    def "Should save version, if file is exist"() {
         given:
         jsonPath.toFile().withWriter() {
             it << """{"version": "1.2.3"}"""

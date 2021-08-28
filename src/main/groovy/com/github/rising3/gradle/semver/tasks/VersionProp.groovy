@@ -28,9 +28,14 @@ import java.nio.file.StandardCopyOption
  */
 @Slf4j
 final class VersionProp {
+	/**
+	 * Private constructor.
+	 */
+	private VersionProp() {
+	}
 
 	/**
-	 * load version.
+	 * Load version.
 	 *
 	 * @param filename prop filename.
 	 * @return Properties.
@@ -52,7 +57,7 @@ final class VersionProp {
 	}
 
 	/**
-	 * save version.
+	 * Save version.
 	 *
 	 * @param filename prop filename.
 	 * @param props Properties.

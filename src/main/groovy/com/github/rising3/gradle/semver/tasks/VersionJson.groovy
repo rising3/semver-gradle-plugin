@@ -31,7 +31,13 @@ import java.nio.file.StandardCopyOption
 @Slf4j
 class VersionJson {
     /**
-     * load json.
+     * Private constructor.
+     */
+    private VersionJson() {
+    }
+
+    /**
+     * Load json.
      *
      * @param filename json filename.
      * @return JsonBuilder.
@@ -51,13 +57,13 @@ class VersionJson {
             }
         }
         if (json.content.version == null) {
-            json.content.version = "0.0.0"
+            json.content.version = '0.0.0'
         }
         return json
     }
 
     /**
-     * save json.
+     * Save json.
      *
      * @param filename json filename.
      * @param json JsonBuilder.

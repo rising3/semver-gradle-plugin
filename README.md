@@ -1,8 +1,10 @@
 # semver-gradle-plugin [![CI](https://github.com/rising3/semver-gradle-plugin/actions/workflows/build.yml/badge.svg)](https://github.com/rising3/semver-gradle-plugin/actions/workflows/build.yml)
+
 Gradle plugin for Updates the project version.
 A plugin that can updating the semantic versions like `yarn version` command.
 
 **Prerequisites:**
+
 * Java 8 or higher
 * Gradle 6.x or higher
 
@@ -12,11 +14,15 @@ You need to add the following lines to your `build.gradle` file:
 
 ```
 plugins {
-    id 'com.github.riging3.semver' version '0.4.0'
+    id 'com.github.riging3.semver' version '0.5.0'
 }
 ```
 
 [More...](https://plugins.gradle.org/plugin/com.github.rising3.semver)
+
+## New features
+
+* Feature for get current version from the latest tag. [More...](#plugin-extension)
 
 ## Updating versions
 
@@ -166,19 +172,75 @@ gradle semver [--premajor | --preminor | --prepatch |--prerelease ] --preid <pre
 
 Adds an identifier specified by <pre-identifier> to be used to prefix premajor, preminor, prepatch or prerelease version increments.
 
+## Authentication
+
+### Push access to the remote repository
+
+**semver-gradle-plugin**
+requires push access to the project Git repository in order to create git branch or git tag .
+
+The Git authentication can be set with one of the following environment variables:
+
+ Variables | Description
+--- | ---
+`GH_ACTOR` `GH_TOKEN` or `GITHUB_ACTOR` `GITHUB_TOKEN` | A GitHub [personal access token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line).
+`GL_ACTOR` `GL_TOKEN` or `GITLAB_ACTOR` `GITLAB_TOKEN` | A GitLab [personal access token](https://docs.gitlab.com/ce/user/profile/personal_access_tokens.html).
+`BB_ACTOR` `BB_TOKEN` or `BITBUCKET_ACTOR` `BITBUCKET_TOKEN` | A Bitbucket [personal access token](https://confluence.atlassian.com/bitbucketserver/personal-access-tokens-939515499.html).
+
+or the following system properties:
+
+System properties | Description
+--- | ---
+`gh.actor` `gh.token` or `github.actor` `github.token` |
+`gl.actor` `gl.token` or `gitlab.actor` `gitlab.token` |
+`bb.actor` `bb.token` or `bitbucket.actor` `bitbucket.token` |
+
+
+Here is an example of what a `gradle.properties` file:
+
+**~/.gradle/gradle.properties**
+```properties
+systemProp.gh.actor=xxx
+systemProp.gh.token=xxx
+```
 ## Plugin Extension
 
 The plugin defines an extension with the namespace `semver`. The following properties can be configured:
 
-Property Name | Type | Default value |  Description
---- | --- | ---| ---
-filename | String | 'gradle.properties' | Change the filename of `version` property.
+Property Name | Type | Default value | Description
+--- | --- | --- | ---
+target | String | 'file' | Choice 'FILE' or 'TAG'.
 versionTagPrefix | String | 'v' | Change the prefix of the git tag.
-versionGitMessage | String  | 'v%s' | Change the git message. Where %s is the version string.
-noGitCommand | boolean | false | Even enable or disable the git command behavior entirely.
-noGitInit |boolean  | true | Even enable or disable the git init behavior entirely.
-noGitTagVersion |boolean  | false | Even enable or disable the git tagging behavior entirely.
-noPackageJson |boolean  | false | Even enable or disable versioning the package.json.
+versionGitMessage | String | 'v%s' | Change the git message. Where %s is the version string.
+filename | String | 'gradle.properties' | (FILE Only)<BR>Change the filename of&nbsp;version&nbsp;property.
+noGitCommand | boolean | false | (FILE Only)<BR>Even enable or disable the git command behavior entirely.
+noGitInit | boolean | true | (FILE Only) <BR>Even enable or disable the git init behavior entirely.
+noGitCommitVersion | boolean | false | (FILE Only) <BR>Even enable or disable the git commit behavior entirely.
+noGitTagVersion | boolean | false | (FILE Only) <BR>Even enable or disable the git tagging behavior entirely.
+noGitPush | boolean | true | (FILE Only) <BR>Even enable or disable the git push branch behavior entirely.
+noGitPushTag | boolean | true | (FILE Only) <BR>Even enable or disable the git push tag behavior entirely.
+noPackageJson | boolean | false | (FILE Only) <BR>Even enable or disable the versioning the package.json behavior entirely.
+
+**FILE:**
+1. Get current version from file. (gradle.properties, package.json, etc.)
+2. Update to new version, save to file.
+3. Create a git commit of save file.
+4. Create a git tag of new version.
+
+**TAG:**
+1. Get latest tag for git.
+2. Analyze tag, convert to semantic version.(current version)
+3. Update to new version, save to file.
+4. Create a git tag of new version.
+5. Push tag to remote.
+
+GIT CONTROL | FILE(DEFAULT) | TAG(DEFAULT)
+--- | --- | ---
+CREATE(UPDATE) VERSION FILES |  Y | Y
+CREATE VERSION COMMIT | Y | N
+CREATE VERSION TAG | Y | Y
+PUSH COMMIT | N | N
+PUSH TAG | N | Y
 
 ### Example
 
@@ -186,12 +248,15 @@ For example, add with this `build.gradle` file:
 
 ``` groovy
 semver {
+    target = 'file'
     versionTagPrefix = 'v'
     versionGitMessage = 'v%s'
-    noGitCommand = false
     noGitInit = false
+    noGitCommand = false
     noGitTagVersion = false
-    noPackageJson = false
+    noGitPush = false
+    noGitPushTag = false
+    noPackageJson = true
 }
 ```
 

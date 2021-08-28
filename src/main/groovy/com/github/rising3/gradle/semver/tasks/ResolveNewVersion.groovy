@@ -13,20 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.rising3.gradle.semver.plugins
+package com.github.rising3.gradle.semver.tasks
 
-import org.gradle.testfixtures.ProjectBuilder
-import spock.lang.Specification
+/**
+ * Resolve the new version.
+ *
+ * @author rigin3
+ */
+interface ResolveNewVersion {
+    /**
+     * Get new version.
+     *
+     * @return current version.
+     */
+    def call()
 
-class SemVerGradlePluginTest extends Specification {
-    def "Should register task"() {
-        given:
-        def project = ProjectBuilder.builder().build()
+    /**
+     * Is user interaction?
+     *
+     * @return true ... user interaction.
+     */
+    def isUserInteraction()
 
-        when:
-        project.plugins.apply("com.github.rising3.semver")
-
-        then:
-        project.tasks.findByName("semver") != null
-    }
+    /**
+     * Is new version?
+     *
+     * @return true ... new version.
+     */
+    def isNewVersion()
 }
