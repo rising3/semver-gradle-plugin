@@ -1,4 +1,6 @@
-# semver-gradle-plugin [![CI](https://github.com/rising3/semver-gradle-plugin/actions/workflows/build.yml/badge.svg)](https://github.com/rising3/semver-gradle-plugin/actions/workflows/build.yml)
+# semver-gradle-plugin
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![CI](https://github.com/rising3/semver-gradle-plugin/actions/workflows/build.yml/badge.svg)](https://github.com/rising3/semver-gradle-plugin/actions/workflows/build.yml)
 
 Gradle plugin for Updates the project version.
 A plugin that can updating the semantic versions like `yarn version` command.
@@ -22,7 +24,8 @@ plugins {
 
 ## New features
 
-* Feature for get current version from the latest tag. [More...](#plugin-extension)
+* Add supported for an automating versioning with the ConventionalCommits. [More...](#task-options)
+* Add supported for a get current version from the latest tag. [More...](#plugin-extension)
 
 ## Updating versions
 
@@ -171,6 +174,28 @@ gradle semver [--premajor | --preminor | --prepatch |--prerelease ] --preid <pre
 ```
 
 Adds an identifier specified by <pre-identifier> to be used to prefix premajor, preminor, prepatch or prerelease version increments.
+
+```
+gradle semver --conventional-commits
+```
+Create a new version according to the Conventional Commits rules.
+It refers to the commit log since the last release and creates a new version based on the following rules.
+
+The commit message should be structured as follows:
+
+```text
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+* **fix**: a commit the type `fix` patches a bug in your codebase (this correlates with `--patch` option).
+* **feat**: a commit the type `feat` introduces a new feature to the codebase (this correlates with `--minor` option).
+* **BREAKING CHANGE**: a commit that has a footer `BREAKING CHANGE:`, or appends a `!` after the type/scope, introduces a breaking API change (correlating with `--major` option). A BREAKING CHANGE can be part of commits of any type.
+* Types other than `fix` and `feat` are allowed, but an automating versioning is not supported.
+
+For more information, please refer to [ConventionalCommits](https://www.conventionalcommits.org/en/v1.0.0/)
 
 ## Authentication
 

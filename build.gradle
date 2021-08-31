@@ -64,7 +64,7 @@ gradlePlugin {
 pluginBundle {
     website = "https://github.com/rising3/semver-gradle-plugin"
     vcsUrl = "https://github.com/rising3/semver-gradle-plugin.git"
-    tags = ["semver", "semantic-versioning", "semantic", "version", 'release', "git", "yarn"]
+    tags = ["semver", "semantic-versioning", "conventional-commits", "semantic", "version", 'release', "git", "yarn", "CI", "CD"]
 }
 
 jar {

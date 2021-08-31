@@ -13,18 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.rising3.gradle.semver.tasks
+package helper
 
-/**
- * Resolve the current version.
- *
- * @author rigin3
- */
-interface ResolveCurrentVersion {
-    /**
-     * Get current version.
-     *
-     * @return current version.
-     */
-    def call()
+class MessageTemplate {
+    static commitMessage(String message) {
+        """\
+        |$message
+        |
+        |body1
+        |
+        |body2
+        |
+        |body3
+        |body4
+        |
+        |Reviewed-by: Z
+        |Refs #133
+        |""".stripMargin()
+    }
+
+    static breakingChangeCommitMessage(String message) {
+        """\
+        |$message
+        |
+        |BREAKING CHANGE: `extends` key in config file is now used for extending other config files
+        |""".stripMargin()
+    }
 }
