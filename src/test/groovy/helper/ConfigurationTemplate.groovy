@@ -36,6 +36,7 @@ class ConfigurationTemplate {
         |   noGitPushTag = $ext.noGitPushTag
         |   noPackageJson = $ext.noPackageJson
         |}
+        |tasks.semver.dependsOn tasks.semverPrepare
         |tasks.semver.configure {
         |   doFirst {
         |       println 'first'
