@@ -64,7 +64,7 @@ gradlePlugin {
 pluginBundle {
     website = "https://github.com/rising3/semver-gradle-plugin"
     vcsUrl = "https://github.com/rising3/semver-gradle-plugin.git"
-    tags = ["semver", "semantic-versioning", "conventional-commits", "semantic", "version", 'release', "git", "yarn", "CI", "CD"]
+    tags = ["semver", "semantic-versioning", "conventional-commits", "automation", "semantic", "version", "release", "git", "ci", "cd", "yarn"]
 }
 
 jar {
@@ -93,6 +93,7 @@ task functionalTest(type: Test) {
     group = 'verification'
     testClassesDirs = sourceSets.functionalTest.output.classesDirs
     classpath = sourceSets.functionalTest.runtimeClasspath
+    mustRunAfter(tasks.named('test'))
 }
 
 tasks.check.dependsOn functionalTest
@@ -139,7 +140,6 @@ spotless {
     }
 }
 
-
 license {
     header = rootProject.file("codequality/HEADER")
     strictCheck = true
@@ -147,8 +147,6 @@ license {
     license.ext["name"] = project.findProperty("author")
     license.ext["email"] = project.findProperty("email")
 }
-
-tasks.semver.dependsOn check
 
 semver {
     target="TAG"
