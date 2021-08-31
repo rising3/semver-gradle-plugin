@@ -16,6 +16,8 @@
 package com.github.rising3.gradle.semver.git
 
 import org.eclipse.jgit.api.Status
+import org.eclipse.jgit.lib.AnyObjectId
+import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.ReflogEntry
 import org.eclipse.jgit.revwalk.RevCommit
@@ -34,6 +36,37 @@ interface GitProvider {
 	void init(File dir)
 
 	/**
+	 * Parse a git revision string and return an object id.
+	 *
+	 * @param rev a git revision string
+	 * @return an object id
+	 */
+	ObjectId resolve(String rev)
+
+	/**
+	 * Get an object if of head.
+	 *
+	 * @return an object id oh head
+	 */
+	ObjectId head()
+
+	/**
+	 * Read a single reference.
+	 *
+	 * @param name the reference name
+	 * @return the ref object.
+	 */
+	Ref findRef(String name)
+
+	/**
+	 * Peel a possibly unpeeled reference by traversing the annotated tags.
+	 *
+	 * @param ref the reference to peel
+	 * @return the peeled object.
+	 */
+	Ref peel(Ref ref)
+
+	/**
 	 * Add file contents to the index.
 	 *
 	 * @param filePattern The file pattern string
@@ -44,8 +77,9 @@ interface GitProvider {
 	 * Record changes to the repository.
 	 *
 	 * @param message The message
+	 * @return RevCommit
 	 */
-	void commit(String message)
+	RevCommit commit(String message)
 
 	/**
 	 * Create a tag object.
@@ -53,8 +87,9 @@ interface GitProvider {
 	 * @param name The tag name
 	 * @param message The message
 	 * @param annotated The annotated tag object
+	 * @return Ref
 	 */
-	void tag(String name, String message, boolean annotated)
+	Ref tag(String name, String message, boolean annotated)
 
 	/**
 	 * Get git status.
@@ -76,6 +111,15 @@ interface GitProvider {
 	 * @return RevCommits
 	 */
 	Iterable<RevCommit> log()
+
+	/**
+	 * Get git log list.
+	 *
+	 * @param since
+	 * @param until
+	 * @return RevCommits
+	 */
+	Iterable<RevCommit> log(AnyObjectId since, AnyObjectId until)
 
 	/**
 	 * Get git tag list.

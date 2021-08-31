@@ -54,7 +54,6 @@ class TagResolveCurrentVersionTest extends Specification {
 
         where:
         branch      | prefix        || r
-        'main'      | 'v'           | '1.0.0'
         '0.0.x'     | 'v'           | '0.0.2'
         '0.1.X'     | 'v'           | '0.1.0'
         '0.2.x'     | 'v'           | '0.2.0'
@@ -62,9 +61,10 @@ class TagResolveCurrentVersionTest extends Specification {
         '0.x'       | 'v'           | '0.2.0'
         '3.0.x'     | 'v'           | '0.0.0'
         '3.X'       | 'v'           | '0.0.0'
-        'main'      | 'notMatch'    | '0.0.0'
+        'main'      | 'v'           | '1.0.0'
         'main'      | 'ver'         | '1.0.0'
         '3.XX'      | 'v'           | '1.0.0'
         '3.0.XX'    | 'v'           | '1.0.0'
+        'main'      | 'notMatch'    | '0.0.0'
     }
 }

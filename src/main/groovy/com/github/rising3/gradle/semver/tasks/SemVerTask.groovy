@@ -17,6 +17,7 @@ package com.github.rising3.gradle.semver.tasks
 
 import com.github.rising3.gradle.semver.git.GitProviderImpl
 import com.github.rising3.gradle.semver.plugins.Target
+import com.github.rising3.gradle.semver.tasks.internal.ConventionalCommitsResolveNewVersion
 import com.github.rising3.gradle.semver.tasks.internal.FileResolveCurrentVersion
 import com.github.rising3.gradle.semver.tasks.internal.DefaultGitOperation
 import com.github.rising3.gradle.semver.tasks.internal.TagResolveCurrentVersion
@@ -70,8 +71,12 @@ class SemVerTask extends DefaultTask {
 	boolean prerelease = false
 
 	@Input
-	@Option( option = 'preid', description = 'Adds an identifier specified by <pre-identifier> to be used to prefix premajor, preminor, prepatch or prerelease version increments')
+	@Option(option = 'preid', description = 'Adds an identifier specified by <pre-identifier> to be used to prefix premajor, preminor, prepatch or prerelease version increments')
 	String preid = ''
+
+	@Input
+	@Option(option = 'conventional-commits', description = 'Create a new version according to the Conventional Commits rules.')
+	boolean conventionalCommit = false
 
 	/**
 	 * Constructor.
@@ -127,7 +132,7 @@ class SemVerTask extends DefaultTask {
 
 			if (resolveNewVersion.isNewVersion()) {
 				if (!VersionUtils.validateViolation(project.version, resolveNewVersion.toString())
-					|| !VersionUtils.validateBranchRange(git.getBranch(), resolveNewVersion.toString())) {
+					|| !VersionUtils.validateBranchRange(resolveNewVersion.toString(), git.getBranch())) {
 					throw new InvalidVersionException("Invalid new version: ${resolveNewVersion.toString()}, current version: ${project.version}, current branch: ${git.getBranch()}")
 				}
 				project.version = resolveNewVersion.toString()
@@ -201,6 +206,18 @@ class SemVerTask extends DefaultTask {
 		}
 
 		/**
+		 * Execute conventional commits resolve new version.
+		 *
+		 * @return ConventionalCommitsResolveNewVersion.
+		 */
+		protected def executeConventionalCommitsResolveNewVersion() {
+			ConventionalCommitsResolveNewVersion resolveNewVersion = new ConventionalCommitsResolveNewVersion(
+					git, project.semver.versionTagPrefix as String, project.version as String)
+			resolveNewVersion()
+			resolveNewVersion
+		}
+
+		/**
 		 * Execute git operation.
 		 *
 		 * @param version version string.
@@ -235,7 +252,7 @@ class SemVerTask extends DefaultTask {
 
 		@Override
 		protected def resolveNewVersion() {
-			executeYarnResolveNewVersion()
+			conventionalCommit ? executeConventionalCommitsResolveNewVersion() : executeYarnResolveNewVersion()
 		}
 	}
 
@@ -259,7 +276,7 @@ class SemVerTask extends DefaultTask {
 
 		@Override
 		protected def resolveNewVersion() {
-			executeYarnResolveNewVersion()
+			conventionalCommit ? executeConventionalCommitsResolveNewVersion() : executeYarnResolveNewVersion()
 		}
 	}
 }

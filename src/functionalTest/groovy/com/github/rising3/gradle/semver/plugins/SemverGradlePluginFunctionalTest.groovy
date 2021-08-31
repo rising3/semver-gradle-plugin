@@ -16,7 +16,9 @@
 package com.github.rising3.gradle.semver.plugins
 
 import com.github.rising3.gradle.semver.git.GitProviderImpl
+import helper.ConfigurationTemplate
 import helper.GitRepositoryHelper
+import helper.MessageTemplate
 import org.eclipse.jgit.api.Git
 import org.gradle.api.Project
 import org.gradle.testkit.runner.UnexpectedBuildFailure
@@ -52,10 +54,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
         final gitRepo = new GitRepositoryHelper(projectDir)
         final git = new GitProviderImpl(projectDir)
         final ext = new SemVerGradlePluginExtension()
-        writeFile(projectDir, Project.DEFAULT_BUILD_FILE, getBuild(ext))
-        writeFile(projectDir, Project.GRADLE_PROPERTIES, c)
-        writeFile(projectDir, SETTINGS_GRADLE, '')
-        writeFile(projectDir, PACKAGE_JSON, getPackage('0.0.0'))
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, c)
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         final runner = GradleRunner.create()
         runner.forwardOutput()
         runner.withPluginClasspath()
@@ -105,11 +107,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         final git = new GitProviderImpl(projectDir)
         final ext = new SemVerGradlePluginExtension()
         ext.setNoGitInit(false)
-        writeFile(projectDir, Project.DEFAULT_BUILD_FILE, getBuild(ext))
-        writeFile(projectDir, Project.GRADLE_PROPERTIES, 'version=1.0.0')
-        writeFile(projectDir, SETTINGS_GRADLE, '')
-        writeFile(projectDir, PACKAGE_JSON, getPackage('0.0.0'))
-        writeFile(projectDir, 'README.md', 'README')
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, 'version=1.0.0')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(projectDir, 'README.md', 'README')
         git.add('README.md')
         git.commit('Initial commit')
         final runner = GradleRunner.create()
@@ -132,12 +134,13 @@ class SemverGradlePluginFunctionalTest extends Specification {
 
     def "Should run semver task, if git repository is not exist"() {
         given:
+        final gitRepo = new GitRepositoryHelper(projectDir, false)
         final ext = new SemVerGradlePluginExtension()
         ext.setNoGitInit(false)
-        writeFile(projectDir, Project.DEFAULT_BUILD_FILE, getBuild(ext))
-        writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        writeFile(projectDir, SETTINGS_GRADLE, '')
-        writeFile(projectDir, PACKAGE_JSON, getPackage('0.0.0'))
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         final runner = GradleRunner.create()
         runner.forwardOutput()
         runner.withPluginClasspath()
@@ -158,6 +161,8 @@ class SemverGradlePluginFunctionalTest extends Specification {
         packageJson.getText().contains('1.0.0')
         packageJsonBak.exists()
         actual.contains("info New version: 1.0.0")
+
+        gitRepo.cleanup()
     }
 
     def "Should run semver task with noPackageJson"() {
@@ -166,9 +171,9 @@ class SemverGradlePluginFunctionalTest extends Specification {
         final git = new GitProviderImpl(projectDir)
         final ext = new SemVerGradlePluginExtension()
         ext.setNoPackageJson(true)
-        writeFile(projectDir, Project.DEFAULT_BUILD_FILE, getBuild(ext))
-        writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
         final runner = GradleRunner.create()
         runner.forwardOutput()
         runner.withPluginClasspath()
@@ -197,11 +202,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         final ext = new SemVerGradlePluginExtension()
         ext.setVersionGitMessage("version %s")
         ext.setVersionTagPrefix("ver")
-        writeFile(projectDir, Project.DEFAULT_BUILD_FILE, getBuild(ext))
-        writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        writeFile(projectDir, SETTINGS_GRADLE, '')
-        writeFile(projectDir, PACKAGE_JSON, getPackage('0.0.0'))
-        writeFile(projectDir, 'README.md', 'README')
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(projectDir, 'README.md', 'README')
         git.add('README.md')
         git.commit('Initial commit')
         final def runner = GradleRunner.create()
@@ -233,11 +238,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         final git = new GitProviderImpl(projectDir)
         final ext = new SemVerGradlePluginExtension()
         ext.setNoGitCommand(true)
-        writeFile(projectDir, Project.DEFAULT_BUILD_FILE, getBuild(ext))
-        writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        writeFile(projectDir, SETTINGS_GRADLE, '')
-        writeFile(projectDir, PACKAGE_JSON, getPackage('0.0.0'))
-        writeFile(projectDir, 'README.md', 'README')
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(projectDir, 'README.md', 'README')
         git.add('README.md')
         git.commit('Initial commit')
         final runner = GradleRunner.create()
@@ -267,11 +272,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         final git = new GitProviderImpl(projectDir)
         final ext = new SemVerGradlePluginExtension()
         ext.setNoGitTagVersion(true)
-        writeFile(projectDir, Project.DEFAULT_BUILD_FILE, getBuild(ext))
-        writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        writeFile(projectDir, SETTINGS_GRADLE, '')
-        writeFile(projectDir, PACKAGE_JSON, getPackage('0.0.0'))
-        writeFile(projectDir, 'README.md', 'README')
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(projectDir, 'README.md', 'README')
         git.add('README.md')
         git.commit('Initial commit')
         final runner = GradleRunner.create()
@@ -302,11 +307,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         final git = new GitProviderImpl(projectDir)
         final ext = new SemVerGradlePluginExtension()
         ext.setNoGitCommitVersion(true)
-        writeFile(projectDir, Project.DEFAULT_BUILD_FILE, getBuild(ext))
-        writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        writeFile(projectDir, SETTINGS_GRADLE, '')
-        writeFile(projectDir, PACKAGE_JSON, getPackage('0.0.0'))
-        writeFile(projectDir, 'README.md', 'README')
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(projectDir, 'README.md', 'README')
         git.add('README.md')
         git.commit('Initial commit')
         final runner = GradleRunner.create()
@@ -337,11 +342,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         final git = new GitProviderImpl(projectDir)
         final ext = new SemVerGradlePluginExtension()
         ext.setNoGitPush(false)
-        writeFile(projectDir, Project.DEFAULT_BUILD_FILE, getBuild(ext))
-        writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        writeFile(projectDir, SETTINGS_GRADLE, '')
-        writeFile(projectDir, PACKAGE_JSON, getPackage('0.0.0'))
-        writeFile(projectDir, 'README.md', 'README')
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(projectDir, 'README.md', 'README')
         git.add('README.md')
         git.commit('Initial commit')
         final runner = GradleRunner.create()
@@ -377,11 +382,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         final git = new GitProviderImpl(projectDir)
         final ext = new SemVerGradlePluginExtension()
         ext.setNoGitPushTag(false)
-        writeFile(projectDir, Project.DEFAULT_BUILD_FILE, getBuild(ext))
-        writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        writeFile(projectDir, SETTINGS_GRADLE, '')
-        writeFile(projectDir, PACKAGE_JSON, getPackage('0.0.0'))
-        writeFile(projectDir, 'README.md', 'README')
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(projectDir, 'README.md', 'README')
         git.add('README.md')
         git.commit('Initial commit')
         git.push('origin', 'master')
@@ -419,11 +424,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         final git = new GitProviderImpl(projectDir)
         final ext = new SemVerGradlePluginExtension()
         ext.setTarget(Target.TAG)
-        writeFile(projectDir, Project.DEFAULT_BUILD_FILE, getBuild(ext))
-        writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        writeFile(projectDir, SETTINGS_GRADLE, '')
-        writeFile(projectDir, PACKAGE_JSON, getPackage('0.0.0'))
-        writeFile(projectDir, 'README.md', 'README')
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(projectDir, 'README.md', 'README')
         git.add('README.md')
         git.commit('Initial commit')
         git.tag('v0.1.0', 'v0.1.0', true)
@@ -478,11 +483,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         final git = new GitProviderImpl(projectDir)
         final ext = new SemVerGradlePluginExtension()
         ext.setTarget(Target.TAG)
-        writeFile(projectDir, Project.DEFAULT_BUILD_FILE, getBuild(ext))
-        writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        writeFile(projectDir, SETTINGS_GRADLE, '')
-        writeFile(projectDir, PACKAGE_JSON, getPackage('0.0.0'))
-        writeFile(projectDir, 'README.md', 'README')
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(projectDir, 'README.md', 'README')
         git.add('README.md')
         git.commit('Initial commit')
         git.tag('v0.1.0', 'v0.1.0', true)
@@ -519,11 +524,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         final git = new GitProviderImpl(projectDir)
         final ext = new SemVerGradlePluginExtension()
         ext.setTarget(Target.TAG)
-        writeFile(projectDir, Project.DEFAULT_BUILD_FILE, getBuild(ext))
-        writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        writeFile(projectDir, SETTINGS_GRADLE, '')
-        writeFile(projectDir, PACKAGE_JSON, getPackage('0.0.0'))
-        writeFile(projectDir, 'README.md', 'README')
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(projectDir, 'README.md', 'README')
         git.add('README.md')
         git.commit('Initial commit')
         git.tag('v0.1.0', 'v0.1.0', true)
@@ -576,11 +581,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         final git = new GitProviderImpl(projectDir)
         final ext = new SemVerGradlePluginExtension()
         ext.setTarget(Target.TAG)
-        writeFile(projectDir, Project.DEFAULT_BUILD_FILE, getBuild(ext))
-        writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        writeFile(projectDir, SETTINGS_GRADLE, '')
-        writeFile(projectDir, PACKAGE_JSON, getPackage('0.0.0'))
-        writeFile(projectDir, 'README.md', 'README')
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(projectDir, 'README.md', 'README')
         git.add('README.md')
         git.commit('Initial commit')
         git.tag('v0.1.0', 'v0.1.0', true)
@@ -626,11 +631,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         final git = new GitProviderImpl(projectDir)
         final ext = new SemVerGradlePluginExtension()
         ext.setTarget(Target.TAG)
-        writeFile(projectDir, Project.DEFAULT_BUILD_FILE, getBuild(ext))
-        writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        writeFile(projectDir, SETTINGS_GRADLE, '')
-        writeFile(projectDir, PACKAGE_JSON, getPackage('0.0.0'))
-        writeFile(projectDir, 'README.md', 'README')
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(projectDir, 'README.md', 'README')
         git.add('README.md')
         git.commit('Initial commit')
         git.tag('v0.1.0', 'v0.1.0', true)
@@ -686,11 +691,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         final git = new GitProviderImpl(projectDir)
         final ext = new SemVerGradlePluginExtension()
         ext.setTarget(Target.TAG)
-        writeFile(projectDir, Project.DEFAULT_BUILD_FILE, getBuild(ext))
-        writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        writeFile(projectDir, SETTINGS_GRADLE, '')
-        writeFile(projectDir, PACKAGE_JSON, getPackage('0.0.0'))
-        writeFile(projectDir, 'README.md', 'README')
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(projectDir, 'README.md', 'README')
         git.add('README.md')
         git.commit('Initial commit')
         git.tag('v0.1.0', 'v0.1.0', true)
@@ -727,45 +732,133 @@ class SemverGradlePluginFunctionalTest extends Specification {
         ['semver', '--premajor', '--preid', 'RC']     | UnexpectedBuildFailure
     }
 
-    private def writeFile(File dir, String filename, String s) {
-        new File(dir, filename).withWriter() {
-            it << s
-        }
+    def "Should run semver task with file and conventional commits"() {
+        given:
+        final gitRepo = new GitRepositoryHelper(projectDir)
+        final git = new GitProviderImpl(projectDir)
+        final ext = new SemVerGradlePluginExtension()
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, c)
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        git.add('README.md')
+        git.commit('Initial commit')
+        gitRepo.writeFile(projectDir, 'README.md', 'README1')
+        git.add('README.md')
+        git.commit('refactor(runtime): drop support for Node 6')
+        gitRepo.writeFile(projectDir, 'README.md', 'README2')
+        git.add('README.md')
+        git.commit(message)
+        final runner = GradleRunner.create()
+        runner.forwardOutput()
+        runner.withPluginClasspath()
+        runner.withProjectDir(projectDir)
+        runner.withArguments(['semver', '--conventional-commits'])
+
+        when:
+        final actual = runner.build().output
+
+        then:
+        git.log().size() == 4
+        git.log()[0].getShortMessage().contains(String.format(ext.versionGitMessage, newVersion))
+        git.tagList().size() == 1
+        git.tagList()[0].getName().contains("$ext.versionTagPrefix$newVersion")
+        gradleProperties.getText().contains(newVersion)
+        gradlePropertiesBak.exists()
+        packageJson.getText().contains(newVersion)
+        packageJsonBak.exists()
+        actual.contains("info New version: $newVersion")
+
+        gitRepo.cleanup()
+
+        where:
+        c               | message                                                                                                       || newVersion
+        ''              | 'fix: allow provided config object to extend other configs'                                                   | '0.0.1'
+        ''              | 'feat: allow provided config object to extend other configs'                                                  | '0.1.0'
+        ''              | 'feat!: allow provided config object to extend other configs'                                                 | '1.0.0'
+        ''              | MessageTemplate.commitMessage('fix: allow provided config object to extend other configs')                    | '0.0.1'
+        ''              | MessageTemplate.commitMessage('feat: allow provided config object to extend other configs')                   | '0.1.0'
+        ''              | MessageTemplate.commitMessage('feat!: allow provided config object to extend other configs')                  | '1.0.0'
+        ''              | MessageTemplate.breakingChangeCommitMessage('fix: allow provided config object to extend other configs')      | '1.0.0'
+        ''              | MessageTemplate.breakingChangeCommitMessage('feat: allow provided config object to extend other configs')     | '1.0.0'
+        ''              | MessageTemplate.breakingChangeCommitMessage('feat!: allow provided config object to extend other configs')    | '1.0.0'
+        'version=1.2.3' | 'fix: allow provided config object to extend other configs'                                                   | '1.2.4'
+        'version=1.2.3' | 'feat: allow provided config object to extend other configs'                                                  | '1.3.0'
+        'version=1.2.3' | 'feat!: allow provided config object to extend other configs'                                                 | '2.0.0'
+        'version=1.2.3' | MessageTemplate.commitMessage('fix: allow provided config object to extend other configs')                    | '1.2.4'
+        'version=1.2.3' | MessageTemplate.commitMessage('feat: allow provided config object to extend other configs')                   | '1.3.0'
+        'version=1.2.3' | MessageTemplate.commitMessage('feat!: allow provided config object to extend other configs')                  | '2.0.0'
+        'version=1.2.3' | MessageTemplate.breakingChangeCommitMessage('fix: allow provided config object to extend other configs')      | '2.0.0'
+        'version=1.2.3' | MessageTemplate.breakingChangeCommitMessage('feat: allow provided config object to extend other configs')     | '2.0.0'
+        'version=1.2.3' | MessageTemplate.breakingChangeCommitMessage('feat!: allow provided config object to extend other configs')    | '2.0.0'
     }
 
-    private def getBuild(SemVerGradlePluginExtension ext) {
-        """\
-        |plugins {
-        |   id('com.github.rising3.semver')
-        |}
-        |semver {
-        |   target = "$ext.target"
-        |   filename = "$ext.filename"
-        |   versionTagPrefix = "$ext.versionTagPrefix"
-        |   versionGitMessage = "$ext.versionGitMessage"
-        |   noGitInit = $ext.noGitInit
-        |   noGitCommand = $ext.noGitCommand
-        |   noGitCommitVersion = $ext.noGitCommitVersion
-        |   noGitTagVersion = $ext.noGitTagVersion
-        |   noGitPush = $ext.noGitPush
-        |   noGitPushTag = $ext.noGitPushTag
-        |   noPackageJson = $ext.noPackageJson
-        |}
-        |tasks.semver.configure {
-        |   doFirst {
-        |       println 'first'
-        |   }
-        |   doLast {
-        |       println 'last'
-        |   }
-        |}""".stripMargin()
-    }
+    def "Should run semver task with tag and conventional commits"() {
+        given:
+        final gitRepo = new GitRepositoryHelper(projectDir)
+        final git = new GitProviderImpl(projectDir)
+        final ext = new SemVerGradlePluginExtension()
+        ext.setTarget(Target.TAG)
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        git.add('README.md')
+        git.commit('Initial commit')
+        gitRepo.writeFile(projectDir, 'README.md', 'README1')
+        git.add('README.md')
+        git.commit('refactor(runtime): drop support for Node 6')
+        git.tag(tag, tag, true)
+        gitRepo.writeFile(projectDir, 'README.md', 'README2')
+        git.add('README.md')
+        git.commit(message)
+        git.push('origin', 'master')
+        git.push('origin', tag)
+        final runner = GradleRunner.create()
+        runner.forwardOutput()
+        runner.withPluginClasspath()
+        runner.withProjectDir(projectDir)
+        runner.withArguments(['semver', '--conventional-commits'])
 
-    private def getPackage(String version) {
-        """\
-        |{
-        |    "name": "semver",
-        |    "version": "$version"
-        |}""".stripMargin()
+        when:
+        final actual = runner.build().output
+
+        then:
+        git.log().size() == 3
+        git.tagList().size() == 2
+        git.tagList()[1].getName().contains("$ext.versionTagPrefix$newVersion")
+        gradleProperties.getText().contains(newVersion)
+        gradlePropertiesBak.exists()
+        packageJson.getText().contains(newVersion)
+        packageJsonBak.exists()
+        actual.contains("info New version: $newVersion")
+
+        final remote = new Git(gitRepo.getRemoteRepository())
+        remote.log().call().size() == 3
+        remote.tagList().call().size() == 2
+        remote.tagList().call()[1].getName().contains("$ext.versionTagPrefix$newVersion")
+
+        gitRepo.cleanup()
+
+        where:
+        tag      | message                                                                                                      || newVersion
+        'v0.1.0' | 'fix: allow provided config object to extend other configs'                                                  | '0.1.1'
+        'v0.1.0' | 'feat: allow provided config object to extend other configs'                                                 | '0.2.0'
+        'v0.1.0' | 'feat!: allow provided config object to extend other configs'                                                | '1.0.0'
+        'v0.1.0' | MessageTemplate.commitMessage('fix: allow provided config object to extend other configs')                   | '0.1.1'
+        'v0.1.0' | MessageTemplate.commitMessage('feat: allow provided config object to extend other configs')                  | '0.2.0'
+        'v0.1.0' | MessageTemplate.commitMessage('feat!: allow provided config object to extend other configs')                 | '1.0.0'
+        'v0.1.0' | MessageTemplate.breakingChangeCommitMessage('fix: allow provided config object to extend other configs')     | '1.0.0'
+        'v0.1.0' | MessageTemplate.breakingChangeCommitMessage('feat: allow provided config object to extend other configs')    | '1.0.0'
+        'v0.1.0' | MessageTemplate.breakingChangeCommitMessage('feat!: allow provided config object to extend other configs')   | '1.0.0'
+        'v1.2.3' | 'fix: allow provided config object to extend other configs'                                                  | '1.2.4'
+        'v1.2.3' | 'feat: allow provided config object to extend other configs'                                                 | '1.3.0'
+        'v1.2.3' | 'feat!: allow provided config object to extend other configs'                                                | '2.0.0'
+        'v1.2.3' | MessageTemplate.commitMessage('fix: allow provided config object to extend other configs')                   | '1.2.4'
+        'v1.2.3' | MessageTemplate.commitMessage('feat: allow provided config object to extend other configs')                  | '1.3.0'
+        'v1.2.3' | MessageTemplate.commitMessage('feat!: allow provided config object to extend other configs')                 | '2.0.0'
+        'v1.2.3' | MessageTemplate.breakingChangeCommitMessage('fix: allow provided config object to extend other configs')     | '2.0.0'
+        'v1.2.3' | MessageTemplate.breakingChangeCommitMessage('feat: allow provided config object to extend other configs')    | '2.0.0'
+        'v1.2.3' | MessageTemplate.breakingChangeCommitMessage('feat!: allow provided config object to extend other configs')   | '2.0.0'
     }
 }

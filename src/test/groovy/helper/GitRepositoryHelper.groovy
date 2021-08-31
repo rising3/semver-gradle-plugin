@@ -27,43 +27,50 @@ class GitRepositoryHelper {
     private Repository remoteRepository
     private Repository localRepository
 
-    GitRepositoryHelper(File workDir) {
-        if (workDir.exists()) {
-            workDir.deleteDir()
+    GitRepositoryHelper(File workDir, boolean isCreate = true) {
+        if (isCreate) {
+            if (workDir.exists()) {
+                workDir.deleteDir()
+            }
+            workDir.mkdirs()
+            def remoteDir = Paths.get(workDir.toString(), "/remote").toFile()
+
+            remoteRepository = newWorkRepository(remoteDir)
+            remoteRepository.getConfig().setString("fsck", "", "missingEmail", "ignore")
+            remoteRepository.getConfig().save()
+
+            localRepository = newWorkRepository(workDir)
+            def localConf = localRepository.getConfig()
+            localConf.setString("user", "", "name", "test")
+            localConf.setString("user", "", "email", "test@example")
+            def remoteConf = new RemoteConfig(localConf, "origin")
+            def uri = new URIish(remoteRepository.getDirectory().toURI().toURL())
+            remoteConf.addURI(uri)
+            remoteConf.update(localConf)
+            localConf.save()
         }
-        workDir.mkdirs()
-
-        def remoteDir = Paths.get(workDir.toString(), "/remote").toFile()
-
-        remoteRepository = newWorkRepository(remoteDir)
-        remoteRepository.getConfig().setString("fsck", "", "missingEmail", "ignore")
-        remoteRepository.getConfig().save()
-
-        localRepository = newWorkRepository(workDir)
-        def localConf = localRepository.getConfig()
-        localConf.setString("user", "", "name", "test")
-        localConf.setString("user", "", "email", "test@example")
-        def remoteConf = new RemoteConfig(localConf, "origin")
-        def uri = new URIish(remoteRepository.getDirectory().toURI().toURL())
-        remoteConf.addURI(uri)
-        remoteConf.update(localConf)
-        localConf.save()
     }
 
-    def getRemoteRepository() {
+    Repository getRemoteRepository() {
         remoteRepository
     }
 
-    def getLocalRepository() {
+    Repository getLocalRepository() {
         localRepository
     }
 
-    def cleanup() {
+    void cleanup() {
         def workDir = localRepository?.getDirectory()
         remoteRepository?.close()
         localRepository?.close()
         if (workDir?.exists()) {
             workDir.deleteDir()
+        }
+    }
+
+    void writeFile(File dir, String filename, String s) {
+        new File(dir, filename).withWriter() {
+            it << s
         }
     }
 

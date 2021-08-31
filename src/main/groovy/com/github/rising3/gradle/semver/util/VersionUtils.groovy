@@ -24,6 +24,11 @@ import com.github.rising3.gradle.semver.SemVer
  */
 final class VersionUtils {
     /**
+     * Default version.
+     */
+    static final def DEFAULT_VERSION = '0.0.0'
+
+    /**
      * Private constructor.
      */
     private VersionUtils() {
@@ -49,16 +54,47 @@ final class VersionUtils {
     /**
      * Validate version with branch range.
      *
-     * @param branch branch name.
      * @param version version string.
+     * @param branch branch name.
      * @return true ... Valid / false ... Invalid
      */
-    static boolean validateBranchRange(String branch, String version) {
+    static boolean validateBranchRange(String version, String branch) {
         def rPatch = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.((?i)x)$/
         def rMinor = /^(0|[1-9]\d*)\.((?i)x)$/
         def mPatch = branch =~ rPatch
         def mMinor = branch =~ rMinor
         def mBranch = version =~ /^${branch.substring(0, branch.size() - 1)}\S*/
         mPatch.find() || mMinor.find() ? mBranch.find() : true
+    }
+
+    /**
+     * Resolve current version.
+     *
+     * @param versions version names
+     * @param branch branch name
+     * @return current version
+     */
+    static SemVer resolveCurrentVersion(List<String> versions, String branch) {
+        versions.stream()
+                .filter { VersionUtils::versionFilter(it) }
+                .filter { VersionUtils::validateBranchRange(it, branch) }
+                .map { SemVer::parse(it) }
+                .max { a, b -> a == b ? 0 : (a < b ? -1 : 1) }
+                .orElse(SemVer::parse(DEFAULT_VERSION))
+    }
+
+    /**
+     * Version filter.
+     *
+     * @param s version string.
+     * @return true ... Valid / false ... Invalid
+     */
+    private static boolean versionFilter(s) {
+        try {
+            SemVer.parse(s)
+            true
+        } catch(Exception e) {
+            false
+        }
     }
 }

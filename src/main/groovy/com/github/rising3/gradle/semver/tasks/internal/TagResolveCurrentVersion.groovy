@@ -15,10 +15,10 @@
  */
 package com.github.rising3.gradle.semver.tasks.internal
 
-import com.github.rising3.gradle.semver.SemVer
 import com.github.rising3.gradle.semver.git.GitProvider
 import com.github.rising3.gradle.semver.tasks.ResolveCurrentVersion
 import com.github.rising3.gradle.semver.util.VersionUtils
+import org.eclipse.jgit.lib.Constants
 
 /**
  * Resolve the current version from git tags.
@@ -26,11 +26,6 @@ import com.github.rising3.gradle.semver.util.VersionUtils
  * @author rigin3
  */
 class TagResolveCurrentVersion implements ResolveCurrentVersion {
-    /**
-     * Prefix git tag.
-     */
-    private static final PREFIX_TAG = "refs/tags/"
-
     /**
      * Git Provider.
      */
@@ -47,36 +42,17 @@ class TagResolveCurrentVersion implements ResolveCurrentVersion {
      * @param git Git Provider.
      * @param versionTagPrefix Version tag prefix.
      */
-    TagResolveCurrentVersion(git, versionTagPrefix) {
+    TagResolveCurrentVersion(GitProvider git, String versionTagPrefix) {
         this.git = git
         this.versionTagPrefix = versionTagPrefix
     }
 
     @Override
     def call() {
-        def prefix = PREFIX_TAG + versionTagPrefix
-        def version = git.tagList().stream()
+        def prefix = Constants.R_TAGS + versionTagPrefix
+        def versions = git.tagList().stream()
                 .map {it.name.replace(prefix, "") }
-                .filter { versionFilter(it) }
-                .filter { VersionUtils.validateBranchRange(git.getBranch(), it) }
-                .map { SemVer.parse(it) }
-                .max { a, b -> a == b ? 0 : (a < b ? -1 : 1) }
-                .orElse(SemVer.parse(DEFAULT_VERSION))
-        version
-    }
-
-    /**
-     * Version filter.
-     *
-     * @param s version string.
-     * @return true ... Valid / false ... Invalid
-     */
-    private def versionFilter(s) {
-        try {
-            SemVer.parse(s)
-            true
-        } catch(Exception e) {
-            false
-        }
+                .toList()
+        VersionUtils.resolveCurrentVersion(versions, git.getBranch())
     }
 }
