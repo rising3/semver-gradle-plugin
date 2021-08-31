@@ -33,9 +33,7 @@ class GitProviderImplTest extends Specification {
         local = new GitProviderImpl(workDir)
         remote = new Git(gitRepo.getRemoteRepository())
 
-        new File(workDir, "README.md").withWriter() {
-            it << "README"
-        }
+        gitRepo.writeFile(workDir, 'README.md', 'README')
     }
 
     def cleanup() throws Exception {
@@ -43,63 +41,147 @@ class GitProviderImplTest extends Specification {
     }
 
     def "Should init git repository"() {
+        given:
+        final dir = Paths.get(workDir.toString(), "/init").toFile()
+
         when:
-        def dir = Paths.get(workDir.toString(), "/init").toFile()
-        def target = new GitProviderImpl(dir, true)
+        final target = new GitProviderImpl(dir, true)
+
         then:
         target.status().isClean()
     }
 
     def "Should not init git repository"() {
+        given:
+        final dir = Paths.get(workDir.toString(), "/init").toFile()
+
         when:
-        def dir = Paths.get(workDir.toString(), "/init").toFile()
-        def target = new GitProviderImpl(dir, false)
+        final target = new GitProviderImpl(dir, false)
+
         then:
         !target.status().isClean()
     }
 
+    def "Should find ref with name"() {
+        given:
+        local.add('README.md')
+        final commit = local.commit('commit')
+        final tag = local.tag('v0.1.0', 'v0.1.0', true)
+
+        when:
+        final actual = local.findRef('refs/tags/v0.1.0')
+
+        then:
+        actual.getObjectId() == tag.getObjectId()
+    }
+
+    def "Should peel"() {
+        given:
+        local.add('README.md')
+        local.commit('commit')
+        final tag = local.tag('v0.1.0', 'v0.1.0', true)
+
+        when:
+        final actual = local.peel(tag)
+
+        then:
+        actual.isPeeled()
+        actual.getPeeledObjectId() != null
+    }
+
+    def "Should resolve object id"() {
+        given:
+        local.add('README.md')
+        final commit = local.commit('commit')
+        final tag = local.tag('v0.1.0', 'v0.1.0', true)
+
+        when:
+        final actual = local.resolve('refs/tags/v0.1.0')
+
+        then:
+        actual == tag.getObjectId()
+    }
+
     def "Should add to stage"() {
         when:
-        local.add(['README.md'])
+        local.add('README.md')
 
         then:
         local.status().getAdded().size() == 1
     }
 
     def "Should create commit"() {
-        when:
-        local.add(['README.md'])
+        given:
+        local.add('README.md')
         local.commit('commit')
 
-        then:
+        when:
         final def actual = local.log()
+
+        then:
         actual.size() == 1
-        local.reflog()[0].getComment().contains('commit')
+        local.log()[0].getShortMessage().contains('commit')
+    }
+
+    def "Should get logs with range"() {
+        given:
+        local.add('README.md')
+        local.commit('Initial commit')
+        local.tag('v0.1.0', 'v0.1.0', true)
+
+        gitRepo.writeFile(workDir, 'README.md', 'README1')
+        local.add('README.md')
+        local.commit('commit1')
+
+        gitRepo.writeFile(workDir, 'README.md', 'README2')
+        local.add('README.md')
+        local.commit('commit2')
+        def tag = local.tag('v0.2.0', 'v0.2.0', true)
+
+        gitRepo.writeFile(workDir, 'README.md', 'README3')
+        local.add('README.md')
+        local.commit('commit3')
+
+        gitRepo.writeFile(workDir, 'README.md', 'README4')
+        local.add('README.md')
+        local.commit('commit4')
+
+        when:
+        final def actual = local.log(tag.getPeeledObjectId(), local.head()).asList()
+
+        then:
+        actual.size() == 2
+        actual[0].getShortMessage().contains('commit4')
+        actual[1].getShortMessage().contains('commit3')
     }
 
     def "Should create tag"() {
-        when:
-        local.add(['README.md'])
+        given:
+        local.add('README.md')
         local.commit('commit')
         local.tag('new-tag', 'message', true)
 
-        then:
+        when:
         final def result = local.tagList()
+
+        then:
         final def names = result.stream().map { it.name }.toArray()
         names.size() == 1
         names.contains('refs/tags/new-tag')
     }
 
     def "Should get tag list"() {
-        when:
-        local.add(['README.md'])
+        given:
+        local.add('README.md')
         local.commit('test')
         local.tag('v0.1.0', 'v0.1.0', true)
         local.tag('v0.1.1', 'v0.1.1', true)
         local.tag('v0.2.0', 'v0.2.0', true)
 
-        then:
+        when:
         final def result = local.tagList()
+
+        then:
         final def names = result.stream().map { it.name }.toArray()
         names.size() == 3
         names.contains("refs/tags/v0.1.0")
@@ -108,10 +190,11 @@ class GitProviderImplTest extends Specification {
     }
 
     def "Should push from local to remote"() {
-        when:
-        local.add(['README.md'])
+        given:
+        local.add('README.md')
         local.commit('commit')
         local.tag('new-tag', 'message', true)
+        when:
         local.push('origin', 'master')
         local.push('origin', 'new-tag')
 

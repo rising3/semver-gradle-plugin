@@ -18,6 +18,9 @@ package com.github.rising3.gradle.semver.git
 import groovy.util.logging.Slf4j
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.Status
+import org.eclipse.jgit.lib.AnyObjectId
+import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.ReflogEntry
 import org.eclipse.jgit.lib.Repository
@@ -79,21 +82,42 @@ class GitProviderImpl implements GitProvider {
 	}
 
 	@Override
+	ObjectId resolve(String rev) {
+		git.getRepository().resolve(rev)
+	}
+
+	@Override
+	ObjectId head() {
+		git.getRepository().resolve(Constants.HEAD)
+	}
+
+	@Override
+	Ref findRef(String name) {
+		git.getRepository().getRefDatabase().findRef(name)
+	}
+
+	@Override
+	Ref peel(Ref ref) {
+		git.getRepository().getRefDatabase().peel(ref)
+	}
+
+	@Override
 	void add(String filePattern) {
 		log.debug("git add ${filePattern}")
 		git?.add()?.addFilepattern(filePattern)?.call()
 	}
 
 	@Override
-	void commit(String message) {
+	RevCommit commit(String message) {
 		log.debug("git commit -m '${message}'")
 		git?.commit()?.setMessage(message)?.call()
 	}
 
 	@Override
-	void tag(String name, String message, boolean annotated) {
+	Ref tag(String name, String message, boolean annotated) {
 		log.debug("git ${annotated ? '-a' : ''} ${name} -m '${message}'")
-		git?.tag()?.setAnnotated(annotated)?.setName(name)?.setMessage(message)?.call()
+		def tag = git?.tag()?.setAnnotated(annotated)?.setName(name)?.setMessage(message)?.call()
+		peel(tag)
 	}
 
 	@Override
@@ -109,6 +133,11 @@ class GitProviderImpl implements GitProvider {
 	@Override
 	Iterable<RevCommit> log() {
 		git?.log()?.call()
+	}
+
+	@Override
+	Iterable<RevCommit> log(AnyObjectId since, AnyObjectId until) {
+		git?.log()?.addRange(since, until)?.call()
 	}
 
 	@Override

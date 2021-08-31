@@ -24,36 +24,59 @@ class VersionUtilsTest extends Specification {
         VersionUtils.validateViolation(currentVersion, newVersion) == r
 
         where:
-        currentVersion  | newVersion    || r
-        '1.0.0'         | '0.9.9'       | false
-        '1.0.0'         | '1.0.0'       | false
-        '1.0.0'         | '1.0.0-RC.0'  | false
-        '1.0.0'         | '1.0.1-RC.0'  | true
-        '1.0.0'         | '1.1.0-RC.0'  | true
-        '1.0.0'         | '1.1.0'       | true
+        currentVersion | newVersion     || r
+        '1.0.0'        | '0.9.9'        | false
+        '1.0.0'        | '1.0.0'        | false
+        '1.0.0'        | '1.0.0-RC.0'   | false
+        '1.0.0'        | '1.0.1-RC.0'   | true
+        '1.0.0'        | '1.1.0-RC.0'   | true
+        '1.0.0'        | '1.1.0'        | true
     }
 
     def "Should validate version with branch range"() {
         expect:
-        VersionUtils.validateBranchRange(branch, version) == r
+        VersionUtils.validateBranchRange(version, branch) == r
 
         where:
-        branch      | version       || r
-        'master'    | '0.0.0'       | true
-        'master'    | '0.0.1'       | true
-        'master'    | '0.1.0'       | true
-        'master'    | '1.0.0'       | true
-        'master'    | '1.0.0-RC.0'  | true
-        'master'    | '2.0.0'       | true
-        '1.3.x'     | '1.3.0-RC.0'  | true
-        '1.3.x'     | '1.3.1'       | true
-        '1.3.x'     | '1.3.2'       | true
-        '1.3.x'     | '1.4.0'       | false
-        '1.3.x'     | '2.0.0'       | false
-        '1.x'       | '1.3.0-RC.0'  | true
-        '1.x'       | '1.3.1'       | true
-        '1.x'       | '1.3.2'       | true
-        '1.x'       | '1.4.0'       | true
-        '1.x'       | '2.0.0'       | false
+        version      | branch   || r
+        '0.0.0'      | 'master' | true
+        '0.0.1'      | 'master' | true
+        '0.1.0'      | 'master' | true
+        '1.0.0'      | 'master' | true
+        '1.0.0-RC.0' | 'master' | true
+        '2.0.0'      | 'master' | true
+        '1.3.0-RC.0' | '1.3.x'  | true
+        '1.3.1'      | '1.3.x'  | true
+        '1.3.2'      | '1.3.x'  | true
+        '1.4.0'      | '1.3.x'  | false
+        '2.0.0'      | '1.3.x'  | false
+        '1.3.0-RC.0' | '1.x'    | true
+        '1.3.1'      | '1.x'    | true
+        '1.3.2'      | '1.x'    | true
+        '1.4.0'      | '1.x'    | true
+        '2.0.0'      | '1.x'    | false
+    }
+
+    def "Should resolve version"() {
+        given:
+        def versions = ['0.0.2', '0.0.1', '0.1.0', '1.0.0', '0.2.0', 'notVersion', '1.0.0']
+
+        expect:
+        VersionUtils.resolveCurrentVersion(versions, branch).toString() == r
+
+        where:
+        branch    || r
+        '0.0.x'   | '0.0.2'
+        '0.1.X'   | '0.1.0'
+        '0.2.x'   | '0.2.0'
+        '0.3.x'   | '0.0.0'
+        '0.x'     | '0.2.0'
+        '1.0.X'   | '1.0.0'
+        '1.X'     | '1.0.0'
+        '2.0.X'   | '0.0.0'
+        '2.X'     | '0.0.0'
+        'main'    | '1.0.0'
+        '3.XX'    | '1.0.0'
+        '3.0.XX'  | '1.0.0'
     }
 }
