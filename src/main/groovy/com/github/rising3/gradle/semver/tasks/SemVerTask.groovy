@@ -18,9 +18,7 @@ package com.github.rising3.gradle.semver.tasks
 import com.github.rising3.gradle.semver.git.GitProviderImpl
 import com.github.rising3.gradle.semver.plugins.Target
 import com.github.rising3.gradle.semver.tasks.internal.ConventionalCommitsResolveNewVersion
-import com.github.rising3.gradle.semver.tasks.internal.FileResolveCurrentVersion
 import com.github.rising3.gradle.semver.tasks.internal.DefaultGitOperation
-import com.github.rising3.gradle.semver.tasks.internal.TagResolveCurrentVersion
 import com.github.rising3.gradle.semver.tasks.internal.YarnResolveNewVersion
 import com.github.rising3.gradle.semver.util.VersionUtils
 import org.gradle.api.DefaultTask
@@ -123,11 +121,6 @@ class SemVerTask extends DefaultTask {
 		 */
 		def call() {
 			prepareTask()
-
-			final currentVersion = resolveCurrentVersion()
-
-			project.version = currentVersion.toString()
-
 			final resolveNewVersion = resolveNewVersion()
 
 			if (resolveNewVersion.isNewVersion()) {
@@ -160,13 +153,6 @@ class SemVerTask extends DefaultTask {
 		 * Prepare task.
 		 */
 		protected abstract def prepareTask()
-
-		/**
-		 * Resolve current version.
-
-		 * @return ResolveCurrentVersion.
-		 */
-		protected abstract def resolveCurrentVersion()
 
 		/**
 		 * Resolve new version.
@@ -246,11 +232,6 @@ class SemVerTask extends DefaultTask {
 		}
 
 		@Override
-		protected def resolveCurrentVersion() {
-			new FileResolveCurrentVersion(filename, packageJson)()
-		}
-
-		@Override
 		protected def resolveNewVersion() {
 			conventionalCommit ? executeConventionalCommitsResolveNewVersion() : executeYarnResolveNewVersion()
 		}
@@ -267,11 +248,6 @@ class SemVerTask extends DefaultTask {
 			project.semver.noGitTagVersion = false
 			project.semver.noGitPush = true
 			project.semver.noGitPushTag =false
-		}
-
-		@Override
-		protected def resolveCurrentVersion() {
-			new TagResolveCurrentVersion(git, project.semver.versionTagPrefix as String)()
 		}
 
 		@Override

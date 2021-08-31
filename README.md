@@ -1,6 +1,8 @@
 # semver-gradle-plugin
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![BUILD](https://github.com/rising3/semver-gradle-plugin/actions/workflows/build.yml/badge.svg)](https://github.com/rising3/semver-gradle-plugin/actions/workflows/build.yml)
+[![Gradle Plugin Portal](https://img.shields.io/badge/Gradle%20Plugin%20Potal-0.5.0-blue.svg)](https://plugins.gradle.org/plugin/com.github.rising3.semver)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 Gradle plugin for Updates the project version.
 A plugin that can updating the semantic versions like `yarn version` command.

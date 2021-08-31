@@ -15,9 +15,11 @@
  */
 package com.github.rising3.gradle.semver.plugins
 
+import com.github.rising3.gradle.semver.tasks.PrepareTask
 import com.github.rising3.gradle.semver.tasks.SemVerTask
 import org.gradle.api.Project
 import org.gradle.api.Plugin
+import org.gradle.api.plugins.JavaBasePlugin
 
 /**
  * Semantic Versioning Gradle Plugin.
@@ -25,14 +27,19 @@ import org.gradle.api.Plugin
  * @author rising3
  */
 class SemVerGradlePlugin implements Plugin<Project> {
-    /**
-     * task name.
-     */
-    private static final String TASK_NAME = 'semver'
+    private static final String TASK_NAME_PREPARE = 'semverPrepare'
+    private static final String TASK_NAME_SEMVER = 'semver'
 
     @Override
     void apply(Project project) {
-        project.extensions.create(TASK_NAME, SemVerGradlePluginExtension)
-        project.task(TASK_NAME, type: SemVerTask)
+        project.extensions.create(TASK_NAME_PREPARE, SemVerGradlePluginExtension)
+        project.extensions.create(TASK_NAME_SEMVER, SemVerGradlePluginExtension)
+        def prepareTask = project.task(TASK_NAME_PREPARE, type: PrepareTask)
+        def semVerTask = project.task(TASK_NAME_SEMVER, type: SemVerTask)
+        project.apply plugin: SemVerGradlePlugin
+        project.plugins.withType(JavaBasePlugin) {
+            project.tasks['jar'].dependsOn prepareTask
+            semVerTask.dependsOn project.tasks[JavaBasePlugin.CHECK_TASK_NAME], prepareTask
+        }
     }
 }
