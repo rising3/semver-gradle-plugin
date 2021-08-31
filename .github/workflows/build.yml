@@ -1,4 +1,4 @@
-name: CI
+name: BUILD
 on:
   push:
     branches: [ main ]
@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: 15
+          java-version: 16
       - name: version
         run: ./gradlew -v
       - name: Create ~/.gradle/gradle.properties
