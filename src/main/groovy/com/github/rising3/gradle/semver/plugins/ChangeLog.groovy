@@ -13,32 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.rising3.gradle.semver.tasks
+package com.github.rising3.gradle.semver.plugins
 
 /**
- * Resolve the new version.
+ * Change Log enum.
  *
- * @author rigin3
+ * @author rising3
  */
-interface ResolveNewVersion {
-    /**
-     * Get new version.
-     *
-     * @return current version
-     */
-    def call()
-
-    /**
-     * Is user interaction?
-     *
-     * @return true ... user interaction
-     */
-    def isUserInteraction()
-
-    /**
-     * Is new version?
-     *
-     * @return true ... new version
-     */
-    def isNewVersion()
+enum ChangeLog {
+    NONE,
+    FILE,
+    GITHUB,
+    BOTH
 }

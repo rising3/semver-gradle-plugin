@@ -16,7 +16,9 @@
 package com.github.rising3.gradle.semver.plugins
 
 /**
- * Target.
+ * Target enum.
+ *
+ * @author rising3
  */
 enum Target {
     FILE,

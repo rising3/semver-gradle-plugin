@@ -35,8 +35,12 @@ class ConfigurationTemplate {
         |   noGitPush = $ext.noGitPush
         |   noGitPushTag = $ext.noGitPushTag
         |   noPackageJson = $ext.noPackageJson
+        |   changeLog = "$ext.changeLog"
+        |   changeLogOrder = ${ext.changeLogOrder.toList().stream().map { "\"$it\"" }.toArray() }
+        |   changeLogTitle = ${ext.changeLogTitle.entrySet().stream().map {"$it.key: \"$it.value\"" }.toArray() }
+        |   changeLogZoneId = "$ext.changeLogZoneId"
         |}
-        |tasks.semver.dependsOn tasks.semverPrepare
+        |tasks.semver.dependsOn tasks.semverLatest
         |tasks.semver.configure {
         |   doFirst {
         |       println 'first'

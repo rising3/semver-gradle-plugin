@@ -15,9 +15,11 @@
  */
 package helper
 
+import com.github.rising3.gradle.semver.git.GitProviderImpl
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.RepositoryBuilder
+import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.transport.RemoteConfig
 import org.eclipse.jgit.transport.URIish
 
@@ -26,8 +28,11 @@ import java.nio.file.Paths
 class GitRepositoryHelper {
     private Repository remoteRepository
     private Repository localRepository
+    private File workDir
 
     GitRepositoryHelper(File workDir, boolean isCreate = true) {
+        this.workDir = workDir
+
         if (isCreate) {
             if (workDir.exists()) {
                 workDir.deleteDir()
@@ -68,10 +73,19 @@ class GitRepositoryHelper {
         }
     }
 
+    void writeFile(String filename, String s) {
+        writeFile(workDir, filename, s)
+    }
+
     void writeFile(File dir, String filename, String s) {
-        new File(dir, filename).withWriter() {
-            it << s
-        }
+        new File(dir, filename).withWriter() { it << s }
+    }
+
+    RevCommit commit(String filename, String message) {
+        writeFile(workDir, filename, UUID.randomUUID().toString())
+        def local = new GitProviderImpl(workDir)
+        local.add('README.md')
+        local.commit(message)
     }
 
     private def newWorkRepository(File dir) {

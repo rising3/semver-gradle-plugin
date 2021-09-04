@@ -16,7 +16,7 @@
 package com.github.rising3.gradle.semver.tasks.internal
 
 import com.github.rising3.gradle.semver.SemVer
-import com.github.rising3.gradle.semver.conventionalcommits.ConventionalCommitsParser
+import com.github.rising3.gradle.semver.conventionalcommits.ChangeLogParser
 import com.github.rising3.gradle.semver.git.GitProvider
 import com.github.rising3.gradle.semver.tasks.ResolveNewVersion
 import org.eclipse.jgit.api.errors.NoHeadException
@@ -67,9 +67,20 @@ class ConventionalCommitsResolveNewVersion implements ResolveNewVersion {
     /**
      * Constructor.
      *
-     * @param version project version.
+     * @param version .
+     */
+    /**
+     * Constructor.
+     *
+     * @param git git provider
+     * @param versionTagPrefix version tag prefix
+     * @param version project version
      */
     ConventionalCommitsResolveNewVersion(GitProvider git, String versionTagPrefix, String version) {
+        assert git
+        assert versionTagPrefix
+        assert version
+
         this.git = git
         this.versionTagPrefix = versionTagPrefix
         this.version = SemVer.parse(version)
@@ -78,7 +89,7 @@ class ConventionalCommitsResolveNewVersion implements ResolveNewVersion {
     @Override
     def call() {
         final result = resolveLog().toList().stream()
-                .map { new ConventionalCommitsParser(it) }
+                .map { new ChangeLogParser(it) }
                 .inject(0) {result, it ->
                     if (it.isBreakingChange()) {
                         result | MASK_BREAKING_CHANGE
@@ -142,5 +153,4 @@ class ConventionalCommitsResolveNewVersion implements ResolveNewVersion {
             []
         }
     }
-
 }

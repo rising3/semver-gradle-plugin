@@ -43,6 +43,9 @@ class TagResolveCurrentVersion implements ResolveCurrentVersion {
      * @param versionTagPrefix Version tag prefix.
      */
     TagResolveCurrentVersion(GitProvider git, String versionTagPrefix) {
+        assert git
+        assert versionTagPrefix
+
         this.git = git
         this.versionTagPrefix = versionTagPrefix
     }

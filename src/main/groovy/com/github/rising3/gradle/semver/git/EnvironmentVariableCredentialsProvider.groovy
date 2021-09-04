@@ -15,6 +15,7 @@
  */
 package com.github.rising3.gradle.semver.git
 
+import com.github.rising3.gradle.semver.Constants
 import com.github.rising3.gradle.semver.util.SystemVariableUtils
 import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
@@ -25,18 +26,6 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
  * @author rising3
  */
 class EnvironmentVariableCredentialsProvider {
-    private static ENV_VAR_GH_ACTOR = 'GH_ACTOR'
-    private static ENV_VAR_GH_TOKEN = 'GH_TOKEN'
-    private static ENV_VAR_GITHUB_ACTOR = 'GITHUB_ACTOR'
-    private static ENV_VAR_GITHUB_TOKEN = 'GITHUB_TOKEN'
-    private static ENV_VAR_GL_ACTOR = 'GL_ACTOR'
-    private static ENV_VAR_GL_TOKEN = 'GL_TOKEN'
-    private static ENV_VAR_GITLAB_ACTOR = 'GITLAB_ACTOR'
-    private static ENV_VAR_GITLAB_TOKEN = 'GITLAB_TOKEN'
-    private static ENV_VAR_BB_ACTOR = 'BB_ACTOR'
-    private static ENV_VAR_BB_TOKEN = 'BB_TOKEN'
-    private static ENV_VAR_BITBUCKET_ACTOR = 'BITBUCKET_ACTOR'
-    private static ENV_VAR_BITBUCKET_TOKEN = 'BITBUCKET_TOKEN'
 
     /**
      * get Credentials.
@@ -46,22 +35,22 @@ class EnvironmentVariableCredentialsProvider {
     def CredentialsProvider getCredentials() {
         // GITHUB
         def gh = {
-            def u = SystemVariableUtils.getEnv(ENV_VAR_GH_ACTOR) ?: SystemVariableUtils.getEnv(ENV_VAR_GITHUB_ACTOR)
-            def p = SystemVariableUtils.getEnv(ENV_VAR_GH_TOKEN) ?: SystemVariableUtils.getEnv(ENV_VAR_GITHUB_TOKEN)
+            def u = SystemVariableUtils.getEnv(Constants.ENV_VAR_GH_ACTOR) ?: SystemVariableUtils.getEnv(Constants.ENV_VAR_GITHUB_ACTOR)
+            def p = SystemVariableUtils.getEnv(Constants.ENV_VAR_GH_TOKEN) ?: SystemVariableUtils.getEnv(Constants.ENV_VAR_GITHUB_TOKEN)
             u && p ? [u, p] : null
         }
 
         // GITLAB
         def gl = {
-            def u = SystemVariableUtils.getEnv(ENV_VAR_GL_ACTOR) ?: SystemVariableUtils.getEnv(ENV_VAR_GITLAB_ACTOR)
-            def p = SystemVariableUtils.getEnv(ENV_VAR_GL_TOKEN) ?: SystemVariableUtils.getEnv(ENV_VAR_GITLAB_TOKEN)
+            def u = SystemVariableUtils.getEnv(Constants.ENV_VAR_GL_ACTOR) ?: SystemVariableUtils.getEnv(Constants.ENV_VAR_GITLAB_ACTOR)
+            def p = SystemVariableUtils.getEnv(Constants.ENV_VAR_GL_TOKEN) ?: SystemVariableUtils.getEnv(Constants.ENV_VAR_GITLAB_TOKEN)
             u && p ? [u, p] : null
         }
 
         // BITBUCKET
         def bb = {
-            def u = SystemVariableUtils.getEnv(ENV_VAR_BB_ACTOR) ?: SystemVariableUtils.getEnv(ENV_VAR_BITBUCKET_ACTOR)
-            def p = SystemVariableUtils.getEnv(ENV_VAR_BB_TOKEN) ?: SystemVariableUtils.getEnv(ENV_VAR_BITBUCKET_TOKEN)
+            def u = SystemVariableUtils.getEnv(Constants.ENV_VAR_BB_ACTOR) ?: SystemVariableUtils.getEnv(Constants.ENV_VAR_BITBUCKET_ACTOR)
+            def p = SystemVariableUtils.getEnv(Constants.ENV_VAR_BB_TOKEN) ?: SystemVariableUtils.getEnv(Constants.ENV_VAR_BITBUCKET_TOKEN)
             u && p ? [u, p] : null
         }
         CredentialsProvider cp

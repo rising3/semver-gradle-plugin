@@ -17,10 +17,11 @@ package com.github.rising3.gradle.semver.tasks.internal
 
 
 import com.github.rising3.gradle.semver.git.GitProvider
+import com.github.rising3.gradle.semver.plugins.SemVerGradlePluginExtension
 import com.github.rising3.gradle.semver.tasks.GitOperation
 
 /**
- * Default Git Operation.
+ * Default git operation.
  *
  * @author rising3
  */
@@ -31,56 +32,22 @@ class DefaultGitOperation implements GitOperation {
     private final GitProvider git
 
     /**
-     * Version git message.
+     * Plugin Extension.
      */
-    private String versionGitMessage
-
-    /**
-     * Version tag prefix.
-     */
-    private String versionTagPrefix
-
-    /**
-     * No git commit version.
-     */
-    private boolean noGitCommitVersion
-
-    /**
-     * No git tag version.
-     */
-    private boolean noGitTagVersion
-
-    /**
-     * No git push.
-     */
-    private boolean noGitPush
-    /**
-     * No git push tag.
-     */
-    private boolean noGitPushTag
+    private final SemVerGradlePluginExtension ext
 
     /**
      * Constructor.
      *
-     * @param scm SCM Provider.
+     * @param git The git provider
+     * @param ext The plugin extension
      */
-    DefaultGitOperation(
-            git,
-            versionGitMessage,
-            versionTagPrefix,
-            noGitCommitVersion,
-            noGitTagVersion,
-            noGitPush,
-            noGitPushTag) {
-        assert git != null
+    DefaultGitOperation(GitProvider git, SemVerGradlePluginExtension ext) {
+        assert git
+        assert ext
 
         this.git = git
-        this.versionGitMessage = versionGitMessage
-        this.versionTagPrefix = versionTagPrefix
-        this.noGitCommitVersion = noGitCommitVersion
-        this.noGitTagVersion = noGitTagVersion
-        this.noGitPush = noGitPush
-        this.noGitPushTag = noGitPushTag
+        this.ext = ext
     }
 
     /**
@@ -92,20 +59,20 @@ class DefaultGitOperation implements GitOperation {
     def call(String version, List<String> filenames) {
         final def branch = git.getBranch()
         final def remote = 'origin'
-        final def message = String.format(versionGitMessage, version)
-        final def tag = "${versionTagPrefix}${version}"
+        final def message = String.format(ext.versionGitMessage, version)
+        final def tag = "${ext.versionTagPrefix}${version}"
 
-        if (!noGitCommitVersion) {
+        if (!ext.noGitCommitVersion) {
             filenames.forEach({ git.add(it) })
             git.commit(message)
         }
-        if (!noGitTagVersion) {
+        if (!ext.noGitTagVersion) {
             git.tag(tag, message, true)
         }
-        if (!noGitPush) {
+        if (!ext.noGitPush) {
             git.push(remote, branch)
         }
-        if (!noGitPushTag) {
+        if (!ext.noGitPushTag) {
             git.push(remote, tag)
         }
     }

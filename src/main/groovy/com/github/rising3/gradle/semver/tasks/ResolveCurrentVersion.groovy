@@ -24,7 +24,7 @@ interface ResolveCurrentVersion {
     /**
      * Get current version.
      *
-     * @return current version.
+     * @return current version
      */
     def call()
 }

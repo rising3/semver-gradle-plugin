@@ -16,29 +16,17 @@
 package com.github.rising3.gradle.semver.tasks
 
 /**
- * Resolve the new version.
+ * log operation.
  *
  * @author rigin3
  */
-interface ResolveNewVersion {
+interface LogOperation {
     /**
-     * Get new version.
+     * Generate log.
      *
-     * @return current version
+     * @param currentVersion The project current version
+     * @param newVersion Tee project new version
+     * @return log body
      */
-    def call()
-
-    /**
-     * Is user interaction?
-     *
-     * @return true ... user interaction
-     */
-    def isUserInteraction()
-
-    /**
-     * Is new version?
-     *
-     * @return true ... new version
-     */
-    def isNewVersion()
+    def call(String currentVersion, String newVersion)
 }

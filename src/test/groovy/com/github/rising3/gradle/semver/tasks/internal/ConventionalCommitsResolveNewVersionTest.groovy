@@ -51,8 +51,7 @@ class ConventionalCommitsResolveNewVersionTest extends Specification {
     def "Should no change at other type"() {
         given:
         final target = new ConventionalCommitsResolveNewVersion(local, 'v', '0.0.0')
-        local.add('README.md')
-        local.commit('refactor(runtime): drop support for Node 6')
+        gitRepo.commit('README.md', 'refactor(runtime): drop support for Node 6')
 
         when:
         def result = target()
@@ -67,11 +66,8 @@ class ConventionalCommitsResolveNewVersionTest extends Specification {
     def "Should create a new version by incrementing the patch number of the current version at fix type"() {
         given:
         final target = new ConventionalCommitsResolveNewVersion(local, 'v', '0.0.0')
-        local.add('README.md')
-        local.commit('refactor(runtime): drop support for Node 6')
-        gitRepo.writeFile(workDir, 'README.md', 'README1')
-        local.add('README.md')
-        local.commit('fix: allow provided config object to extend other configs')
+        gitRepo.commit('README.md', 'refactor(runtime): drop support for Node 6')
+        gitRepo.commit('README.md', 'fix: allow provided config object to extend other configs')
 
         when:
         def result = target()
@@ -86,14 +82,9 @@ class ConventionalCommitsResolveNewVersionTest extends Specification {
     def "Should create a new version by incrementing the minor number of the current version at feat type"() {
         given:
         final target = new ConventionalCommitsResolveNewVersion(local, 'v', '0.0.0')
-        local.add('README.md')
-        local.commit('refactor(runtime): drop support for Node 6')
-        gitRepo.writeFile(workDir, 'README.md', 'README1')
-        local.add('README.md')
-        local.commit('fix: allow provided config object to extend other configs')
-        gitRepo.writeFile(workDir, 'README.md', 'README2')
-        local.add('README.md')
-        local.commit('feat: allow provided config object to extend other configs')
+        gitRepo.commit('README.md', 'refactor(runtime): drop support for Node 6')
+        gitRepo.commit('README.md', 'fix: allow provided config object to extend other configs')
+        gitRepo.commit('README.md', 'feat: allow provided config object to extend other configs')
 
         when:
         def result = target()
@@ -108,17 +99,10 @@ class ConventionalCommitsResolveNewVersionTest extends Specification {
     def "Should create a new version by incrementing the major number of the current version at BREAKING CHANGE"() {
         given:
         final target = new ConventionalCommitsResolveNewVersion(local, 'v', '0.0.0')
-        local.add('README.md')
-        local.commit('refactor(runtime): drop support for Node 6')
-        gitRepo.writeFile(workDir, 'README.md', 'README1')
-        local.add('README.md')
-        local.commit('fix: allow provided config object to extend other configs')
-        gitRepo.writeFile(workDir, 'README.md', 'README2')
-        local.add('README.md')
-        local.commit('feat: allow provided config object to extend other configs')
-        gitRepo.writeFile(workDir, 'README.md', 'README3')
-        local.add('README.md')
-        local.commit('feat!: allow provided config object to extend other configs')
+        gitRepo.commit('README.md', 'refactor(runtime): drop support for Node 6')
+        gitRepo.commit('README.md', 'fix: allow provided config object to extend other configs')
+        gitRepo.commit('README.md', 'feat: allow provided config object to extend other configs')
+        gitRepo.commit('README.md', 'feat!: allow provided config object to extend other configs')
 
         when:
         def result = target()
@@ -133,30 +117,17 @@ class ConventionalCommitsResolveNewVersionTest extends Specification {
     def "Should create a new version"() {
         given:
         final target = new ConventionalCommitsResolveNewVersion(local, 'v', '1.0.0')
-        local.add('README.md')
-        local.commit('refactor(runtime): drop support for Node 6')
-        gitRepo.writeFile(workDir, 'README.md', 'README1')
-        local.add('README.md')
-        local.commit('fix: allow provided config object to extend other configs')
-        gitRepo.writeFile(workDir, 'README.md', 'README2')
-        local.add('README.md')
-        local.commit('feat: allow provided config object to extend other configs')
-        gitRepo.writeFile(workDir, 'README.md', 'README3')
-        local.add('README.md')
-        local.commit('feat!: allow provided config object to extend other configs')
+        gitRepo.commit('README.md', 'refactor(runtime): drop support for Node 6')
+        gitRepo.commit('README.md', 'fix: allow provided config object to extend other configs')
+        gitRepo.commit('README.md', 'feat: allow provided config object to extend other configs')
+        gitRepo.commit('README.md', 'feat!: allow provided config object to extend other configs')
+
         local.tag('v1.0.0', 'v1.0.0', true)
 
-        local.add('README.md')
-        local.commit('refactor(runtime): drop support for Node 6')
-        gitRepo.writeFile(workDir, 'README.md', 'README1')
-        local.add('README.md')
-        local.commit('fix: allow provided config object to extend other configs')
-        gitRepo.writeFile(workDir, 'README.md', 'README2')
-        local.add('README.md')
-        local.commit('feat: allow provided config object to extend other configs')
-        gitRepo.writeFile(workDir, 'README.md', 'README3')
-        local.add('README.md')
-        local.commit('feat!: allow provided config object to extend other configs')
+        gitRepo.commit('README.md', 'refactor(runtime): drop support for Node 6')
+        gitRepo.commit('README.md', 'fix: allow provided config object to extend other configs')
+        gitRepo.commit('README.md', 'feat: allow provided config object to extend other configs')
+        gitRepo.commit('README.md', 'feat!: allow provided config object to extend other configs')
 
         when:
         def result = target()

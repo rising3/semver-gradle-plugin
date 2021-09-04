@@ -26,9 +26,54 @@ import org.gradle.api.Project
 @ToString
 class SemVerGradlePluginExtension {
     /**
-     * manage version.
+     * target.
      */
     Target target = Target.FILE
+
+    /**
+     * Change log.
+     */
+    ChangeLog changeLog = ChangeLog.NONE
+
+    /**
+     * Change log type order.
+     */
+    String[] changeLogOrder = [
+            'fix',
+            'feat',
+            '__breaking_change__',
+            'docs',
+            'perf',
+            'build',
+            'ci',
+            'refactor',
+            'test',
+            'style',
+            'chore',
+    ]
+
+    /**
+     * ChangeLog type title.
+     */
+    Map<String, String> changeLogTitle = [
+            build              : 'Build Improvements',
+            chore              : 'Chores',
+            ci                 : 'CI Improvements',
+            docs               : 'Documentation',
+            feat               : 'Features',
+            fix                : 'Bug Fixes',
+            perf               : 'Performance Improvements',
+            refactor           : 'Code Refactoring',
+            style              : 'Styles',
+            test               : 'Tests',
+            __breaking_change__: 'BREAKING CHANGES',
+            __undefined__      : 'Other Changes',
+    ]
+
+    /**
+     * ChangeLog zone id.
+     */
+    String changeLogZoneId = "UTC"
 
     /**
      * filename.

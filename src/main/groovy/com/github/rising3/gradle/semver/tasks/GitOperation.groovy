@@ -24,8 +24,8 @@ interface GitOperation {
     /**
      * Execute git operation.
      *
-     * @param version version string.
-     * @param filenames add file contents to the index.
+     * @param version version string
+     * @param filenames add file contents to the index
      */
     def call(String version, List<String> filenames)
 }
