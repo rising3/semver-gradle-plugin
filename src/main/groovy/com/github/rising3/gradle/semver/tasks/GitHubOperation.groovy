@@ -16,29 +16,17 @@
 package com.github.rising3.gradle.semver.tasks
 
 /**
- * Resolve the new version.
+ * GitHub Operation.
  *
  * @author rigin3
  */
-interface ResolveNewVersion {
+interface GitHubOperation {
     /**
-     * Get new version.
+     * GitHub Operation.
      *
-     * @return current version
+     * @param remoteUrl remote url
+     * @param version project version
+     * @param body release body
      */
-    def call()
-
-    /**
-     * Is user interaction?
-     *
-     * @return true ... user interaction
-     */
-    def isUserInteraction()
-
-    /**
-     * Is new version?
-     *
-     * @return true ... new version
-     */
-    def isNewVersion()
+    void call(String remoteUrl, String version, String body)
 }

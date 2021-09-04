@@ -21,21 +21,18 @@ import com.github.rising3.gradle.semver.tasks.internal.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-import java.nio.file.Files
-import java.nio.file.Paths
-
 /**
- * Prepare Task.
+ * Latest Task.
  *
  * @auther rising3
  */
-class PrepareTask extends DefaultTask {
+class LatestTask extends DefaultTask {
 	/**
 	 * Constructor.
 	 */
-    PrepareTask() {
+	LatestTask() {
 		this.group = "Other"
-		this.description = "Resolve project version."
+		this.description = "Resolve latest project version."
 	}
 
 	/**
@@ -49,59 +46,61 @@ class PrepareTask extends DefaultTask {
 	/**
 	 * Create task template.
 	 *
-	 * @param mode task mode.
-	 * @return task template.
+	 * @param mode task mode
+	 * @return task template
 	 */
 	private def createTaskTemplate(mode) {
-		mode == Target.FILE ? new FileTaskTemplate() : new TagTaskTemplate()
+		Target.FILE == mode ? new FileTaskTemplate() : new TagTaskTemplate()
 	}
 
 	/**
 	 * Task template.
+	 *
+	 * @auther rising3
 	 */
 	private abstract class TaskTemplate {
 		final filename = "$project.rootDir/$project.semver.filename"
 		final packageJson = "$project.rootDir/package.json"
-		final isFilename = Files.exists(Paths.get(filename))
-		final isPackageJson = Files.exists(Paths.get(packageJson))
-		final props = VersionProp.load(filename)
-		final json = VersionJson.load(packageJson)
 		final git = new GitProviderImpl(project.rootDir, !(project.semver.noGitInit as Boolean))
 
 		/**
 		 * Default method.
 		 *
-		 * @return result.
+		 * @return result
 		 */
 		def call() {
-			final currentVersion = resolveCurrentVersion()
+			final currentVersion = resolveLatestVersion()
 			project.version = currentVersion.toString()
 		}
 
 		/**
-		 * Resolve current version.
-
-		 * @return ResolveCurrentVersion.
+		 * Resolve latest version.
+		 *
+		 * @return latest version
 		 */
-		protected abstract def resolveCurrentVersion()
+		protected abstract def resolveLatestVersion()
 	}
 
 	/**
 	 * File task template.
+	 *
+	 * @auther rising3
 	 */
 	private class FileTaskTemplate extends TaskTemplate {
 		@Override
-		protected def resolveCurrentVersion() {
+		protected def resolveLatestVersion() {
 			new FileResolveCurrentVersion(filename, packageJson)()
 		}
 	}
 
 	/**
 	 * Tag task template.
+	 *
+	 * @auther rising3
 	 */
 	private class TagTaskTemplate extends TaskTemplate {
 		@Override
-		protected def resolveCurrentVersion() {
+		protected def resolveLatestVersion() {
 			new TagResolveCurrentVersion(git, project.semver.versionTagPrefix as String)()
 		}
 	}

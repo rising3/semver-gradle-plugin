@@ -13,32 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.rising3.gradle.semver.tasks
+package com.github.rising3.gradle.semver.github
 
-/**
- * Resolve the new version.
- *
- * @author rigin3
- */
-interface ResolveNewVersion {
-    /**
-     * Get new version.
-     *
-     * @return current version
-     */
-    def call()
+import spock.lang.Specification
 
-    /**
-     * Is user interaction?
-     *
-     * @return true ... user interaction
-     */
-    def isUserInteraction()
-
-    /**
-     * Is new version?
-     *
-     * @return true ... new version
-     */
-    def isNewVersion()
+class GitHubFactoryTest extends Specification {
+    def "Should create GitHub instance"() {
+        expect:
+        GitHubFactory.create() != null
+    }
 }

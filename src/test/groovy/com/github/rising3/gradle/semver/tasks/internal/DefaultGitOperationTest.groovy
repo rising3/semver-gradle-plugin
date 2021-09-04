@@ -17,19 +17,28 @@ package com.github.rising3.gradle.semver.tasks.internal
 
 
 import com.github.rising3.gradle.semver.git.GitProvider
+import com.github.rising3.gradle.semver.plugins.SemVerGradlePluginExtension
 import spock.lang.Specification
 
 class DefaultGitOperationTest extends Specification {
+    private SemVerGradlePluginExtension ext
     private GitProvider git
     private DefaultGitOperation target
 
     def setup() {
+        ext = new SemVerGradlePluginExtension()
         git = Mock(GitProvider)
     }
 
     def "Should create commit, and tag"() {
         given:
-        target = new DefaultGitOperation(git, 'version %s release', 'ver', false, false, true, true)
+        ext.versionGitMessage = 'version %s release'
+        ext.versionTagPrefix = 'ver'
+        ext.noGitCommitVersion = false
+        ext.noGitTagVersion = false
+        ext.noGitPush = true
+        ext.noGitPushTag = true
+        target = new DefaultGitOperation(git, ext)
 
         when:
         target('1.0.0', ['filename'])
@@ -42,7 +51,13 @@ class DefaultGitOperationTest extends Specification {
 
     def "Should not create commit"() {
         given:
-        target = new DefaultGitOperation(git, 'v%s', 'v', true, false, true, true)
+        ext.versionGitMessage = 'v%s'
+        ext.versionTagPrefix = 'v'
+        ext.noGitCommitVersion = true
+        ext.noGitTagVersion = false
+        ext.noGitPush = true
+        ext.noGitPushTag = true
+        target = new DefaultGitOperation(git, ext)
 
         when:
         target('1.0.0', ['filename'])
@@ -55,7 +70,13 @@ class DefaultGitOperationTest extends Specification {
 
     def "Should not create tag"() {
         given:
-        target = new DefaultGitOperation(git, 'v%s', 'v', false, true, true, true)
+        ext.versionGitMessage = 'v%s'
+        ext.versionTagPrefix = 'v'
+        ext.noGitCommitVersion = false
+        ext.noGitTagVersion = true
+        ext.noGitPush = true
+        ext.noGitPushTag = true
+        target = new DefaultGitOperation(git, ext)
 
         when:
         target('1.0.0', ['filename'])

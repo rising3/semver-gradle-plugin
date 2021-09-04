@@ -15,7 +15,7 @@
  */
 package com.github.rising3.gradle.semver.plugins
 
-import com.github.rising3.gradle.semver.tasks.PrepareTask
+import com.github.rising3.gradle.semver.tasks.LatestTask
 import com.github.rising3.gradle.semver.tasks.SemVerTask
 import org.gradle.api.Project
 import org.gradle.api.Plugin
@@ -27,19 +27,19 @@ import org.gradle.api.plugins.JavaBasePlugin
  * @author rising3
  */
 class SemVerGradlePlugin implements Plugin<Project> {
-    private static final String TASK_NAME_PREPARE = 'semverPrepare'
+    private static final String TASK_NAME_LATEST = 'semverLatest'
     private static final String TASK_NAME_SEMVER = 'semver'
 
     @Override
     void apply(Project project) {
-        project.extensions.create(TASK_NAME_PREPARE, SemVerGradlePluginExtension)
+        project.extensions.create(TASK_NAME_LATEST, SemVerGradlePluginExtension)
         project.extensions.create(TASK_NAME_SEMVER, SemVerGradlePluginExtension)
-        def prepareTask = project.task(TASK_NAME_PREPARE, type: PrepareTask)
+        def latestTask = project.task(TASK_NAME_LATEST, type: LatestTask)
         def semVerTask = project.task(TASK_NAME_SEMVER, type: SemVerTask)
         project.apply plugin: SemVerGradlePlugin
         project.plugins.withType(JavaBasePlugin) {
-            project.tasks['jar'].dependsOn prepareTask
-            semVerTask.dependsOn project.tasks[JavaBasePlugin.CHECK_TASK_NAME], prepareTask
+            project.tasks['jar'].dependsOn latestTask
+            semVerTask.dependsOn project.tasks[JavaBasePlugin.CHECK_TASK_NAME], latestTask
         }
     }
 }

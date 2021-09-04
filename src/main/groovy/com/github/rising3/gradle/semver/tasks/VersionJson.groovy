@@ -17,7 +17,7 @@ package com.github.rising3.gradle.semver.tasks
 
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
-import groovy.util.logging.Slf4j
+import org.gradle.api.logging.Logging
 
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -28,8 +28,12 @@ import java.nio.file.StandardCopyOption
  *
  * @author rising3
  */
-@Slf4j
 class VersionJson {
+    /**
+     * gradle logger.
+     */
+    private static final LOG = Logging.getLogger(VersionJson.class)
+
     /**
      * Private constructor.
      */
@@ -71,7 +75,7 @@ class VersionJson {
     static void save(String filename, JsonBuilder json) {
         assert filename && json
         def src = Paths.get(filename)
-        log.debug("src: {}", src)
+        LOG.debug("src: {}", src)
         if (Files.exists(src)) {
             Files.copy(src, Paths.get("${filename}.bak"), StandardCopyOption.REPLACE_EXISTING)
         }

@@ -17,9 +17,11 @@ package com.github.rising3.gradle.semver.git
 
 import org.eclipse.jgit.api.Status
 import org.eclipse.jgit.lib.AnyObjectId
+import org.eclipse.jgit.lib.Config
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.ReflogEntry
+import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
 
 /**
@@ -54,7 +56,7 @@ interface GitProvider {
 	 * Read a single reference.
 	 *
 	 * @param name the reference name
-	 * @return the ref object.
+	 * @return the ref object
 	 */
 	Ref findRef(String name)
 
@@ -62,9 +64,23 @@ interface GitProvider {
 	 * Peel a possibly unpeeled reference by traversing the annotated tags.
 	 *
 	 * @param ref the reference to peel
-	 * @return the peeled object.
+	 * @return the peeled object
 	 */
 	Ref peel(Ref ref)
+
+	/**
+	 * Get repository.
+	 *
+	 * @return repository
+	 */
+	Repository getRepository()
+
+	/**
+	 * Get config.
+	 *
+	 * @return config
+	 */
+	Config getConfig()
 
 	/**
 	 * Add file contents to the index.
@@ -131,7 +147,7 @@ interface GitProvider {
 	/**
 	 * Get git current branch.
 	 *
-	 * @return current branch.
+	 * @return current branch
 	 */
 	String getBranch()
 
@@ -139,7 +155,7 @@ interface GitProvider {
 	 * Push remote repository.
 	 *
 	 * @param remote remote name.
-	 * @param ref branch name, or tag name.
+	 * @param ref branch name, or tag name
 	 */
 	void push(String remote, String ref)
 }

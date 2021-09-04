@@ -15,18 +15,13 @@
  */
 package com.github.rising3.gradle.semver.tasks
 
+import groovy.transform.InheritConstructors
+
 /**
  * Invalid version exception.
  *
  * @author rising3
  */
+@InheritConstructors
 class InvalidVersionException extends RuntimeException {
-    /**
-     * Constructor.
-     *
-     * @param message message.
-     */
-    InvalidVersionException(String message) {
-        super(message)
-    }
 }

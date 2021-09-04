@@ -16,9 +16,14 @@
 package com.github.rising3.gradle.semver.tasks
 
 import com.github.rising3.gradle.semver.git.GitProviderImpl
+import com.github.rising3.gradle.semver.github.GitHubFactory
+import com.github.rising3.gradle.semver.plugins.ChangeLog
+import com.github.rising3.gradle.semver.plugins.SemVerGradlePluginExtension
 import com.github.rising3.gradle.semver.plugins.Target
 import com.github.rising3.gradle.semver.tasks.internal.ConventionalCommitsResolveNewVersion
+import com.github.rising3.gradle.semver.tasks.internal.DefaultGitHubOperation
 import com.github.rising3.gradle.semver.tasks.internal.DefaultGitOperation
+import com.github.rising3.gradle.semver.tasks.internal.DefaultLogOperation
 import com.github.rising3.gradle.semver.tasks.internal.YarnResolveNewVersion
 import com.github.rising3.gradle.semver.util.VersionUtils
 import org.gradle.api.DefaultTask
@@ -29,6 +34,7 @@ import org.gradle.api.tasks.options.Option
 
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 
 /**
  * Semantic Versioning Task.
@@ -95,15 +101,17 @@ class SemVerTask extends DefaultTask {
 	/**
 	 * Create task template.
 	 *
-	 * @param mode task mode.
+	 * @param target target.
 	 * @return task template.
 	 */
-	private def createTaskTemplate(mode) {
-		mode == Target.FILE ? new FileTaskTemplate() : new TagTaskTemplate()
+	private def createTaskTemplate(target) {
+		Target.FILE == target ? new FileTaskTemplate() : new TagTaskTemplate()
 	}
 
 	/**
 	 * Task template.
+	 *
+	 * @auther rising3
 	 */
 	private abstract class TaskTemplate {
 		final filename = "$project.rootDir/$project.semver.filename"
@@ -121,6 +129,7 @@ class SemVerTask extends DefaultTask {
 		 */
 		def call() {
 			prepareTask()
+			final currentVersion = project.version
 			final resolveNewVersion = resolveNewVersion()
 
 			if (resolveNewVersion.isNewVersion()) {
@@ -128,7 +137,9 @@ class SemVerTask extends DefaultTask {
 					|| !VersionUtils.validateBranchRange(resolveNewVersion.toString(), git.getBranch())) {
 					throw new InvalidVersionException("Invalid new version: ${resolveNewVersion.toString()}, current version: ${project.version}, current branch: ${git.getBranch()}")
 				}
+
 				project.version = resolveNewVersion.toString()
+
 				def files = []
 				if (!isPackageJson || (isPackageJson && isFilename)) {
 					props['version'] = project.version
@@ -140,9 +151,31 @@ class SemVerTask extends DefaultTask {
 					VersionJson.save(packageJson, json)
 					files.push(Paths.get(packageJson).getFileName().toString())
 				}
-				if (!project.semver.noGitCommand) {
-					executeGitOperation(project.version as String, files)
+
+				LogOperation log = new DefaultLogOperation(git, project.semver as SemVerGradlePluginExtension)
+				final logBody = log(currentVersion, project.version)
+
+				if (ChangeLog.FILE == project.semver.changeLog || ChangeLog.BOTH == project.semver.changeLog) {
+					final changelog = Paths.get("$project.rootDir/CHANGELOG.md")
+					final changelogBak = Paths.get("${changelog}.bak")
+					if (Files.exists(changelog)) {
+						Files.copy(changelog, changelogBak, StandardCopyOption.REPLACE_EXISTING)
+					}
+					def tmp =Files.exists(changelogBak) ? changelogBak.getText('UTF-8') : ''
+					changelog.withWriter 'UTF-8', {it << logBody + tmp }
+					files.push(changelog.getFileName().toString())
 				}
+
+				if (!project.semver.noGitCommand) {
+					executeGitOperation(project.version, files)
+				}
+
+				if (ChangeLog.GITHUB == project.semver.changeLog || ChangeLog.BOTH == project.semver.changeLog) {
+					GitHubOperation github = new DefaultGitHubOperation(GitHubFactory.create(), project.semver as SemVerGradlePluginExtension)
+					String remoteUrl = git.getConfig().getString("remote", "origin", "url")
+					github(remoteUrl, project.version, logBody)
+				}
+
 				println "info New version: $project.version"
 			} else {
 				println "info No change version: $project.version"
@@ -151,6 +184,8 @@ class SemVerTask extends DefaultTask {
 
 		/**
 		 * Prepare task.
+		 *
+		 * @auther rising3
 		 */
 		protected abstract def prepareTask()
 
@@ -197,7 +232,7 @@ class SemVerTask extends DefaultTask {
 		 * @return ConventionalCommitsResolveNewVersion.
 		 */
 		protected def executeConventionalCommitsResolveNewVersion() {
-			ConventionalCommitsResolveNewVersion resolveNewVersion = new ConventionalCommitsResolveNewVersion(
+			def resolveNewVersion = new ConventionalCommitsResolveNewVersion(
 					git, project.semver.versionTagPrefix as String, project.version as String)
 			resolveNewVersion()
 			resolveNewVersion
@@ -210,21 +245,17 @@ class SemVerTask extends DefaultTask {
 		 * @param files add file contents to the index.
 		 */
 		protected def executeGitOperation(version, files) {
-			GitOperation gitOperation =  new DefaultGitOperation(
-					git,
-					project.semver.versionGitMessage as String,
-					project.semver.versionTagPrefix as String,
-					project.semver.noGitCommitVersion as Boolean,
-					project.semver.noGitTagVersion as Boolean,
-					project.semver.noGitPush as Boolean,
-					project.semver.noGitPushTag as Boolean)
-
+			def gitOperation =  new DefaultGitOperation(git, project.semver as SemVerGradlePluginExtension)
 			gitOperation(version, files)
 		}
+
+
 	}
 
 	/**
 	 * File task template.
+	 *
+	 * @auther rising3
 	 */
 	private class FileTaskTemplate extends TaskTemplate {
 		@Override

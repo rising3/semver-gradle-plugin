@@ -15,7 +15,7 @@
  */
 package com.github.rising3.gradle.semver.tasks
 
-import groovy.util.logging.Slf4j
+import org.gradle.api.logging.Logging
 
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -26,8 +26,12 @@ import java.nio.file.StandardCopyOption
  *
  * @author rising3
  */
-@Slf4j
 final class VersionProp {
+	/**
+	 * gradle logger.
+	 */
+	private static final LOG = Logging.getLogger(VersionProp.class)
+
 	/**
 	 * Private constructor.
 	 */
@@ -43,7 +47,7 @@ final class VersionProp {
 	static Properties load(String filename) {
 		assert filename
 		def src = Paths.get(filename)
-		log.debug("src: {}", src)
+		LOG.debug("src: {}", src)
 		def props = new Properties()
 		if (Files.exists(src)) {
 			src.toFile().withInputStream {
@@ -66,7 +70,7 @@ final class VersionProp {
 	static void save(String filename, Properties props, String comment) {
 		assert filename && props && comment
 		def src = Paths.get(filename)
-		log.debug("src: {}", src)
+		LOG.debug("src: {}", src)
 		if (Files.exists(src)) {
 			Files.copy(src, Paths.get("${filename}.bak"), StandardCopyOption.REPLACE_EXISTING)
 		}

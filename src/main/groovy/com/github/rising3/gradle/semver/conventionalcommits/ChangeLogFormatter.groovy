@@ -13,32 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.rising3.gradle.semver.tasks
+package com.github.rising3.gradle.semver.conventionalcommits
 
 /**
- * Resolve the new version.
+ * ChangeLog formatter.
  *
- * @author rigin3
+ * @author rising3
  */
-interface ResolveNewVersion {
+interface ChangeLogFormatter {
     /**
-     * Get new version.
+     * Formatting the header.
      *
-     * @return current version
+     * @param title The header title
+     * @return The header after formation
      */
-    def call()
+    String header(String title)
 
     /**
-     * Is user interaction?
+     * Formatting the section.
      *
-     * @return true ... user interaction
+     * @param type The type id
+     * @param logs Analyzed commit logs
+     * @return The section after formation
      */
-    def isUserInteraction()
-
-    /**
-     * Is new version?
-     *
-     * @return true ... new version
-     */
-    def isNewVersion()
+    String section(String type, Collection<Map<String,?>> logs)
 }

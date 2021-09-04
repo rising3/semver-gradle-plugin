@@ -36,7 +36,17 @@ class MessageTemplate {
         """\
         |$message
         |
-        |BREAKING CHANGE: `extends` key in config file is now used for extending other config files
+        |body1
+        |
+        |body2
+        |
+        |body3
+        |body4
+        |
+        |BREAKING CHANGE: `extends1` key in config file is now used for extending other config files
+        |
+        |BREAKING CHANGE: `extends2` key in config file is now used for extending other config files
+        |BREAKING CHANGE: `extends3` key in config file is now used for extending other config files
         |""".stripMargin()
     }
 }

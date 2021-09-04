@@ -102,6 +102,16 @@ class GitProviderImplTest extends Specification {
         actual == tag.getObjectId()
     }
 
+    def "Should get repository"() {
+        expect:
+        local.getRepository() != null
+    }
+
+    def "Should get config"() {
+        expect:
+        local.getConfig() != null
+    }
+
     def "Should add to stage"() {
         when:
         local.add('README.md')

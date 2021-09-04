@@ -15,10 +15,10 @@
  */
 package com.github.rising3.gradle.semver.git
 
-import groovy.util.logging.Slf4j
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.Status
 import org.eclipse.jgit.lib.AnyObjectId
+import org.eclipse.jgit.lib.Config
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
@@ -28,6 +28,7 @@ import org.eclipse.jgit.lib.RepositoryBuilder
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.RefSpec
+import org.gradle.api.logging.Logging
 
 import java.nio.file.Paths
 
@@ -36,8 +37,12 @@ import java.nio.file.Paths
  *
  * @author rising3
  */
-@Slf4j
 class GitProviderImpl implements GitProvider {
+	/**
+	 * gradle logger.
+	 */
+	private static final LOG = Logging.getLogger(GitProviderImpl.class)
+
 	/**
 	 * JGit.
 	 */
@@ -68,15 +73,15 @@ class GitProviderImpl implements GitProvider {
 			this.cp = new EnvironmentVariableCredentialsProvider().getCredentials()
 					?: new SystemPropertyCredentialsProvider().getCredentials()
 		} catch(Exception e) {
-			log.warn("WARN: Not work JGit.")
-			log.debug(".git is not exist", e)
+			LOG.warn("WARN: Not work JGit.")
+			LOG.debug(".git is not exist", e)
 		}
 	}
 
 	@Override
 	void init(File dir) {
 		if (!Paths.get(dir.toString(), ".git").toFile().exists()) {
-			log.debug("git init ${dir}")
+			LOG.debug("git init ${dir}")
 			Git.init()?.setDirectory(dir)?.setBare(false)?.call()
 		}
 	}
@@ -102,20 +107,30 @@ class GitProviderImpl implements GitProvider {
 	}
 
 	@Override
+	Repository getRepository() {
+		git.getRepository()
+	}
+
+	@Override
+	Config getConfig() {
+		git.getRepository().getConfig()
+	}
+
+	@Override
 	void add(String filePattern) {
-		log.debug("git add ${filePattern}")
+		LOG.debug("git add ${filePattern}")
 		git?.add()?.addFilepattern(filePattern)?.call()
 	}
 
 	@Override
 	RevCommit commit(String message) {
-		log.debug("git commit -m '${message}'")
+		LOG.debug("git commit -m '${message}'")
 		git?.commit()?.setMessage(message)?.call()
 	}
 
 	@Override
 	Ref tag(String name, String message, boolean annotated) {
-		log.debug("git ${annotated ? '-a' : ''} ${name} -m '${message}'")
+		LOG.debug("git ${annotated ? '-a' : ''} ${name} -m '${message}'")
 		def tag = git?.tag()?.setAnnotated(annotated)?.setName(name)?.setMessage(message)?.call()
 		peel(tag)
 	}
