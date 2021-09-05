@@ -1,6 +1,6 @@
 # semver-gradle-plugin
 [![BUILD](https://github.com/rising3/semver-gradle-plugin/actions/workflows/build.yml/badge.svg)](https://github.com/rising3/semver-gradle-plugin/actions/workflows/build.yml)
-[![Gradle Plugin Portal](https://img.shields.io/badge/Gradle%20Plugin%20Potal-0.5.0-blue.svg)](https://plugins.gradle.org/plugin/com.github.rising3.semver)
+[![Gradle Plugin Portal](https://img.shields.io/badge/Gradle%20Plugin%20Potal-0.6.0-blue.svg)](https://plugins.gradle.org/plugin/com.github.rising3.semver)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
@@ -18,7 +18,7 @@ You need to add the following lines to your `build.gradle` file:
 
 ```
 plugins {
-    id 'com.github.riging3.semver' version '0.5.0'
+    id 'com.github.riging3.semver' version '0.6.0'
 }
 ```
 
@@ -163,7 +163,7 @@ target | String | 'FILE' | Choice 'FILE' or 'TAG'.
 versionTagPrefix | String | 'v' | Change the prefix of the git tag.
 versionGitMessage | String | 'v%s' | Change the git message. Where %s is the version string.
 changeLog | String | 'NONE' | Choice 'NONE' or FILE' or 'GITHUB' or 'BOTH'.
-changeZoneId | String | 'UTC' | Choice the zone id supported by the ZoneId class.
+changeLogZoneId | String | 'UTC' | Choice the zone id supported by the ZoneId class.
 changeLogOrder | String[] | | Change type order.
 changeLogType | String[] | | Change type title.
 filename | String | 'gradle.properties' | (FILE Only)<BR>Change the filename of&nbsp;version&nbsp;property.
