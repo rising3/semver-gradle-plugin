@@ -26,6 +26,7 @@ plugins {
 
 ## New features
 
+* Add supported for dry-run. [More...](#task-options)
 * Add supported for an automating generate a changelog with the ConventionalCommits. [More...](#changelog)
 * Add supported for an automating versioning with the ConventionalCommits. [More...](#task-options)
 * Add supported for a get current version from the latest tag. [More...](#plugin-extension)
@@ -152,6 +153,11 @@ The commit message should be structured as follows:
 * Types other than `fix` and `feat` are allowed, but an automating versioning is not supported.
 
 For more information, please refer to [ConventionalCommits](https://www.conventionalcommits.org/en/v1.0.0/)
+
+```
+gradle semver --conventional-commits --dryrun
+```
+Dry run the options.
 
 ## Plugin Extension
 
