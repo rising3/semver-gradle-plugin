@@ -786,6 +786,83 @@ class SemverGradlePluginFunctionalTest extends Specification {
         actual.contains("info New version: 0.1.1")
     }
 
+    def "Should run semver task with dryrun, tag, changelog(FILE) and conventional commits"() {
+        given:
+        ext.setTarget(Target.TAG)
+        ext.setChangeLog(ChangeLog.FILE)
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(projectDir, CHANGELOG_MD, '')
+        gitRepo.commit('README.md', 'Initial commit')
+        gitRepo.commit('README.md', 'refactor(runtime): drop support for Node 6')
+        git.tag('v0.1.0', 'v0.1.0', true)
+        gitRepo.commit('README.md', 'fix: allow provided config object to extend other configs')
+        git.push('origin', 'master')
+        git.push('origin', 'v0.1.0')
+        final runner = createRunner(['semver', '--conventional-commits', '--dryrun'])
+
+        when:
+        final actual = runner.build().output
+
+        then:
+        git.log().size() == 3
+        git.tagList().size() == 1
+
+        remote.log().call().size() == 3
+        remote.tagList().call().size() == 1
+
+        gradleProperties.getText().contains('0.1.1')
+        gradlePropertiesBak.exists()
+        packageJson.getText().contains('0.1.1')
+        packageJsonBak.exists()
+        changelogMd.exists()
+        changelogMd.getText().contains('# v0.1.1 (')
+        changelogMd.getText().contains('## Bug Fixes')
+        changelogMdBak.exists()
+        actual.contains('*** DRY-RUN *** git tag v0.1.1 -am \'v0.1.1\'')
+        actual.contains('*** DRY-RUN *** git push origin v0.1.1')
+        actual.contains('info New version: 0.1.1')
+    }
+
+    def "Should run semver task with dryrun, file, changelog(FILE) and conventional commits"() {
+        given:
+        ext.setTarget(Target.FILE)
+        ext.setChangeLog(ChangeLog.FILE)
+        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.1.0'))
+        gitRepo.writeFile(projectDir, CHANGELOG_MD, '')
+        gitRepo.commit('README.md', 'Initial commit')
+        gitRepo.commit('README.md', 'refactor(runtime): drop support for Node 6')
+        gitRepo.commit('README.md', 'fix: allow provided config object to extend other configs')
+        final runner = createRunner(['semver', '--conventional-commits', '--dryrun'])
+
+        when:
+        final actual = runner.build().output
+
+        then:
+        git.log().size() == 3
+        git.tagList().size() == 0
+
+        gradleProperties.getText().contains('0.1.1')
+        gradlePropertiesBak.exists()
+        packageJson.getText().contains('0.1.1')
+        packageJsonBak.exists()
+        changelogMd.exists()
+        changelogMd.getText().contains('# v0.1.1 (')
+        changelogMd.getText().contains('## Bug Fixes')
+        changelogMdBak.exists()
+        actual.contains('*** DRY-RUN *** git add CHANGELOG.md')
+        actual.contains('*** DRY-RUN *** git add package.json')
+        actual.contains('*** DRY-RUN *** git add gradle.properties')
+        actual.contains('*** DRY-RUN *** git commit -m \'v0.1.1\'')
+        actual.contains('*** DRY-RUN *** git tag v0.1.1 -am \'v0.1.1\'')
+        actual.contains("info New version: 0.1.1")
+    }
+
     def createRunner(Object args) {
         final runner = GradleRunner.create()
         runner.forwardOutput()

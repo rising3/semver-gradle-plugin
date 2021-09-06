@@ -19,6 +19,7 @@ package com.github.rising3.gradle.semver.tasks.internal
 import com.github.rising3.gradle.semver.git.GitProvider
 import com.github.rising3.gradle.semver.plugins.SemVerGradlePluginExtension
 import com.github.rising3.gradle.semver.tasks.GitOperation
+import com.github.rising3.gradle.semver.util.DryRunUtils
 
 /**
  * Default git operation.
@@ -50,30 +51,28 @@ class DefaultGitOperation implements GitOperation {
         this.ext = ext
     }
 
-    /**
-     * Default method.
-     *
-     * @param version version
-     * @param filenames filename list
-     */
-    def call(String version, List<String> filenames) {
+    def call(String version, List<String> filenames, boolean dryRun) {
         final def branch = git.getBranch()
         final def remote = 'origin'
         final def message = String.format(ext.versionGitMessage, version)
         final def tag = "${ext.versionTagPrefix}${version}"
 
         if (!ext.noGitCommitVersion) {
-            filenames.forEach({ git.add(it) })
-            git.commit(message)
+
+            filenames.each {
+                def filename = it
+                DryRunUtils.run(dryRun, { git.add(filename) }, "git add $it")
+            }
+            DryRunUtils.run(dryRun, { git.commit(message) }, "git commit -m \'$message\'")
         }
         if (!ext.noGitTagVersion) {
-            git.tag(tag, message, true)
+            DryRunUtils.run(dryRun, { git.tag(tag, message, true) }, "git tag $tag -am \'$message\'")
         }
         if (!ext.noGitPush) {
-            git.push(remote, branch)
+            DryRunUtils.run(dryRun, { git.push(remote, branch) }, "git push $remote $branch")
         }
         if (!ext.noGitPushTag) {
-            git.push(remote, tag)
+            DryRunUtils.run(dryRun, { git.push(remote, tag) }, "git push $remote $tag")
         }
     }
 }

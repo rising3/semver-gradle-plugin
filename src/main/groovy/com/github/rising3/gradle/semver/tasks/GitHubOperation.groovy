@@ -27,6 +27,7 @@ interface GitHubOperation {
      * @param remoteUrl remote url
      * @param version project version
      * @param body release body
+     * @param dryRun dry run
      */
-    void call(String remoteUrl, String version, String body)
+    void call(String remoteUrl, String version, String body, boolean dryRun)
 }

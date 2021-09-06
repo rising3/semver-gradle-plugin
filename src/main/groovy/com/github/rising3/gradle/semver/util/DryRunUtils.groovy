@@ -13,20 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.rising3.gradle.semver.tasks
+package com.github.rising3.gradle.semver.util
+
+import org.gradle.api.logging.Logging
 
 /**
- * Git Operation.
+ * Dry run utility.
  *
- * @author rigin3
+ * @author rising3
  */
-interface GitOperation {
+final class DryRunUtils {
     /**
-     * Execute git operation.
-     *
-     * @param version version string
-     * @param filenames add file contents to the index
-     * @param dryRun dry run
+     * gradle logger.
      */
-    def call(String version, List<String> filenames, boolean dryRun)
+    private static final LOG = Logging.getLogger(DryRunUtils.class)
+
+    /**
+     * Private constructor.
+     */
+    private DryRunUtils() {
+    }
+
+    /**
+     * Dry run.
+     *
+     * @param dryRun True, if dry-run
+     * @param fn closure
+     * @param message message
+     */
+    static void run(boolean dryRun, Closure fn, String message) {
+        if (dryRun) {
+            LOG.lifecycle("*** DRY-RUN *** {}", message)
+        }
+        else {
+            fn()
+        }
+    }
+
 }

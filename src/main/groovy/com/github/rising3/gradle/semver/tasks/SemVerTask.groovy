@@ -82,6 +82,10 @@ class SemVerTask extends DefaultTask {
 	@Option(option = 'conventional-commits', description = 'Create a new version according to the Conventional Commits rules.')
 	boolean conventionalCommit = false
 
+	@Input
+	@Option(option = 'dryrun', description = 'Dry runs. Disable Git operations and GitHub Release.')
+	boolean dryRun = false
+
 	/**
 	 * Constructor.
 	 */
@@ -167,15 +171,15 @@ class SemVerTask extends DefaultTask {
 				}
 
 				if (!project.semver.noGitCommand) {
-					executeGitOperation(project.version, files)
+					def gitOperation =  new DefaultGitOperation(git, project.semver as SemVerGradlePluginExtension)
+					gitOperation(project.version, files, dryRun)
 				}
 
 				if (ChangeLog.GITHUB == project.semver.changeLog || ChangeLog.BOTH == project.semver.changeLog) {
-					GitHubOperation github = new DefaultGitHubOperation(GitHubFactory.create(), project.semver as SemVerGradlePluginExtension)
-					String remoteUrl = git.getConfig().getString("remote", "origin", "url")
-					github(remoteUrl, project.version, logBody)
+					def remoteUrl = git.getConfig().getString("remote", "origin", "url")
+					def github = new DefaultGitHubOperation(GitHubFactory.create(), project.semver as SemVerGradlePluginExtension)
+					github(remoteUrl, project.version, logBody, dryRun)
 				}
-
 				println "info New version: $project.version"
 			} else {
 				println "info No change version: $project.version"
@@ -237,19 +241,6 @@ class SemVerTask extends DefaultTask {
 			resolveNewVersion()
 			resolveNewVersion
 		}
-
-		/**
-		 * Execute git operation.
-		 *
-		 * @param version version string.
-		 * @param files add file contents to the index.
-		 */
-		protected def executeGitOperation(version, files) {
-			def gitOperation =  new DefaultGitOperation(git, project.semver as SemVerGradlePluginExtension)
-			gitOperation(version, files)
-		}
-
-
 	}
 
 	/**
