@@ -38,7 +38,7 @@ class DefaultGitHubOperationTest extends Specification {
         target = new DefaultGitHubOperation(github, ext)
 
         when:
-        target("https://github.com/user/repo.git", "0.0.1", 'hello')
+        target("https://github.com/user/repo.git", "0.0.1", 'hello', false)
 
         then:
         1 * repo.getReleaseByTagName('v0.0.1')
@@ -55,7 +55,7 @@ class DefaultGitHubOperationTest extends Specification {
         target = new DefaultGitHubOperation(github, ext)
 
         when:
-        target("https://github.com/user/repo.git", "0.0.1", 'hello')
+        target("https://github.com/user/repo.git", "0.0.1", 'hello', false)
 
         then:
         1 * rel.update()
@@ -67,7 +67,7 @@ class DefaultGitHubOperationTest extends Specification {
         target = new DefaultGitHubOperation(github, ext)
 
         when:
-        target('https://test.com/user/repo.git', '0.0.1', 'hello')
+        target('https://test.com/user/repo.git', '0.0.1', 'hello', false)
 
         then:
         0 * github.getOrganization('user')
@@ -80,7 +80,7 @@ class DefaultGitHubOperationTest extends Specification {
         target = new DefaultGitHubOperation(github, ext)
 
         when:
-        target('https://github.com/user/repo.git', '0.0.1', 'hello')
+        target('https://github.com/user/repo.git', '0.0.1', 'hello', false)
 
         then:
         1 * github.getOrganization('user')
@@ -93,10 +93,25 @@ class DefaultGitHubOperationTest extends Specification {
         target = new DefaultGitHubOperation(github, ext)
 
         when:
-        target('https://github.com/org/repo.git', 'notSemver', 'hello')
+        target('https://github.com/org/repo.git', 'notSemver', 'hello', false)
 
         then:
         0 * github.getOrganization('user')
         0 * github.getRepository('user/repo')
+    }
+
+    def "Should create GitHub release with dry-run"() {
+        given:
+        github = Stub(GitHub)
+        def repo = Mock(GHRepository)
+        github.getRepository("user/repo") >> repo
+        target = new DefaultGitHubOperation(github, ext)
+
+        when:
+        target("https://github.com/user/repo.git", "0.0.1", 'hello', true)
+
+        then:
+        1 * repo.getReleaseByTagName('v0.0.1')
+        0 * repo.createRelease('v0.0.1')
     }
 }

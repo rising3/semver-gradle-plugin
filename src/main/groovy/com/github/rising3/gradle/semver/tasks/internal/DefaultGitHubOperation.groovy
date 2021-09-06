@@ -18,6 +18,7 @@ package com.github.rising3.gradle.semver.tasks.internal
 import com.github.rising3.gradle.semver.SemVer
 import com.github.rising3.gradle.semver.plugins.SemVerGradlePluginExtension
 import com.github.rising3.gradle.semver.tasks.GitHubOperation
+import com.github.rising3.gradle.semver.util.DryRunUtils
 import org.gradle.api.logging.Logging
 import org.kohsuke.github.GHRepository
 import org.kohsuke.github.GitHub
@@ -57,14 +58,16 @@ class DefaultGitHubOperation implements GitHubOperation {
         this.ext = ext
     }
 
-    void call(String remoteUrl, String version, String body) {
+    void call(String remoteUrl, String version, String body, boolean dryRun) {
         def mUrl = remoteUrl =~ /^((git|ssh|http(s)?)|(git@[\w\.]+))(:(\/\/)?)github.com\/(?<name>[\w\.@\:\/\-~]+)(\/)?$/
         if (!mUrl.find()) {
             return
         }
 
         try {
-            def name = mUrl.group("name").replaceAll('.git', '')
+            def name = mUrl.group('name').replaceAll('.git', '')
+            def ownerName = name.split('/')[0]
+            def repoName = name.split('/')[1]
             def tag = "${ext.versionTagPrefix}${version}"
             def semver = SemVer.parse(version)
             def pre = Objects.nonNull(semver.preid)
@@ -75,9 +78,11 @@ class DefaultGitHubOperation implements GitHubOperation {
             }
             def release = repo.getReleaseByTagName(tag)
             if (Objects.isNull(release)) {
-                repo.createRelease(tag)?.name(tag)?.body(body)?.draft(false)?.prerelease(pre)?.create()
+                def fn = { repo.createRelease(tag)?.name(tag)?.body(body)?.draft(false)?.prerelease(pre)?.create() }
+                DryRunUtils.run(dryRun, fn, "GitHub REST API [POST]:/repos/${ownerName}/${repoName}/releases")
             } else {
-                release?.update()?.body(body)?.update()
+                def fn = { release?.update()?.body(body)?.update() }
+                DryRunUtils.run(dryRun, fn, "GitHub REST API [PATCH]:/repos/${ownerName}/${repoName}/releases/assets/{asset_id}")
             }
         } catch (Exception e) {
             LOG.error("abort GitHub operation: ${e.toString()}")

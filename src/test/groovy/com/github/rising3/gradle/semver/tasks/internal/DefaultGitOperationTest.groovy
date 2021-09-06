@@ -41,7 +41,7 @@ class DefaultGitOperationTest extends Specification {
         target = new DefaultGitOperation(git, ext)
 
         when:
-        target('1.0.0', ['filename'])
+        target('1.0.0', ['filename'], false)
 
         then:
         1 * git.add('filename')
@@ -60,7 +60,7 @@ class DefaultGitOperationTest extends Specification {
         target = new DefaultGitOperation(git, ext)
 
         when:
-        target('1.0.0', ['filename'])
+        target('1.0.0', ['filename'], false)
 
         then:
         0 * git.add('filename')
@@ -79,11 +79,32 @@ class DefaultGitOperationTest extends Specification {
         target = new DefaultGitOperation(git, ext)
 
         when:
-        target('1.0.0', ['filename'])
+        target('1.0.0', ['filename'], false)
 
         then:
         1 * git.add('filename')
         1 * git.commit('v1.0.0')
         0 * git.tag('v1.0.0', 'v1.0.0', true)
+    }
+
+    def "Should dry-run"() {
+        given:
+        ext.versionGitMessage = 'version %s release'
+        ext.versionTagPrefix = 'ver'
+        ext.noGitCommitVersion = false
+        ext.noGitTagVersion = false
+        ext.noGitPush = false
+        ext.noGitPushTag = false
+        target = new DefaultGitOperation(git, ext)
+
+        when:
+        target('1.0.0', ['filename'], true)
+
+        then:
+        0 * git.add('filename')
+        0 * git.commit('version 1.0.0 release')
+        0 * git.tag('ver1.0.0', 'version 1.0.0 release', true)
+        0 * git.push('origin', null)
+        0 * git.push('origin', 'ver1.0.0')
     }
 }
