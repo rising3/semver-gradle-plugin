@@ -112,7 +112,6 @@ class SemverGradlePluginFunctionalTest extends Specification {
 
     def "Should abort semver task, if no change version"() {
         given:
-        gitRepo.cleanup() // test condition
         ext.setNoGitInit(false)
         gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
         gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, 'version=1.0.0')
@@ -774,7 +773,6 @@ class SemverGradlePluginFunctionalTest extends Specification {
         then:
         git.log().size() == 4
         git.tagList().size() == 1
-        println git.tagList()
         git.tagList()[0].getName().contains("${ext.versionTagPrefix}0.1.1")
 
         gradleProperties.getText().contains('0.1.1')

@@ -112,6 +112,11 @@ class GitProviderImplTest extends Specification {
         local.getConfig() != null
     }
 
+    def "Should get branch"() {
+        expect:
+        println local.getBranch() == 'master'
+    }
+
     def "Should add to stage"() {
         when:
         local.add('README.md')
