@@ -16,6 +16,7 @@
 package com.github.rising3.gradle.semver.tasks
 
 import groovy.transform.InheritConstructors
+import org.gradle.api.GradleException
 
 /**
  * Invalid version exception.
@@ -23,5 +24,5 @@ import groovy.transform.InheritConstructors
  * @author rising3
  */
 @InheritConstructors
-class InvalidVersionException extends RuntimeException {
+class InvalidVersionException extends GradleException {
 }
