@@ -159,6 +159,9 @@ For more information, please refer to [ConventionalCommits](https://www.conventi
 gradle semver --conventional-commits --dryrun
 ```
 Dry run the options.
+In a dry run, the following operations will be disabled.
+* local/remote Git operations (git add, git commit, git tag, git push)
+* GitHub release operations
 
 ## Plugin Extension
 
