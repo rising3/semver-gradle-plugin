@@ -1,3 +1,26 @@
+# v0.7.0 (2021-09-07)
+
+## Bug Fixes
+* **fix:** use gradle exception instead of runtime exception (3fbfac13d838a1f09e058aa7b80fa024cd1386fb)
+
+## Features
+* **feat:** add support for dry run (#14) (64629c672793ef38f4c3079eeb07d5323d762a87)
+
+## Documentation
+* **docs(readme):** polish (a9698136ae80c41c6915897ba556c10733ec8350)
+* **docs(readme):** add how to use dry run (bd24b046d780c2d2de4597d3e773fde9e74b3af2)
+* **docs(changelog):** add changelog (dde0d4b14a4a2f4ed2d51d2ae3e3455aed6fbcd8)
+
+## Build Improvements
+* **build(gradle):** upgrade plugin (f61eb2cf78997a8d294a4f9f786c42520f5a79de)
+* **build(gradle):** update spotless configuration (3654111eefee987ab8a86325e7779dc886d99e64)
+
+## Tests
+* **test:** polish (9a9b2703f783b111bbc777e1d60297780e4da1f3)
+
+## Other Changes
+* Add Gitter badge (6949176615fc4b9dfaacdccffb432222b5e9689a)
+
 # v0.6.0 (2021-09-05)
 
 ## Bug Fixes
