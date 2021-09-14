@@ -1,3 +1,17 @@
+# v0.7.1 (2021-09-14)
+
+## Bug Fixes
+* **fix:** semver task depends on latest task (#19) (c762b80aca17e82d46a820e1adea55161a659ce4)
+
+## Documentation
+* **docs(readme):** update (04f59d70089071e3e82dc9f6f4d435b9a562846e)
+* **docs:** update issue templates (#18) (0e6e8507d4eab52007b259d5517fb25d66bba221)
+* **docs(coc):** add code of conduct (4fc71a35dfdaca0de77979deec52d5473a8c3e24)
+* **docs(readme):** update how to use dry run (185bb2a23855218092038202303952f34a3b576b)
+
+## Build Improvements
+* **build(gradle):** upgrade plugin (6bb50eb0a5ced19a260173069d708cf72108ee13)
+
 # v0.7.0 (2021-09-07)
 
 ## Bug Fixes
