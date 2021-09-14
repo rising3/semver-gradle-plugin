@@ -1,6 +1,6 @@
 # semver-gradle-plugin
 [![BUILD](https://github.com/rising3/semver-gradle-plugin/actions/workflows/build.yml/badge.svg)](https://github.com/rising3/semver-gradle-plugin/actions/workflows/build.yml)
-[![Gradle Plugin Portal](https://img.shields.io/badge/Gradle%20Plugin%20Potal-0.7.0-blue.svg)](https://plugins.gradle.org/plugin/com.github.rising3.semver)
+[![Gradle Plugin Portal](https://img.shields.io/badge/Gradle%20Plugin%20Potal-0.7.1-blue.svg)](https://plugins.gradle.org/plugin/com.github.rising3.semver)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![Join the chat at https://gitter.im/semver-gradle-plugin/community](https://badges.gitter.im/semver-gradle-plugin/community.svg)](https://gitter.im/semver-gradle-plugin/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -19,7 +19,7 @@ You need to add the following lines to your `build.gradle` file:
 
 ```
 plugins {
-    id 'com.github.riging3.semver' version '0.7.0'
+    id 'com.github.rising3.semver' version '0.7.1'
 }
 ```
 
