@@ -88,32 +88,32 @@ class GitProviderImpl implements GitProvider {
 
 	@Override
 	ObjectId resolve(String rev) {
-		git.getRepository().resolve(rev)
+		git?.getRepository()?.resolve(rev) ?: null
 	}
 
 	@Override
 	ObjectId head() {
-		git.getRepository().resolve(Constants.HEAD)
+		git?.getRepository()?.resolve(Constants.HEAD) ?: null
 	}
 
 	@Override
 	Ref findRef(String name) {
-		git.getRepository().getRefDatabase().findRef(name)
+		git?.getRepository()?.getRefDatabase()?.findRef(name) ?: null
 	}
 
 	@Override
 	Ref peel(Ref ref) {
-		git.getRepository().getRefDatabase().peel(ref)
+		git?.getRepository()?.getRefDatabase()?.peel(ref) ?: null
 	}
 
 	@Override
 	Repository getRepository() {
-		git.getRepository()
+		git?.getRepository() ?: null
 	}
 
 	@Override
 	Config getConfig() {
-		git.getRepository().getConfig()
+		git?.getRepository()?.getConfig() ?: null
 	}
 
 	@Override
@@ -142,22 +142,22 @@ class GitProviderImpl implements GitProvider {
 
 	@Override
 	Collection<ReflogEntry> reflog() {
-		git?.reflog()?.call()
+		git?.reflog()?.call() ?: []
 	}
 
 	@Override
 	Iterable<RevCommit> log() {
-		git?.log()?.call()
+		git?.log()?.call() ?: []
 	}
 
 	@Override
 	Iterable<RevCommit> log(AnyObjectId since, AnyObjectId until) {
-		git?.log()?.addRange(since, until)?.call()
+		git?.log()?.addRange(since, until)?.call() ?: []
 	}
 
 	@Override
 	List<Ref> tagList() {
-		git?.tagList()?.call()
+		git?.tagList()?.call() ?: []
 	}
 
 	@Override

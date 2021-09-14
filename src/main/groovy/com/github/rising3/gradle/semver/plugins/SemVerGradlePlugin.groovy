@@ -37,9 +37,10 @@ class SemVerGradlePlugin implements Plugin<Project> {
         def latestTask = project.task(TASK_NAME_LATEST, type: LatestTask)
         def semVerTask = project.task(TASK_NAME_SEMVER, type: SemVerTask)
         project.apply plugin: SemVerGradlePlugin
+        semVerTask.dependsOn latestTask
         project.plugins.withType(JavaBasePlugin) {
             project.tasks['jar'].dependsOn latestTask
-            semVerTask.dependsOn project.tasks[JavaBasePlugin.CHECK_TASK_NAME], latestTask
+            semVerTask.dependsOn project.tasks[JavaBasePlugin.CHECK_TASK_NAME]
         }
     }
 }

@@ -40,7 +40,6 @@ class ConfigurationTemplate {
         |   changeLogTitle = ${ext.changeLogTitle.entrySet().stream().map {"$it.key: \"$it.value\"" }.toArray() }
         |   changeLogZoneId = "$ext.changeLogZoneId"
         |}
-        |tasks.semver.dependsOn tasks.semverLatest
         |tasks.semver.configure {
         |   doFirst {
         |       println 'first'

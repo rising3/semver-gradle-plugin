@@ -59,6 +59,9 @@ final class VersionUtils {
      * @return true ... Valid / false ... Invalid
      */
     static boolean validateBranchRange(String version, String branch) {
+        if (branch == null) {
+            return true
+        }
         def rPatch = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.((?i)x)$/
         def rMinor = /^(0|[1-9]\d*)\.((?i)x)$/
         def mPatch = branch =~ rPatch
@@ -76,11 +79,11 @@ final class VersionUtils {
      */
     static SemVer resolveCurrentVersion(List<String> versions, String branch) {
         versions.stream()
-                .filter { VersionUtils::versionFilter(it) }
-                .filter { VersionUtils::validateBranchRange(it, branch) }
-                .map { SemVer::parse(it) }
+                .filter { VersionUtils.versionFilter(it) }
+                .filter { VersionUtils.validateBranchRange(it, branch) }
+                .map { SemVer.parse(it) }
                 .max { a, b -> a == b ? 0 : (a < b ? -1 : 1) }
-                .orElse(SemVer::parse(DEFAULT_VERSION))
+                .orElse(SemVer.parse(DEFAULT_VERSION))
     }
 
     /**

@@ -55,6 +55,9 @@ class VersionUtilsTest extends Specification {
         '1.3.2'      | '1.x'    | true
         '1.4.0'      | '1.x'    | true
         '2.0.0'      | '1.x'    | false
+        null         | null     | true
+        null         | 'master' | true
+        '0.0.0'      | null     | true
     }
 
     def "Should resolve version"() {
