@@ -147,12 +147,12 @@ class SemVerTask extends DefaultTask {
 				def files = []
 				if (!isPackageJson || (isPackageJson && isFilename)) {
 					props['version'] = project.version
-					VersionProp.save(filename, props, 'Over written by semver plugin')
+					VersionProp.save(filename, props, 'Over written by semver plugin', !project.semver.noBackupProp)
 					files.push(Paths.get(filename).getFileName().toString())
 				}
 				if (isPackageJson && !project.semver.noPackageJson) {
 					json.content.version = project.version
-					VersionJson.save(packageJson, json)
+					VersionJson.save(packageJson, json, !project.semver.noBackupPackageJson)
 					files.push(Paths.get(packageJson).getFileName().toString())
 				}
 
@@ -162,7 +162,7 @@ class SemVerTask extends DefaultTask {
 				if (ChangeLog.FILE == project.semver.changeLog || ChangeLog.BOTH == project.semver.changeLog) {
 					final changelog = Paths.get("$project.rootDir/CHANGELOG.md")
 					final changelogBak = Paths.get("${changelog}.bak")
-					if (Files.exists(changelog)) {
+					if (Files.exists(changelog) && !project.semver.noBackupChangelog) {
 						Files.copy(changelog, changelogBak, StandardCopyOption.REPLACE_EXISTING)
 					}
 					def tmp =Files.exists(changelogBak) ? changelogBak.getText('UTF-8') : ''

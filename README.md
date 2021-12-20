@@ -184,6 +184,9 @@ noGitTagVersion | boolean | false | (FILE Only) <BR>Even enable or disable the g
 noGitPush | boolean | true | (FILE Only) <BR>Even enable or disable the git push branch behavior entirely.
 noGitPushTag | boolean | true | (FILE Only) <BR>Even enable or disable the git push tag behavior entirely.
 noPackageJson | boolean | false | (FILE Only) <BR>Even enable or disable the versioning the package.json behavior entirely.
+noBackupChangelog | boolean | true | (FILE Only) <BR>Even enable or disable the create the CHANGELOG.bak behavior entirely.
+noBackupProp | boolean | true | (FILE Only) <BR>Even enable or disable the create the gradle.properties.bak behavior entirely.
+noBackupPackageJson | boolean | true | (FILE Only) <BR>Even enable or disable the create the package.json.bak behavior entirely.
 
 **FILE:**
 1. Get current version from file. (gradle.properties, package.json, etc.)

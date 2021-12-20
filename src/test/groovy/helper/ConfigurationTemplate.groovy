@@ -39,6 +39,9 @@ class ConfigurationTemplate {
         |   changeLogOrder = ${ext.changeLogOrder.toList().stream().map { "\"$it\"" }.toArray() }
         |   changeLogTitle = ${ext.changeLogTitle.entrySet().stream().map {"$it.key: \"$it.value\"" }.toArray() }
         |   changeLogZoneId = "$ext.changeLogZoneId"
+        |   noBackupProp = "$ext.noBackupProp"
+        |   noBackupPackageJson = "$ext.noBackupPackageJson"
+        |   noBackupChangelog = "$ext.noBackupChangelog"
         |}
         |tasks.semver.configure {
         |   doFirst {

@@ -66,12 +66,13 @@ final class VersionProp {
 	 * @param filename prop filename.
 	 * @param props Properties.
 	 * @param comment comment for prop.
+	 * @param backup For true ... file exist, create backup file.
 	 */
-	static void save(String filename, Properties props, String comment) {
+	static void save(String filename, Properties props, String comment, boolean backup) {
 		assert filename && props && comment
 		def src = Paths.get(filename)
 		LOG.debug("src: {}", src)
-		if (Files.exists(src)) {
+		if (Files.exists(src) && backup) {
 			Files.copy(src, Paths.get("${filename}.bak"), StandardCopyOption.REPLACE_EXISTING)
 		}
 		src.toFile().withOutputStream() {

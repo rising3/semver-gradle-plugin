@@ -67,12 +67,30 @@ class VersionPropTest extends Specification {
         props['version']='1.2.3'
 
         when:
-        VersionProp.save(propPath.toString(), props, 'TEST')
+        VersionProp.save(propPath.toString(), props, 'TEST', true)
 
         then:
         propPath.toFile().getText().contains('#TEST')
         propPath.toFile().getText().contains('version=1.2.3')
         !propBakPath.toFile().exists()
+    }
+
+    def "Should create backup, and save version, if file is exist"() {
+        given:
+        propPath.toFile().withWriter() {
+            it << "version=1.2.3"
+        }
+        def props = new Properties()
+        props['version']='2.0.0'
+
+        when:
+        VersionProp.save(propPath.toString(), props, 'TEST', true)
+
+        then:
+        propPath.toFile().getText().contains('#TEST')
+        propPath.toFile().getText().contains('version=2.0.0')
+        propBakPath.toFile().exists()
+        propBakPath.toFile().getText().contains('version=1.2.3')
     }
 
     def "Should save version, if file is exist"() {
@@ -84,12 +102,11 @@ class VersionPropTest extends Specification {
         props['version']='2.0.0'
 
         when:
-        VersionProp.save(propPath.toString(), props, 'TEST')
+        VersionProp.save(propPath.toString(), props, 'TEST', false)
 
         then:
         propPath.toFile().getText().contains('#TEST')
         propPath.toFile().getText().contains('version=2.0.0')
-        propBakPath.toFile().exists()
-        propBakPath.toFile().getText().contains('version=1.2.3')
+        !propBakPath.toFile().exists()
     }
 }

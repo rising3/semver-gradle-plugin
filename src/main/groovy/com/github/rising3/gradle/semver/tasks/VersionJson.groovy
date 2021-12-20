@@ -71,12 +71,13 @@ class VersionJson {
      *
      * @param filename json filename.
      * @param json JsonBuilder.
+     * @param backup For true ... file exist, create backup file.
      */
-    static void save(String filename, JsonBuilder json) {
+    static void save(String filename, JsonBuilder json, boolean backup) {
         assert filename && json
         def src = Paths.get(filename)
         LOG.debug("src: {}", src)
-        if (Files.exists(src)) {
+        if (Files.exists(src) && backup) {
             Files.copy(src, Paths.get("${filename}.bak"), StandardCopyOption.REPLACE_EXISTING)
         }
         src.toFile().write(json.toPrettyString())
