@@ -1,7 +1,7 @@
 name: BUILD
 on:
   push:
-    branches: [ main ]
+    branches: [ feature/*, fix/*, main ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -14,8 +14,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v2
         with:
-          distribution: 'adopt'
-          java-version: 16
+          distribution: 'temurin'
+          java-version: 17
       - name: version
         run: ./gradlew -v
       - name: Create ~/.gradle/gradle.properties
