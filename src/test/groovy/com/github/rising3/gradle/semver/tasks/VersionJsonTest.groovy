@@ -71,13 +71,36 @@ class VersionJsonTest extends Specification {
         }
 
         when:
-        VersionJson.save(jsonPath.toString(), json)
+        VersionJson.save(jsonPath.toString(), json, true)
 
         then:
         def actual = new JsonSlurper().parseText(jsonPath.toFile().getText())
         assert actual.name == "json"
         assert actual.version == "1.2.3"
         !jsonBakPath.toFile().exists()
+    }
+
+    def "Should create backup, and save version, if file is exist"() {
+        given:
+        jsonPath.toFile().withWriter() {
+            it << """{"version": "1.2.3"}"""
+        }
+        def json = new JsonBuilder()
+        json {
+            name "json"
+            version "2.0.0"
+        }
+
+        when:
+        VersionJson.save(jsonPath.toString(), json, true)
+
+        then:
+        def actual = new JsonSlurper().parseText(jsonPath.toFile().getText())
+        assert actual.name == "json"
+        assert actual.version == "2.0.0"
+        jsonBakPath.toFile().exists()
+        def bak = new JsonSlurper().parseText(jsonBakPath.toFile().getText())
+        assert bak.version == "1.2.3"
     }
 
     def "Should save version, if file is exist"() {
@@ -92,14 +115,12 @@ class VersionJsonTest extends Specification {
         }
 
         when:
-        VersionJson.save(jsonPath.toString(), json)
+        VersionJson.save(jsonPath.toString(), json, false)
 
         then:
         def actual = new JsonSlurper().parseText(jsonPath.toFile().getText())
         assert actual.name == "json"
         assert actual.version == "2.0.0"
-        jsonBakPath.toFile().exists()
-        def bak = new JsonSlurper().parseText(jsonBakPath.toFile().getText())
-        assert bak.version == "1.2.3"
+        !jsonBakPath.toFile().exists()
     }
 }

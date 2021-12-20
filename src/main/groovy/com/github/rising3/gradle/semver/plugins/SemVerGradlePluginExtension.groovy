@@ -124,4 +124,19 @@ class SemVerGradlePluginExtension {
      * Disable package.json
      */
     boolean noPackageJson = false
+
+    /**
+     * Disable create backup for properties
+     */
+    boolean noBackupProp = true
+
+    /**
+     * Disable create backup for package.json
+     */
+    boolean noBackupPackageJson = true
+
+    /**
+     * Disable create backup for CHANGELOG
+     */
+    boolean noBackupChangelog = true
 }
