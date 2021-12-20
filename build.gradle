@@ -19,7 +19,7 @@ plugins {
     id "groovy"
     id "jacoco"
     id "com.github.hierynomus.license" version "0.16.1"
-    id "com.diffplug.spotless" version "5.11.0"
+    id "com.diffplug.spotless" version "6.0.5"
     id "eclipse"
     id "idea"
 //    id 'com.github.rising3.semver' version '0.7.1'
@@ -42,13 +42,13 @@ repositories {
 dependencies {
     implementation gradleApi()
     implementation localGroovy()
-    implementation 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r'
-    implementation 'org.kohsuke:github-api:1.132'
-    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+    implementation 'org.eclipse.jgit:org.eclipse.jgit:6.0.0.202111291000-r'
+    implementation 'org.kohsuke:github-api:1.301'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:3.13.1' // This is the last version of okhttp3 that support UrlConnection
     testImplementation platform('org.spockframework:spock-bom:2.0-groovy-3.0')
     testImplementation 'org.spockframework:spock-core'
-    testImplementation 'org.eclipse.jgit:org.eclipse.jgit.junit:5.12.0.202106070339-r'
+    testImplementation 'org.eclipse.jgit:org.eclipse.jgit.junit:6.0.0.202111291000-r'
     testImplementation 'org.mockito:mockito-core:3.+'
     testImplementation 'org.mockito:mockito-inline:3.+'
 }
@@ -114,7 +114,7 @@ test {
 }
 
 jacoco {
-    toolVersion = "0.8.6"
+    toolVersion = "0.8.7"
 }
 
 jacocoTestReport {
