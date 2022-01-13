@@ -165,10 +165,10 @@ class SemVerTask extends DefaultTask {
 				if (ChangeLog.FILE == project.semver.changeLog || ChangeLog.BOTH == project.semver.changeLog) {
 					final changelog = Paths.get("$project.rootDir/CHANGELOG.md")
 					final changelogBak = Paths.get("${changelog}.bak")
+					def tmp = Files.exists(changelog) ? changelog.getText('UTF-8') : ''
 					if (Files.exists(changelog) && !project.semver.noBackupChangelog) {
 						Files.copy(changelog, changelogBak, StandardCopyOption.REPLACE_EXISTING)
 					}
-					def tmp =Files.exists(changelogBak) ? changelogBak.getText('UTF-8') : ''
 					changelog.withWriter 'UTF-8', {it << logBody + tmp }
 					files.push(changelog.getFileName().toString())
 				}
