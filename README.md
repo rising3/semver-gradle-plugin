@@ -176,6 +176,10 @@ changeLog | String | 'NONE' | Choice 'NONE' or FILE' or 'GITHUB' or 'BOTH'.
 changeLogZoneId | String | 'UTC' | Choice the zone id supported by the ZoneId class.
 changeLogOrder | String[] | | Change type order.
 changeLogType | String[] | | Change type title.
+noBackupChangelog | boolean | true | Even enable or disable the create the CHANGELOG.bak behavior entirely.
+noBackupProp | boolean | true | Even enable or disable the create the gradle.properties.bak behavior entirely.
+noBackupPackageJson | boolean | true | Even enable or disable the create the package.json.bak behavior entirely.
+noGitStatusCheck | boolean | false | Even enable or disable the git status check behavior entirely.
 filename | String | 'gradle.properties' | (FILE Only)<BR>Change the filename of&nbsp;version&nbsp;property.
 noGitCommand | boolean | false | (FILE Only)<BR>Even enable or disable the git command behavior entirely.
 noGitInit | boolean | true | (FILE Only) <BR>Even enable or disable the git init behavior entirely.
@@ -184,9 +188,6 @@ noGitTagVersion | boolean | false | (FILE Only) <BR>Even enable or disable the g
 noGitPush | boolean | true | (FILE Only) <BR>Even enable or disable the git push branch behavior entirely.
 noGitPushTag | boolean | true | (FILE Only) <BR>Even enable or disable the git push tag behavior entirely.
 noPackageJson | boolean | false | (FILE Only) <BR>Even enable or disable the versioning the package.json behavior entirely.
-noBackupChangelog | boolean | true | (FILE Only) <BR>Even enable or disable the create the CHANGELOG.bak behavior entirely.
-noBackupProp | boolean | true | (FILE Only) <BR>Even enable or disable the create the gradle.properties.bak behavior entirely.
-noBackupPackageJson | boolean | true | (FILE Only) <BR>Even enable or disable the create the package.json.bak behavior entirely.
 
 **FILE:**
 1. Get current version from file. (gradle.properties, package.json, etc.)

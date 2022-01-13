@@ -139,4 +139,9 @@ class SemVerGradlePluginExtension {
      * Disable create backup for CHANGELOG
      */
     boolean noBackupChangelog = true
+
+    /**
+     * Disable git status check
+     */
+    boolean noGitStatusCheck = false
 }

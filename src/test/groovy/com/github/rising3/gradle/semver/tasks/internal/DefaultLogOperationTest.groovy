@@ -59,7 +59,7 @@ class DefaultLogOperationTest extends Specification {
         ]
 
         gitRepo = new GitRepositoryHelper(workDir)
-        local = new GitProviderImpl(workDir)
+        local = new GitProviderImpl(gitRepo.getLocalDirectory())
 
         gitRepo.commit('README.md', 'build: commit')
         gitRepo.commit('README.md', 'chore: commit')

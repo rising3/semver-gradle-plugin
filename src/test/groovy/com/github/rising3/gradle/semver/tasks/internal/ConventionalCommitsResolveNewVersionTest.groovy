@@ -29,7 +29,7 @@ class ConventionalCommitsResolveNewVersionTest extends Specification {
 
     def setup() throws Exception {
         gitRepo = new GitRepositoryHelper(workDir)
-        local = new GitProviderImpl(workDir)
+        local = new GitProviderImpl(gitRepo.getLocalDirectory())
         remote = new Git(gitRepo.getRemoteRepository())
         gitRepo.writeFile(workDir, 'README.md', 'README')
     }
