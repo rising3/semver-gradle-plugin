@@ -22,6 +22,7 @@ class ConfigurationTemplate {
         """\
         |plugins {
         |   id('com.github.rising3.semver')
+        |   id('java')
         |}
         |semver {
         |   target = "$ext.target"
