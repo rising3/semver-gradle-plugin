@@ -1,3 +1,20 @@
+# v0.8.0 (2022-01-13)
+
+## Bug Fixes
+* **fix:** insert changelog #20 (c285c3e0d159ef0f8a8c05880128c5aef49b973d)
+* **fix:** dependency order problem of gradle tasks #22 (2f84cbe61a67ca74ac5e2fee44e8b96036d14be2)
+
+## Features
+* **feat:** check the status of the git working tree before versioning #21 (39043e78b36cf0e7d382f840ee403a82d771b049)
+* **feat:** default disable create backup. #20 (eccdea2c15006e6a723c832ce3f77ee2df928bc6)
+
+## Documentation
+* **docs:** polish (9d0f7b7e4c7077e7a394f3dc872094f27409379b)
+
+## Build Improvements
+* **build:** polish (6bfba17625235b9e8985cee3cfc40432079f439a)
+* **build:** upgrade to JDK 17 (c6d385f675494f0ffd427c3daa955a9be27f6d53)
+
 # v0.7.1 (2021-09-14)
 
 ## Bug Fixes
