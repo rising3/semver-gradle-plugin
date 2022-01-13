@@ -29,22 +29,26 @@ class GitRepositoryHelper {
     private Repository remoteRepository
     private Repository localRepository
     private File workDir
+    private File localDir
+    private File remoteDir
 
     GitRepositoryHelper(File workDir, boolean isCreate = true) {
         this.workDir = workDir
 
+        if (workDir.exists()) {
+            workDir.deleteDir()
+        }
+        workDir.mkdirs()
+        localDir = Paths.get(workDir.toString(), "/local").toFile()
+        localDir.mkdirs()
+        remoteDir = Paths.get(workDir.toString(), "/remote").toFile()
+        remoteDir.mkdirs()
         if (isCreate) {
-            if (workDir.exists()) {
-                workDir.deleteDir()
-            }
-            workDir.mkdirs()
-            def remoteDir = Paths.get(workDir.toString(), "/remote").toFile()
-
             remoteRepository = newWorkRepository(remoteDir)
             remoteRepository.getConfig().setString("fsck", "", "missingEmail", "ignore")
             remoteRepository.getConfig().save()
 
-            localRepository = newWorkRepository(workDir)
+            localRepository = newWorkRepository(localDir)
             def localConf = localRepository.getConfig()
             localConf.setString("user", "", "name", "test")
             localConf.setString("user", "", "email", "test@example")
@@ -56,6 +60,14 @@ class GitRepositoryHelper {
         }
     }
 
+    File getRemoteDirectory() {
+        remoteDir
+    }
+
+    File getLocalDirectory() {
+        localDir
+    }
+
     Repository getRemoteRepository() {
         remoteRepository
     }
@@ -65,7 +77,6 @@ class GitRepositoryHelper {
     }
 
     void cleanup() {
-        def workDir = localRepository?.getDirectory()
         remoteRepository?.close()
         localRepository?.close()
         if (workDir?.exists()) {
@@ -74,17 +85,18 @@ class GitRepositoryHelper {
     }
 
     void writeFile(String filename, String s) {
-        writeFile(workDir, filename, s)
+        writeFile(localDir, filename, s)
     }
 
     void writeFile(File dir, String filename, String s) {
         new File(dir, filename).withWriter() { it << s }
+        def local = new GitProviderImpl(getLocalDirectory())
+        local.add(filename)
     }
 
     RevCommit commit(String filename, String message) {
-        writeFile(workDir, filename, UUID.randomUUID().toString())
-        def local = new GitProviderImpl(workDir)
-        local.add('README.md')
+        writeFile(localDir, filename, UUID.randomUUID().toString())
+        def local = new GitProviderImpl(getLocalDirectory())
         local.commit(message)
     }
 

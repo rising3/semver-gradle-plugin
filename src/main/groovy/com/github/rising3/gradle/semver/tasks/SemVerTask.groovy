@@ -132,6 +132,9 @@ class SemVerTask extends DefaultTask {
 		 * @return result.
 		 */
 		def call() {
+			if (!git.status().isClean() && !project.semver.noGitStatusCheck) {
+				throw new GitStatusException("Working tree not clean")
+			}
 			prepareTask()
 			final currentVersion = project.version
 			final resolveNewVersion = resolveNewVersion()

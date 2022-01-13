@@ -33,12 +33,13 @@ class SemverGradlePluginFunctionalTest extends Specification {
     private static final PACKAGE_JSON = 'package.json'
     private static final CHANGELOG_MD = 'CHANGELOG.md'
     private final projectDir = new File('build/functionalTest/SemverGradlePluginFunctionalTest')
-    private final gradleProperties = Paths.get(projectDir.toString(), Project.GRADLE_PROPERTIES).toFile()
-    private final gradlePropertiesBak = Paths.get(projectDir.toString(), "${Project.GRADLE_PROPERTIES}.bak").toFile()
-    private final packageJson = Paths.get(projectDir.toString(), PACKAGE_JSON).toFile()
-    private final packageJsonBak = Paths.get(projectDir.toString(), "${PACKAGE_JSON}.bak").toFile()
-    private final changelogMd = Paths.get(projectDir.toString(), CHANGELOG_MD).toFile()
-    private final changelogMdBak = Paths.get(projectDir.toString(), "${CHANGELOG_MD}.bak").toFile()
+    private File localDir
+    private File gradleProperties
+    private File gradlePropertiesBak
+    private File packageJson
+    private File packageJsonBak
+    private File changelogMd
+    private File changelogMdBak
     private GitRepositoryHelper gitRepo
     private GitProvider git
     private SemVerGradlePluginExtension ext
@@ -51,10 +52,19 @@ class SemverGradlePluginFunctionalTest extends Specification {
         }
         projectDir.mkdirs()
         gitRepo = new GitRepositoryHelper(projectDir)
-        git = new GitProviderImpl(projectDir)
+        localDir = gitRepo.getLocalDirectory()
+        gradleProperties = Paths.get(localDir.toString(), Project.GRADLE_PROPERTIES).toFile()
+        gradlePropertiesBak = Paths.get(localDir.toString(), "${Project.GRADLE_PROPERTIES}.bak").toFile()
+        packageJson = Paths.get(localDir.toString(), PACKAGE_JSON).toFile()
+        packageJsonBak = Paths.get(localDir.toString(), "${PACKAGE_JSON}.bak").toFile()
+        changelogMd = Paths.get(localDir.toString(), CHANGELOG_MD).toFile()
+        changelogMdBak = Paths.get(localDir.toString(), "${CHANGELOG_MD}.bak").toFile()
+        git = new GitProviderImpl(localDir)
         ext = new SemVerGradlePluginExtension()
         local = new Git(gitRepo.getLocalRepository())
         remote = new Git(gitRepo.getRemoteRepository())
+        gitRepo.writeFile(".gitignore", ConfigurationTemplate.getGitIgnore())
+        ext.setNoGitStatusCheck(true)
     }
 
     def cleanup() throws Exception {
@@ -66,10 +76,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
 
     def "Should run semver task"() {
         given:
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, c)
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, c)
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         final runner = createRunner(args)
 
         when:
@@ -113,10 +123,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
     def "Should abort semver task, if no change version"() {
         given:
         ext.setNoGitInit(false)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, 'version=1.0.0')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, 'version=1.0.0')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         gitRepo.commit('README.md', 'Initial commit')
         final runner = createRunner(['semver', '--new-version', '1.0.0'])
 
@@ -138,10 +148,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
         gitRepo.cleanup() // test condition
         gitRepo = new GitRepositoryHelper(projectDir, false)
         ext.setNoGitInit(false)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         final runner = createRunner(['semver', '--new-version', '1.0.0'])
 
         when:
@@ -165,9 +175,9 @@ class SemverGradlePluginFunctionalTest extends Specification {
     def "Should run semver task with noPackageJson"() {
         given:
         ext.setNoPackageJson(true)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
         final runner = createRunner(['semver', '--major'])
 
         when:
@@ -190,10 +200,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
         given:
         ext.setVersionGitMessage("version %s")
         ext.setVersionTagPrefix("ver")
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         gitRepo.commit('README.md', 'Initial commit')
         final runner = createRunner(['semver', '--major'])
 
@@ -218,10 +228,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
     def "Should run semver task with no git command"() {
         given:
         ext.setNoGitCommand(true)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         gitRepo.commit('README.md', 'Initial commit')
         final runner = createRunner(['semver', '--major'])
 
@@ -243,10 +253,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
     def "Should run semver task with no git tag"() {
         given:
         ext.setNoGitTagVersion(true)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         gitRepo.commit('README.md', 'Initial commit')
         final runner = createRunner(['semver', '--major'])
 
@@ -269,10 +279,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
     def "Should run semver task with no git commit"() {
         given:
         ext.setNoGitCommitVersion(true)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         gitRepo.commit('README.md', 'Initial commit')
         final runner = createRunner(['semver', '--major'])
 
@@ -295,10 +305,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
     def "Should run semver task with push branch"() {
         given:
         ext.setNoGitPush(false)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         gitRepo.commit('README.md', 'Initial commit')
         final runner = createRunner(['semver', '--major'])
 
@@ -326,10 +336,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
     def "Should run semver task with push tag"() {
         given:
         ext.setNoGitPushTag(false)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         gitRepo.commit('README.md', 'Initial commit')
         git.push('origin', 'master')
         final runner = createRunner(['semver', '--major'])
@@ -359,10 +369,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
     def "Should run semver task with tag and master"() {
         given:
         ext.setTarget(Target.TAG)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         gitRepo.commit('README.md', 'Initial commit')
         git.tag('v0.1.0', 'v0.1.0', true)
         git.tag('v1.0.0', 'v1.0.0', true)
@@ -409,10 +419,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
     def "Should abort semver task with tag and master"() {
         given:
         ext.setTarget(Target.TAG)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         gitRepo.commit('README.md', 'Initial commit')
         git.tag('v0.1.0', 'v0.1.0', true)
         git.tag('v1.0.0', 'v1.0.0', true)
@@ -439,10 +449,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
     def "Should run semver task with tag and 0.1.x"() {
         given:
         ext.setTarget(Target.TAG)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         gitRepo.commit('README.md', 'Initial commit')
         git.tag('v0.1.0', 'v0.1.0', true)
         git.tag('v1.0.0', 'v1.0.0', true)
@@ -486,10 +496,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
     def "Should abort semver task with tag and 0.1.x"() {
         given:
         ext.setTarget(Target.TAG)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         gitRepo.commit('README.md', 'Initial commit')
         git.tag('v0.1.0', 'v0.1.0', true)
         git.tag('v1.0.0', 'v1.0.0', true)
@@ -524,10 +534,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
     def "Should run semver task with tag and 0.x"() {
         given:
         ext.setTarget(Target.TAG)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         gitRepo.commit('README.md', 'Initial commit')
         git.tag('v0.1.0', 'v0.1.0', true)
         git.tag('v1.0.0', 'v1.0.0', true)
@@ -574,10 +584,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
     def "Should abort semver task with tag and 0.x"() {
         given:
         ext.setTarget(Target.TAG)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         gitRepo.commit('README.md', 'Initial commit')
         git.tag('v0.1.0', 'v0.1.0', true)
         git.tag('v1.0.0', 'v1.0.0', true)
@@ -608,10 +618,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
 
     def "Should run semver task with file and conventional commits"() {
         given:
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, c)
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, c)
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         gitRepo.commit('README.md', 'Initial commit')
         gitRepo.commit('README.md', 'refactor(runtime): drop support for Node 6')
         gitRepo.commit('README.md', message)
@@ -659,10 +669,10 @@ class SemverGradlePluginFunctionalTest extends Specification {
     def "Should run semver task with tag and conventional commits"() {
         given:
         ext.setTarget(Target.TAG)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
         gitRepo.commit('README.md', 'Initial commit')
         gitRepo.commit('README.md', 'refactor(runtime): drop support for Node 6')
         git.tag(tag, tag, true)
@@ -717,11 +727,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         given:
         ext.setTarget(Target.TAG)
         ext.setChangeLog(ChangeLog.FILE)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
-        gitRepo.writeFile(projectDir, CHANGELOG_MD, '')
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(CHANGELOG_MD, '')
         gitRepo.commit('README.md', 'Initial commit')
         gitRepo.commit('README.md', 'refactor(runtime): drop support for Node 6')
         git.tag('v0.1.0', 'v0.1.0', true)
@@ -757,11 +767,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         given:
         ext.setTarget(Target.FILE)
         ext.setChangeLog(ChangeLog.FILE)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.1.0'))
-        gitRepo.writeFile(projectDir, CHANGELOG_MD, '')
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.1.0'))
+        gitRepo.writeFile(CHANGELOG_MD, '')
         gitRepo.commit('README.md', 'Initial commit')
         gitRepo.commit('README.md', 'refactor(runtime): drop support for Node 6')
         gitRepo.commit('README.md', 'fix: allow provided config object to extend other configs')
@@ -790,11 +800,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         given:
         ext.setTarget(Target.TAG)
         ext.setChangeLog(ChangeLog.FILE)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
-        gitRepo.writeFile(projectDir, CHANGELOG_MD, '')
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.0.0'))
+        gitRepo.writeFile(CHANGELOG_MD, '')
         gitRepo.commit('README.md', 'Initial commit')
         gitRepo.commit('README.md', 'refactor(runtime): drop support for Node 6')
         git.tag('v0.1.0', 'v0.1.0', true)
@@ -830,11 +840,11 @@ class SemverGradlePluginFunctionalTest extends Specification {
         given:
         ext.setTarget(Target.FILE)
         ext.setChangeLog(ChangeLog.FILE)
-        gitRepo.writeFile(projectDir, Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
-        gitRepo.writeFile(projectDir, Project.GRADLE_PROPERTIES, '')
-        gitRepo.writeFile(projectDir, SETTINGS_GRADLE, '')
-        gitRepo.writeFile(projectDir, PACKAGE_JSON, ConfigurationTemplate.getPackage('0.1.0'))
-        gitRepo.writeFile(projectDir, CHANGELOG_MD, '')
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.writeFile(PACKAGE_JSON, ConfigurationTemplate.getPackage('0.1.0'))
+        gitRepo.writeFile(CHANGELOG_MD, '')
         gitRepo.commit('README.md', 'Initial commit')
         gitRepo.commit('README.md', 'refactor(runtime): drop support for Node 6')
         gitRepo.commit('README.md', 'fix: allow provided config object to extend other configs')
@@ -863,11 +873,59 @@ class SemverGradlePluginFunctionalTest extends Specification {
         actual.contains("info New version: 0.1.1")
     }
 
+    def "Should run semver task, if git working tree clean"() {
+        given:
+        ext.setTarget(Target.TAG)
+        ext.setNoGitStatusCheck(false)
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.commit('README.md', 'Initial commit')
+        gitRepo.commit('README.md', 'refactor(runtime): drop support for Node 6')
+        git.tag('v0.1.0', 'v0.1.0', true)
+        gitRepo.commit('README.md', 'fix: allow provided config object to extend other configs')
+        git.push('origin', 'master')
+        git.push('origin', 'v0.1.0')
+
+        final runner = createRunner(['semver', '--conventional-commits', '--dryrun'])
+
+        when:
+        final actual = runner.build().output
+
+        then:
+        gradleProperties.getText().contains('0.1.1')
+    }
+
+    def "Should abort semver task, if git working tree not clean"() {
+        given:
+        ext.setTarget(Target.TAG)
+        ext.setNoGitStatusCheck(false)
+        gitRepo.writeFile(Project.DEFAULT_BUILD_FILE, ConfigurationTemplate.getBuild(ext))
+        gitRepo.writeFile(Project.GRADLE_PROPERTIES, '')
+        gitRepo.writeFile(SETTINGS_GRADLE, '')
+        gitRepo.commit('README.md', 'Initial commit')
+        gitRepo.commit('README.md', 'refactor(runtime): drop support for Node 6')
+        git.tag('v0.1.0', 'v0.1.0', true)
+        gitRepo.commit('README.md', 'fix: allow provided config object to extend other configs')
+        git.push('origin', 'master')
+        git.push('origin', 'v0.1.0')
+
+        new File(gitRepo.getLocalDirectory(), "file").withWriter() { it << "untracked" }
+
+        final runner = createRunner(['semver', '--conventional-commits', '--dryrun'])
+
+        when:
+        final actual = runner.build().output
+
+        then:
+        thrown(UnexpectedBuildFailure)
+    }
+
     def createRunner(Object args) {
         final runner = GradleRunner.create()
         runner.forwardOutput()
         runner.withPluginClasspath()
-        runner.withProjectDir(projectDir)
+        runner.withProjectDir(localDir)
         runner.withArguments(args as String[])
     }
 }

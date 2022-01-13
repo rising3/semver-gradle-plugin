@@ -30,10 +30,11 @@ class GitProviderImplTest extends Specification {
 
     def setup() throws Exception {
         gitRepo = new GitRepositoryHelper(workDir)
-        local = new GitProviderImpl(workDir)
+        local = new GitProviderImpl(gitRepo.getLocalDirectory())
         remote = new Git(gitRepo.getRemoteRepository())
 
-        gitRepo.writeFile(workDir, 'README.md', 'README')
+        gitRepo.writeFile('README.md', 'README')
+        local.commit('First commit')
     }
 
     def cleanup() throws Exception {
@@ -59,13 +60,11 @@ class GitProviderImplTest extends Specification {
         final target = new GitProviderImpl(dir, false)
 
         then:
-        !target.status().isClean()
+        target.status() == null
     }
 
     def "Should find ref with name"() {
         given:
-        local.add('README.md')
-        final commit = local.commit('commit')
         final tag = local.tag('v0.1.0', 'v0.1.0', true)
 
         when:
@@ -77,8 +76,6 @@ class GitProviderImplTest extends Specification {
 
     def "Should peel"() {
         given:
-        local.add('README.md')
-        local.commit('commit')
         final tag = local.tag('v0.1.0', 'v0.1.0', true)
 
         when:
@@ -91,8 +88,6 @@ class GitProviderImplTest extends Specification {
 
     def "Should resolve object id"() {
         given:
-        local.add('README.md')
-        final commit = local.commit('commit')
         final tag = local.tag('v0.1.0', 'v0.1.0', true)
 
         when:
@@ -119,7 +114,7 @@ class GitProviderImplTest extends Specification {
 
     def "Should add to stage"() {
         when:
-        local.add('README.md')
+        gitRepo.writeFile('new', 'NEW!')
 
         then:
         local.status().getAdded().size() == 1
@@ -127,38 +122,30 @@ class GitProviderImplTest extends Specification {
 
     def "Should create commit"() {
         given:
-        local.add('README.md')
-        local.commit('commit')
 
         when:
         final def actual = local.log()
 
         then:
         actual.size() == 1
-        local.log()[0].getShortMessage().contains('commit')
+        local.log()[0].getShortMessage().contains('First commit')
     }
 
     def "Should get logs with range"() {
         given:
-        local.add('README.md')
-        local.commit('Initial commit')
         local.tag('v0.1.0', 'v0.1.0', true)
 
         gitRepo.writeFile(workDir, 'README.md', 'README1')
-        local.add('README.md')
         local.commit('commit1')
 
         gitRepo.writeFile(workDir, 'README.md', 'README2')
-        local.add('README.md')
         local.commit('commit2')
         def tag = local.tag('v0.2.0', 'v0.2.0', true)
 
         gitRepo.writeFile(workDir, 'README.md', 'README3')
-        local.add('README.md')
         local.commit('commit3')
 
         gitRepo.writeFile(workDir, 'README.md', 'README4')
-        local.add('README.md')
         local.commit('commit4')
 
         when:
@@ -172,8 +159,6 @@ class GitProviderImplTest extends Specification {
 
     def "Should create tag"() {
         given:
-        local.add('README.md')
-        local.commit('commit')
         local.tag('new-tag', 'message', true)
 
         when:
@@ -187,8 +172,6 @@ class GitProviderImplTest extends Specification {
 
     def "Should get tag list"() {
         given:
-        local.add('README.md')
-        local.commit('test')
         local.tag('v0.1.0', 'v0.1.0', true)
         local.tag('v0.1.1', 'v0.1.1', true)
         local.tag('v0.2.0', 'v0.2.0', true)
@@ -206,8 +189,6 @@ class GitProviderImplTest extends Specification {
 
     def "Should push from local to remote"() {
         given:
-        local.add('README.md')
-        local.commit('commit')
         local.tag('new-tag', 'message', true)
         when:
         local.push('origin', 'master')
@@ -219,8 +200,12 @@ class GitProviderImplTest extends Specification {
     }
 
     def "Should exception thrown, if no head of local"() {
+        given:
+        final dir = Paths.get(workDir.toString(), "/init").toFile()
+
         when:
-        local.tag('new-tag', 'message', true)
+        final target = new GitProviderImpl(dir, true)
+        target.tag('new-tag', 'message', true)
 
         then:
         thrown(NoHeadException)

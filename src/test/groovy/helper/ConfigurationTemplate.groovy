@@ -39,9 +39,10 @@ class ConfigurationTemplate {
         |   changeLogOrder = ${ext.changeLogOrder.toList().stream().map { "\"$it\"" }.toArray() }
         |   changeLogTitle = ${ext.changeLogTitle.entrySet().stream().map {"$it.key: \"$it.value\"" }.toArray() }
         |   changeLogZoneId = "$ext.changeLogZoneId"
-        |   noBackupProp = "$ext.noBackupProp"
-        |   noBackupPackageJson = "$ext.noBackupPackageJson"
-        |   noBackupChangelog = "$ext.noBackupChangelog"
+        |   noBackupProp = $ext.noBackupProp
+        |   noBackupPackageJson = $ext.noBackupPackageJson
+        |   noBackupChangelog = $ext.noBackupChangelog
+        |   noGitStatusCheck = $ext.noGitStatusCheck
         |}
         |tasks.semver.configure {
         |   doFirst {
@@ -59,5 +60,34 @@ class ConfigurationTemplate {
         |    "name": "semver",
         |    "version": "$version"
         |}""".stripMargin()
+    }
+
+    static def getGitIgnore() {
+        """\
+        |.gradle
+        |/build/
+        |
+        |# Ignore Gradle GUI config
+        |gradle-app.setting
+        |
+        |# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+        |!gradle-wrapper.jar
+        |
+        |# Cache of project
+        |.gradletasknamecache
+        |
+        |# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
+        |# gradle/wrapper/gradle-wrapper.properties
+        |
+        |# Intellij IDEA
+        |.idea
+        |
+        |# OSX
+        |.DS_Store
+        |
+        |.attach_*
+        |
+        |*.bak
+        |""".stripMargin()
     }
 }
