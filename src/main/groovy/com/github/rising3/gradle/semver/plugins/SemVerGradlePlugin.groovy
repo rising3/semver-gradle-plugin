@@ -19,6 +19,7 @@ import com.github.rising3.gradle.semver.tasks.LatestTask
 import com.github.rising3.gradle.semver.tasks.SemVerTask
 import org.gradle.api.Project
 import org.gradle.api.Plugin
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaBasePlugin
 
 /**
@@ -38,8 +39,10 @@ class SemVerGradlePlugin implements Plugin<Project> {
         def semVerTask = project.task(TASK_NAME_SEMVER, type: SemVerTask)
         project.apply plugin: SemVerGradlePlugin
         semVerTask.dependsOn latestTask
+        project.plugins.withType(JavaPlugin) {
+            project.tasks[JavaPlugin.COMPILE_JAVA_TASK_NAME].dependsOn latestTask
+        }
         project.plugins.withType(JavaBasePlugin) {
-            project.tasks['jar'].dependsOn latestTask
             semVerTask.dependsOn project.tasks[JavaBasePlugin.CHECK_TASK_NAME]
         }
     }
