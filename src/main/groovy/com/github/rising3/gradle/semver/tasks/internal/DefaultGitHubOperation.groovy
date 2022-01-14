@@ -59,48 +59,41 @@ class DefaultGitHubOperation implements GitHubOperation {
     }
 
     void call(String remoteUrl, String version, String body, boolean dryRun) {
-        def mUrl = remoteUrl =~ /^((git|ssh|http(s)?)|(git@[\w\.]+))(:(\/\/)?)github.com\/(?<name>[\w\.@\:\/\-~]+)(\/)?$/
+        def mUrl = remoteUrl =~ /^(?i)((git|ssh|http(s)?)|(git@[\w\.]+))(:(\/\/)?((?<userinfo>([A-Za-z]|[(0-9)]|[\-._~]|%[0-9A-Fa-f]{2}|[!$&'()*+,;=]|:)*)@)?)github.com\/(?<ownerName>[\w\.@\:\-~]+)\/(?<repoName>[\w\.@\:\-~]+)\.git$/
         if (!mUrl.find()) {
-            return
+            throw new IllegalArgumentException('Illegal remote URL')
         }
-
-        try {
-            def name = mUrl.group('name').replaceAll('.git', '')
-            def ownerName = name.split('/')[0]
-            def repoName = name.split('/')[1]
-            def tag = "${ext.versionTagPrefix}${version}"
-            def semver = SemVer.parse(version)
-            def pre = Objects.nonNull(semver.preid)
-            def repo = getGHRepository(name)
-            if (repo == null) {
-                LOG.info("Not exist GitHub Repository: $remoteUrl")
-                return
-            }
-            def release = repo.getReleaseByTagName(tag)
-            if (Objects.isNull(release)) {
-                def fn = { repo.createRelease(tag)?.name(tag)?.body(body)?.draft(false)?.prerelease(pre)?.create() }
-                DryRunUtils.run(dryRun, fn, "GitHub REST API [POST]:/repos/${ownerName}/${repoName}/releases")
-            } else {
-                def fn = { release?.update()?.body(body)?.update() }
-                DryRunUtils.run(dryRun, fn, "GitHub REST API [PATCH]:/repos/${ownerName}/${repoName}/releases/assets/{asset_id}")
-            }
-        } catch (Exception e) {
-            LOG.error("abort GitHub operation: ${e.toString()}")
+        def ownerName = mUrl.group('ownerName')
+        def repoName = mUrl.group('repoName')
+        def tag = "${ext.versionTagPrefix}${version}"
+        def semver = SemVer.parse(version)
+        def pre = Objects.nonNull(semver.preid)
+        def repo = getGHRepository(ownerName, repoName)
+        if (repo == null) {
+            throw new IllegalArgumentException('Not exist remote URL')
+        }
+        def release = repo.getReleaseByTagName(tag)
+        if (Objects.isNull(release)) {
+            def fn = { repo.createRelease(tag)?.name(tag)?.body(body)?.draft(false)?.prerelease(pre)?.create() }
+            DryRunUtils.run(dryRun, fn, "GitHub REST API [POST]:/repos/${ownerName}/${repoName}/releases")
+        } else {
+            def fn = { release?.update()?.body(body)?.update() }
+            DryRunUtils.run(dryRun, fn, "GitHub REST API [PATCH]:/repos/${ownerName}/${repoName}/releases/assets/{asset_id}")
         }
     }
 
     /**
      * Get GitHub Repository.
      *
-     * @param name repository name(org: ORG_NAME/REPO_NAME, user: OWNER_NAME/REPO_NAME)
+     * @param ownerName owner name
+     * @param repoName repository name
      * @return GHRepository
      */
-    private GHRepository getGHRepository(String name) {
+    private GHRepository getGHRepository(String ownerName, String repoName) {
         try {
-            def names = name.split("/")
-            github.getOrganization(names[0]).getRepository(names[1])
+            github.getOrganization(ownerName).getRepository(repoName)
         } catch (Exception e) {
-            github.getRepository(name)
+            github.getRepository("$ownerName/$repoName")
         }
     }
 }

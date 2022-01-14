@@ -42,242 +42,246 @@ import java.nio.file.StandardCopyOption
  * @auther rising3
  */
 class SemVerTask extends DefaultTask {
-	@Input
-	@Option( option = 'new-version', description = 'Creates a new version specified by <version>.')
-	String newVersion = ''
+    @Input
+    @Option( option = 'new-version', description = 'Creates a new version specified by <version>.')
+    String newVersion = ''
 
-	@Input
-	@Option(option = 'major', description = 'Creates a new version by incrementing the major number of the current version.')
-	boolean major = false
+    @Input
+    @Option(option = 'major', description = 'Creates a new version by incrementing the major number of the current version.')
+    boolean major = false
 
-	@Input
-	@Option(option = 'minor', description = 'Creates a new version by incrementing the minor number of the current version.')
-	boolean minor = false
+    @Input
+    @Option(option = 'minor', description = 'Creates a new version by incrementing the minor number of the current version.')
+    boolean minor = false
 
-	@Input
-	@Option(option = 'patch', description = 'Creates a new version by incrementing the patch number of the current version.')
-	boolean patch = false
+    @Input
+    @Option(option = 'patch', description = 'Creates a new version by incrementing the patch number of the current version.')
+    boolean patch = false
 
-	@Input
-	@Option(option = 'premajor', description = 'Creates a new prerelease version by incrementing the major number of the current version and adding a prerelease number.')
-	boolean premajor = false
+    @Input
+    @Option(option = 'premajor', description = 'Creates a new prerelease version by incrementing the major number of the current version and adding a prerelease number.')
+    boolean premajor = false
 
-	@Input
-	@Option(option = 'preminor', description = 'Creates a new prerelease version by incrementing the minor number of the current version and adding a prerelease number.')
-	boolean preminor = false
+    @Input
+    @Option(option = 'preminor', description = 'Creates a new prerelease version by incrementing the minor number of the current version and adding a prerelease number.')
+    boolean preminor = false
 
-	@Input
-	@Option(option = 'prepatch', description = 'Creates a new prerelease version by incrementing the patch number of the current version and adding a prerelease number.')
-	boolean prepatch = false
+    @Input
+    @Option(option = 'prepatch', description = 'Creates a new prerelease version by incrementing the patch number of the current version and adding a prerelease number.')
+    boolean prepatch = false
 
-	@Input
-	@Option(option = 'prerelease', description = 'Increments the prerelease version number keeping the main version.')
-	boolean prerelease = false
+    @Input
+    @Option(option = 'prerelease', description = 'Increments the prerelease version number keeping the main version.')
+    boolean prerelease = false
 
-	@Input
-	@Option(option = 'preid', description = 'Adds an identifier specified by <pre-identifier> to be used to prefix premajor, preminor, prepatch or prerelease version increments')
-	String preid = ''
+    @Input
+    @Option(option = 'preid', description = 'Adds an identifier specified by <pre-identifier> to be used to prefix premajor, preminor, prepatch or prerelease version increments')
+    String preid = ''
 
-	@Input
-	@Option(option = 'conventional-commits', description = 'Create a new version according to the Conventional Commits rules.')
-	boolean conventionalCommit = false
+    @Input
+    @Option(option = 'conventional-commits', description = 'Create a new version according to the Conventional Commits rules.')
+    boolean conventionalCommit = false
 
-	@Input
-	@Option(option = 'dryrun', description = 'Dry runs. Disable Git operations and GitHub Release.')
-	boolean dryRun = false
+    @Input
+    @Option(option = 'dryrun', description = 'Dry runs. Disable Git operations and GitHub Release.')
+    boolean dryRun = false
 
-	/**
-	 * Constructor.
-	 */
-	SemVerTask() {
-		this.group = "Release"
-		this.description = "Updating versions."
-	}
+    /**
+     * Constructor.
+     */
+    SemVerTask() {
+        this.group = "Release"
+        this.description = "Updating versions."
+    }
 
-	/**
-	 * Default task action.
-	 */
-	@TaskAction
-	def action() {
-		createTaskTemplate(project.semver.target as Target)()
-	}
+    /**
+     * Default task action.
+     */
+    @TaskAction
+    def action() {
+        createTaskTemplate(project.semver.target as Target)()
+    }
 
-	/**
-	 * Create task template.
-	 *
-	 * @param target target.
-	 * @return task template.
-	 */
-	private def createTaskTemplate(target) {
-		Target.FILE == target ? new FileTaskTemplate() : new TagTaskTemplate()
-	}
+    /**
+     * Create task template.
+     *
+     * @param target target.
+     * @return task template.
+     */
+    private def createTaskTemplate(target) {
+        Target.FILE == target ? new FileTaskTemplate() : new TagTaskTemplate()
+    }
 
-	/**
-	 * Task template.
-	 *
-	 * @auther rising3
-	 */
-	private abstract class TaskTemplate {
-		final filename = "$project.rootDir/$project.semver.filename"
-		final packageJson = "$project.rootDir/package.json"
-		final isFilename = Files.exists(Paths.get(filename))
-		final isPackageJson = Files.exists(Paths.get(packageJson))
-		final props = VersionProp.load(filename)
-		final json = VersionJson.load(packageJson)
-		final git = new GitProviderImpl(project.rootDir, !(project.semver.noGitInit as Boolean))
+    /**
+     * Task template.
+     *
+     * @auther rising3
+     */
+    private abstract class TaskTemplate {
+        final filename = "$project.rootDir/$project.semver.filename"
+        final packageJson = "$project.rootDir/package.json"
+        final isFilename = Files.exists(Paths.get(filename))
+        final isPackageJson = Files.exists(Paths.get(packageJson))
+        final props = VersionProp.load(filename)
+        final json = VersionJson.load(packageJson)
+        final git = new GitProviderImpl(project.rootDir, !(project.semver.noGitInit as Boolean))
 
-		/**
-		 * Default method.
-		 *
-		 * @return result.
-		 */
-		def call() {
-			if (!git.status().isClean() && !project.semver.noGitStatusCheck) {
-				throw new GitStatusException("Working tree not clean")
-			}
-			prepareTask()
-			final currentVersion = project.version
-			final resolveNewVersion = resolveNewVersion()
+        /**
+         * Default method.
+         *
+         * @return result.
+         */
+        def call() {
+            if (!git.status().isClean() && !project.semver.noGitStatusCheck) {
+                throw new GitStatusException("Working tree not clean")
+            }
+            prepareTask()
+            final currentVersion = project.version
+            final resolveNewVersion = resolveNewVersion()
 
-			if (resolveNewVersion.isNewVersion()) {
-				if (!VersionUtils.validateViolation(project.version, resolveNewVersion.toString())
-					|| !VersionUtils.validateBranchRange(resolveNewVersion.toString(), git.getBranch())) {
-					throw new InvalidVersionException("Invalid new version: ${resolveNewVersion.toString()}, current version: ${project.version}, current branch: ${git.getBranch()}")
-				}
+            if (resolveNewVersion.isNewVersion()) {
+                if (!VersionUtils.validateViolation(project.version, resolveNewVersion.toString())
+                    || !VersionUtils.validateBranchRange(resolveNewVersion.toString(), git.getBranch())) {
+                    throw new InvalidVersionException("Invalid new version: ${resolveNewVersion.toString()}, current version: ${project.version}, current branch: ${git.getBranch()}")
+                }
 
-				project.version = resolveNewVersion.toString()
+                project.version = resolveNewVersion.toString()
 
-				def files = []
-				if (!isPackageJson || (isPackageJson && isFilename)) {
-					props['version'] = project.version
-					VersionProp.save(filename, props, 'Over written by semver plugin', !project.semver.noBackupProp)
-					files.push(Paths.get(filename).getFileName().toString())
-				}
-				if (isPackageJson && !project.semver.noPackageJson) {
-					json.content.version = project.version
-					VersionJson.save(packageJson, json, !project.semver.noBackupPackageJson)
-					files.push(Paths.get(packageJson).getFileName().toString())
-				}
+                def files = []
+                if (!isPackageJson || (isPackageJson && isFilename)) {
+                    props['version'] = project.version
+                    VersionProp.save(filename, props, 'Over written by semver plugin', !project.semver.noBackupProp)
+                    files.push(Paths.get(filename).getFileName().toString())
+                }
+                if (isPackageJson && !project.semver.noPackageJson) {
+                    json.content.version = project.version
+                    VersionJson.save(packageJson, json, !project.semver.noBackupPackageJson)
+                    files.push(Paths.get(packageJson).getFileName().toString())
+                }
 
-				LogOperation log = new DefaultLogOperation(git, project.semver as SemVerGradlePluginExtension)
-				final logBody = log(currentVersion, project.version)
+                LogOperation log = new DefaultLogOperation(git, project.semver as SemVerGradlePluginExtension)
+                final logBody = log(currentVersion, project.version)
 
-				if (ChangeLog.FILE == project.semver.changeLog || ChangeLog.BOTH == project.semver.changeLog) {
-					final changelog = Paths.get("$project.rootDir/CHANGELOG.md")
-					final changelogBak = Paths.get("${changelog}.bak")
-					def tmp = Files.exists(changelog) ? changelog.getText('UTF-8') : ''
-					if (Files.exists(changelog) && !project.semver.noBackupChangelog) {
-						Files.copy(changelog, changelogBak, StandardCopyOption.REPLACE_EXISTING)
-					}
-					changelog.withWriter 'UTF-8', {it << logBody + tmp }
-					files.push(changelog.getFileName().toString())
-				}
+                if (ChangeLog.FILE == project.semver.changeLog || ChangeLog.BOTH == project.semver.changeLog) {
+                    final changelog = Paths.get("$project.rootDir/CHANGELOG.md")
+                    final changelogBak = Paths.get("${changelog}.bak")
+                    def tmp = Files.exists(changelog) ? changelog.getText('UTF-8') : ''
+                    if (Files.exists(changelog) && !project.semver.noBackupChangelog) {
+                        Files.copy(changelog, changelogBak, StandardCopyOption.REPLACE_EXISTING)
+                    }
+                    changelog.withWriter 'UTF-8', {it << logBody + tmp }
+                    files.push(changelog.getFileName().toString())
+                }
 
-				if (!project.semver.noGitCommand) {
-					def gitOperation =  new DefaultGitOperation(git, project.semver as SemVerGradlePluginExtension)
-					gitOperation(project.version, files, dryRun)
-				}
+                if (!project.semver.noGitCommand) {
+                    def gitOperation =  new DefaultGitOperation(git, project.semver as SemVerGradlePluginExtension)
+                    gitOperation(project.version, files, dryRun)
+                }
 
-				if (ChangeLog.GITHUB == project.semver.changeLog || ChangeLog.BOTH == project.semver.changeLog) {
-					def remoteUrl = git.getConfig().getString("remote", "origin", "url")
-					def github = new DefaultGitHubOperation(GitHubFactory.create(), project.semver as SemVerGradlePluginExtension)
-					github(remoteUrl, project.version, logBody, dryRun)
-				}
-				println "info New version: $project.version"
-			} else {
-				println "info No change version: $project.version"
-			}
-		}
+                if (ChangeLog.GITHUB == project.semver.changeLog || ChangeLog.BOTH == project.semver.changeLog) {
+                    def remoteUrl = git.getConfig().getString("remote", "origin", "url")
+                    def github = new DefaultGitHubOperation(GitHubFactory.create(), project.semver as SemVerGradlePluginExtension)
+                    try {
+                        github(remoteUrl, project.version, logBody, dryRun)
+                    } catch(RuntimeException e) {
+                        throw new AbortOperationException("Abort GitHub API operations: ${e.toString()}")
+                    }
+                }
+                println "info New version: $project.version"
+            } else {
+                println "info No change version: $project.version"
+            }
+        }
 
-		/**
-		 * Prepare task.
-		 *
-		 * @auther rising3
-		 */
-		protected abstract def prepareTask()
+        /**
+         * Prepare task.
+         *
+         * @auther rising3
+         */
+        protected abstract def prepareTask()
 
-		/**
-		 * Resolve new version.
-		 *
-		 * @return ResolveNewVersion.
-		 */
-		protected abstract def resolveNewVersion()
+        /**
+         * Resolve new version.
+         *
+         * @return ResolveNewVersion.
+         */
+        protected abstract def resolveNewVersion()
 
-		/**
-		 * Execute yarn resolve new version.
-		 *
-		 * @return YarnResolveNewVersion.
-		 */
-		protected def executeYarnResolveNewVersion() {
-			YarnResolveNewVersion resolveNewVersion = new YarnResolveNewVersion(project.version as String)
-			resolveNewVersion.setNewVersion(newVersion)
-			resolveNewVersion.setMajor(major)
-			resolveNewVersion.setMinor(minor)
-			resolveNewVersion.setPatch(patch)
-			resolveNewVersion.setPremajor(premajor)
-			resolveNewVersion.setPreminor(preminor)
-			resolveNewVersion.setPrepatch(prepatch)
-			resolveNewVersion.setPrerelease(prerelease)
-			resolveNewVersion.setPreid(preid)
+        /**
+         * Execute yarn resolve new version.
+         *
+         * @return YarnResolveNewVersion.
+         */
+        protected def executeYarnResolveNewVersion() {
+            YarnResolveNewVersion resolveNewVersion = new YarnResolveNewVersion(project.version as String)
+            resolveNewVersion.setNewVersion(newVersion)
+            resolveNewVersion.setMajor(major)
+            resolveNewVersion.setMinor(minor)
+            resolveNewVersion.setPatch(patch)
+            resolveNewVersion.setPremajor(premajor)
+            resolveNewVersion.setPreminor(preminor)
+            resolveNewVersion.setPrepatch(prepatch)
+            resolveNewVersion.setPrerelease(prerelease)
+            resolveNewVersion.setPreid(preid)
 
-			resolveNewVersion()
+            resolveNewVersion()
 
-			if (resolveNewVersion.isUserInteraction()) {
-				def question = "info Current version: ${project.version}\nquestion New version: "
-				def inputHandler = getServices().get(UserInputHandler.class)
-				def inputVersion = inputHandler.askQuestion(question, project.version as String)
-				resolveNewVersion.setNewVersion(inputVersion)
-				resolveNewVersion()
-			}
+            if (resolveNewVersion.isUserInteraction()) {
+                def question = "info Current version: ${project.version}\nquestion New version: "
+                def inputHandler = getServices().get(UserInputHandler.class)
+                def inputVersion = inputHandler.askQuestion(question, project.version as String)
+                resolveNewVersion.setNewVersion(inputVersion)
+                resolveNewVersion()
+            }
 
-			resolveNewVersion
-		}
+            resolveNewVersion
+        }
 
-		/**
-		 * Execute conventional commits resolve new version.
-		 *
-		 * @return ConventionalCommitsResolveNewVersion.
-		 */
-		protected def executeConventionalCommitsResolveNewVersion() {
-			def resolveNewVersion = new ConventionalCommitsResolveNewVersion(
-					git, project.semver.versionTagPrefix as String, project.version as String)
-			resolveNewVersion()
-			resolveNewVersion
-		}
-	}
+        /**
+         * Execute conventional commits resolve new version.
+         *
+         * @return ConventionalCommitsResolveNewVersion.
+         */
+        protected def executeConventionalCommitsResolveNewVersion() {
+            def resolveNewVersion = new ConventionalCommitsResolveNewVersion(
+                    git, project.semver.versionTagPrefix as String, project.version as String)
+            resolveNewVersion()
+            resolveNewVersion
+        }
+    }
 
-	/**
-	 * File task template.
-	 *
-	 * @auther rising3
-	 */
-	private class FileTaskTemplate extends TaskTemplate {
-		@Override
-		protected def prepareTask() {
-		}
+    /**
+     * File task template.
+     *
+     * @auther rising3
+     */
+    private class FileTaskTemplate extends TaskTemplate {
+        @Override
+        protected def prepareTask() {
+        }
 
-		@Override
-		protected def resolveNewVersion() {
-			conventionalCommit ? executeConventionalCommitsResolveNewVersion() : executeYarnResolveNewVersion()
-		}
-	}
+        @Override
+        protected def resolveNewVersion() {
+            conventionalCommit ? executeConventionalCommitsResolveNewVersion() : executeYarnResolveNewVersion()
+        }
+    }
 
-	/**
-	 * Tag task template.
-	 */
-	private class TagTaskTemplate extends TaskTemplate {
-		@Override
-		protected def prepareTask() {
-			project.semver.noGitCommand = false
-			project.semver.noGitCommitVersion = true
-			project.semver.noGitTagVersion = false
-			project.semver.noGitPush = true
-			project.semver.noGitPushTag =false
-		}
+    /**
+     * Tag task template.
+     */
+    private class TagTaskTemplate extends TaskTemplate {
+        @Override
+        protected def prepareTask() {
+            project.semver.noGitCommand = false
+            project.semver.noGitCommitVersion = true
+            project.semver.noGitTagVersion = false
+            project.semver.noGitPush = true
+            project.semver.noGitPushTag =false
+        }
 
-		@Override
-		protected def resolveNewVersion() {
-			conventionalCommit ? executeConventionalCommitsResolveNewVersion() : executeYarnResolveNewVersion()
-		}
-	}
+        @Override
+        protected def resolveNewVersion() {
+            conventionalCommit ? executeConventionalCommitsResolveNewVersion() : executeYarnResolveNewVersion()
+        }
+    }
 }

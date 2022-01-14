@@ -61,6 +61,21 @@ class DefaultGitHubOperationTest extends Specification {
         1 * rel.update()
     }
 
+    def "Should create GitHub release with ignore userinfo"() {
+        given:
+        github = Stub(GitHub)
+        def repo = Mock(GHRepository)
+        github.getRepository("user/repo") >> repo
+        target = new DefaultGitHubOperation(github, ext)
+
+        when:
+        target("https://user.name%1f%12:~(secret)-*12*_34@github.com/user/repo.git", "0.0.1", 'hello', false)
+
+        then:
+        1 * repo.getReleaseByTagName('v0.0.1')
+        1 * repo.createRelease('v0.0.1')
+    }
+
     def "Should abort GitHub operation, if not GitHub URL"() {
         given:
         github = Mock(GitHub)
@@ -70,8 +85,25 @@ class DefaultGitHubOperationTest extends Specification {
         target('https://test.com/user/repo.git', '0.0.1', 'hello', false)
 
         then:
-        0 * github.getOrganization('user')
-        0 * github.getRepository('user/repo')
+        RuntimeException e = thrown()
+        e instanceof  IllegalArgumentException
+        e.cause == null
+        e.message == 'Illegal remote URL'
+    }
+
+    def "Should abort GitHub operation, if invalid URL"() {
+        given:
+        github = Mock(GitHub)
+        target = new DefaultGitHubOperation(github, ext)
+
+        when:
+        target('https://github.com/xxx/user/repo.git', '0.0.1', 'hello', false)
+
+        then:
+        RuntimeException e = thrown()
+        e instanceof  IllegalArgumentException
+        e.cause == null
+        e.message == 'Illegal remote URL'
     }
 
     def "Should abort GitHub operation, if not exist GitHub user repository"() {
@@ -83,8 +115,10 @@ class DefaultGitHubOperationTest extends Specification {
         target('https://github.com/user/repo.git', '0.0.1', 'hello', false)
 
         then:
-        1 * github.getOrganization('user')
-        1 * github.getRepository('user/repo')
+        RuntimeException e = thrown()
+        e instanceof  IllegalArgumentException
+        e.cause == null
+        e.message == 'Not exist remote URL'
     }
 
     def "Should abort GitHub operation, if not semver"() {
@@ -96,8 +130,10 @@ class DefaultGitHubOperationTest extends Specification {
         target('https://github.com/org/repo.git', 'notSemver', 'hello', false)
 
         then:
-        0 * github.getOrganization('user')
-        0 * github.getRepository('user/repo')
+        RuntimeException e = thrown()
+        e instanceof  IllegalArgumentException
+        e.cause == null
+        e.message == 'Illegal Argument: notSemver'
     }
 
     def "Should create GitHub release with dry-run"() {
