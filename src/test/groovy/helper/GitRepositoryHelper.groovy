@@ -102,7 +102,7 @@ class GitRepositoryHelper {
 
     private def newWorkRepository(File dir) {
         if (!Paths.get(dir.toString(), ".git").toFile().exists()) {
-            Git.init().setDirectory(dir)?.setBare(false)?.call()
+            Git.init().setDirectory(dir)?.setBare(false)?.setInitialBranch('master')?.call()
         }
         new RepositoryBuilder()
                 .readEnvironment()
