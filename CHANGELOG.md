@@ -1,3 +1,16 @@
+# v0.8.1 (2022-01-16)
+
+## Bug Fixes
+* **fix:** exception handling (bc270161bc481e28a2192a526768e7da04e2ce11)
+* **fix:** ignore userinfo in remote URL (6fc59bc1c33103a95c8eddfe83332f51141df608)
+* **fix:** pinned the initial git branch under test to the master (57556e6a84e9e47c5fb6758f079883d01a65dc77)
+
+## Build Improvements
+* **build:** update version (9284275f24ced3fd38c67d8945d0745f051ce479)
+
+## Code Refactoring
+* **refactor:** fix access modifier (bee50dc0fd94bb73687973ea167b88ab8062a09b)
+
 # v0.8.0 (2022-01-13)
 
 ## Bug Fixes
