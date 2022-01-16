@@ -183,8 +183,8 @@ class SemVerTask extends DefaultTask {
                     def github = new DefaultGitHubOperation(GitHubFactory.create(), project.semver as SemVerGradlePluginExtension)
                     try {
                         github(remoteUrl, project.version, logBody, dryRun)
-                    } catch(RuntimeException e) {
-                        throw new AbortOperationException("Abort GitHub API operations: ${e.toString()}")
+                    } catch(Exception e) {
+                        throw new AbortOperationException("Abort GitHub API operations: ${e.getMessage()}")
                     }
                 }
                 println "info New version: $project.version"
