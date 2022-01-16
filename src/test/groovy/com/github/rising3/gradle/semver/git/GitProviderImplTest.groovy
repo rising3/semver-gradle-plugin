@@ -109,7 +109,7 @@ class GitProviderImplTest extends Specification {
 
     def "Should get branch"() {
         expect:
-        println local.getBranch() == 'master'
+        local.getBranch() == 'master'
     }
 
     def "Should add to stage"() {
