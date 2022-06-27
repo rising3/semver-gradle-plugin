@@ -12,14 +12,14 @@ buildscript {
 }
 
 plugins {
-    id "com.gradle.plugin-publish" version "0.13.0"
+    id "com.gradle.plugin-publish" version "0.18.0"
     id "java-gradle-plugin"
     id "maven-publish"
     id "java"
     id "groovy"
     id "jacoco"
     id "com.github.hierynomus.license" version "0.16.1"
-    id "com.diffplug.spotless" version "6.2.0"
+    id "com.diffplug.spotless" version "6.4.2"
     id "eclipse"
     id "idea"
 //    id 'com.github.rising3.semver' version '0.8.1'
@@ -114,7 +114,7 @@ test {
 }
 
 jacoco {
-    toolVersion = "0.8.7"
+    toolVersion = "0.8.8"
 }
 
 jacocoTestReport {
