@@ -12,14 +12,14 @@ buildscript {
 }
 
 plugins {
-    id "com.gradle.plugin-publish" version "0.18.0"
+    id "com.gradle.plugin-publish" version "1.1.0"
     id "java-gradle-plugin"
     id "maven-publish"
     id "java"
     id "groovy"
     id "jacoco"
     id "com.github.hierynomus.license" version "0.16.1"
-    id "com.diffplug.spotless" version "6.4.2"
+    id "com.diffplug.spotless" version "6.13.0"
     id "eclipse"
     id "idea"
 //    id 'com.github.rising3.semver' version '0.8.1'
@@ -42,13 +42,13 @@ repositories {
 dependencies {
     implementation gradleApi()
     implementation localGroovy()
-    implementation 'org.eclipse.jgit:org.eclipse.jgit:6.0.0.202111291000-r'
-    implementation 'org.kohsuke:github-api:1.301'
+    implementation 'org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r'
+    implementation 'org.kohsuke:github-api:1.313'
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:3.13.1' // This is the last version of okhttp3 that support UrlConnection
-    testImplementation platform('org.spockframework:spock-bom:2.0-groovy-3.0')
+    testImplementation platform('org.spockframework:spock-bom:2.3-groovy-3.0')
     testImplementation 'org.spockframework:spock-core'
-    testImplementation 'org.eclipse.jgit:org.eclipse.jgit.junit:6.0.0.202111291000-r'
+    testImplementation 'org.eclipse.jgit:org.eclipse.jgit.junit:6.4.0.202211300538-r'
     testImplementation 'org.mockito:mockito-core:3.+'
     testImplementation 'org.mockito:mockito-inline:3.+'
 }
