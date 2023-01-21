@@ -16,9 +16,8 @@
 package com.github.rising3.gradle.semver.tasks.internal
 
 import com.github.rising3.gradle.semver.SemVer
-import spock.lang.Specification
-
 import java.nio.file.Paths
+import spock.lang.Specification
 
 class FileResolveCurrentVersionTest extends Specification {
     private final projectDir = new File("build/test/com/github/rising3/gradle/semver/tasks/internal/AnalyzeFileVersionActionTest")

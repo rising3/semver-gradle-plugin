@@ -17,9 +17,8 @@ package com.github.rising3.gradle.semver.tasks
 
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
-import spock.lang.Specification
-
 import java.nio.file.Paths
+import spock.lang.Specification
 
 class VersionJsonTest extends Specification {
     private final projectDir = new File("build/test/com/github/rising3/gradle/semver/tasks/VersionJsonTest")

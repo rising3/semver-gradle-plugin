@@ -26,15 +26,14 @@ import com.github.rising3.gradle.semver.tasks.internal.DefaultGitOperation
 import com.github.rising3.gradle.semver.tasks.internal.DefaultLogOperation
 import com.github.rising3.gradle.semver.tasks.internal.YarnResolveNewVersion
 import com.github.rising3.gradle.semver.util.VersionUtils
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import org.gradle.api.DefaultTask
 import org.gradle.api.internal.tasks.userinput.UserInputHandler
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
-
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 
 /**
  * Semantic Versioning Task.

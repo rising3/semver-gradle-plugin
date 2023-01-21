@@ -16,14 +16,13 @@
 package helper
 
 import com.github.rising3.gradle.semver.git.GitProviderImpl
+import java.nio.file.Paths
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.RepositoryBuilder
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.transport.RemoteConfig
 import org.eclipse.jgit.transport.URIish
-
-import java.nio.file.Paths
 
 class GitRepositoryHelper {
     private Repository remoteRepository

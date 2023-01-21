@@ -16,11 +16,10 @@
 package com.github.rising3.gradle.semver.git
 
 import helper.GitRepositoryHelper
+import java.nio.file.Paths
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.NoHeadException
 import spock.lang.Specification
-
-import java.nio.file.Paths
 
 class GitProviderImplTest extends Specification {
     private def workDir = new File("build/test/com/github/rising3/gradle/semver/git/GitProviderTest")
