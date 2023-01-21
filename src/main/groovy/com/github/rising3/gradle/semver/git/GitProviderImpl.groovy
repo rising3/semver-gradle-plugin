@@ -15,6 +15,7 @@
  */
 package com.github.rising3.gradle.semver.git
 
+import java.nio.file.Paths
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.Status
 import org.eclipse.jgit.lib.AnyObjectId
@@ -29,8 +30,6 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.RefSpec
 import org.gradle.api.logging.Logging
-
-import java.nio.file.Paths
 
 /**
  * Git Provider.

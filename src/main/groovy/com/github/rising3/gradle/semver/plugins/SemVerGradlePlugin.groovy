@@ -17,10 +17,10 @@ package com.github.rising3.gradle.semver.plugins
 
 import com.github.rising3.gradle.semver.tasks.LatestTask
 import com.github.rising3.gradle.semver.tasks.SemVerTask
-import org.gradle.api.Project
 import org.gradle.api.Plugin
-import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.Project
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.plugins.JavaPlugin
 
 /**
  * Semantic Versioning Gradle Plugin.

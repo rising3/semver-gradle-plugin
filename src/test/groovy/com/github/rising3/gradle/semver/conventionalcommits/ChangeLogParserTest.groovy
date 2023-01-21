@@ -19,10 +19,9 @@ import com.github.rising3.gradle.semver.git.GitProvider
 import com.github.rising3.gradle.semver.git.GitProviderImpl
 import helper.GitRepositoryHelper
 import helper.MessageTemplate
+import java.util.regex.Matcher
 import org.eclipse.jgit.lib.PersonIdent
 import spock.lang.Specification
-
-import java.util.regex.Matcher
 
 class ChangeLogParserTest extends Specification {
     private def workDir = new File("build/test/com/github/rising3/gradle/semver/conventionalcommits/ChangeLogParserTest")

@@ -20,13 +20,12 @@ import com.github.rising3.gradle.semver.git.GitProviderImpl
 import helper.ConfigurationTemplate
 import helper.GitRepositoryHelper
 import helper.MessageTemplate
+import java.nio.file.Paths
 import org.eclipse.jgit.api.Git
 import org.gradle.api.Project
+import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
 import spock.lang.Specification
-import org.gradle.testkit.runner.GradleRunner
-
-import java.nio.file.Paths
 
 class SemverGradlePluginFunctionalTest extends Specification {
     private static final SETTINGS_GRADLE = 'settings.gradle'

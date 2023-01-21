@@ -17,11 +17,10 @@ package com.github.rising3.gradle.semver.tasks
 
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
-import org.gradle.api.logging.Logging
-
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
+import org.gradle.api.logging.Logging
 
 /**
  * Version json.

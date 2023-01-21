@@ -16,9 +16,8 @@
 package com.github.rising3.gradle.semver.tasks
 
 
-import spock.lang.Specification
-
 import java.nio.file.Paths
+import spock.lang.Specification
 
 class VersionPropTest extends Specification {
     private final projectDir = new File("build/test/com/github/rising3/gradle/semver/tasks/VersionPropTest")

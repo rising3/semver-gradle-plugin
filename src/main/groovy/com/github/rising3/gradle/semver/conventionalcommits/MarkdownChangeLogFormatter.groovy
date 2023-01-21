@@ -16,7 +16,6 @@
 package com.github.rising3.gradle.semver.conventionalcommits
 
 import com.github.rising3.gradle.semver.plugins.SemVerGradlePluginExtension
-
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
