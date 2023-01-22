@@ -1,3 +1,17 @@
+# v0.8.2 (2023-01-22)
+
+## Bug Fixes
+* **fix:** spotless violations (b36c9e0bbaeda7cc4771b55b142efe35a47407c5)
+
+## Build Improvements
+* **build:** update gradle wrapper (b0d2fb88c6988e5db39c921e7356a7bca6ec6507)
+* **build:** update version (4b30c7b86ac27b1e119f8c4ab4e8a212d01f2306)
+* **build:** update version (6f2a0021bb7a9c727a5277061aa94428e4723633)
+* **build:** update version (978c74a6fab86dfcf6037dd6fb6ddc338294adec)
+
+## Tests
+* **test:** fix existing tests (d25ae1213e537b465dd3a4df99f5f8ae5de4e89c)
+
 # v0.8.1 (2022-01-16)
 
 ## Bug Fixes
