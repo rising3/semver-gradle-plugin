@@ -15,6 +15,9 @@
  */
 package com.github.rising3.gradle.semver.git
 
+import org.eclipse.jgit.api.MergeCommand
+import org.eclipse.jgit.revwalk.filter.RevFilter
+
 import java.nio.file.Paths
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.Status
@@ -146,11 +149,21 @@ class GitProviderImpl implements GitProvider {
 
 	@Override
 	Iterable<RevCommit> log() {
-		git?.log()?.call() ?: []
+		log(null)
+	}
+
+	@Override
+	Iterable<RevCommit> log(RevFilter revFilter) {
+		git?.log()?.setRevFilter (revFilter)?.call() ?: []
 	}
 
 	@Override
 	Iterable<RevCommit> log(AnyObjectId since, AnyObjectId until) {
+		return log(since, until, null)
+	}
+
+	@Override
+	Iterable<RevCommit> log(AnyObjectId since, AnyObjectId until, RevFilter revFilter) {
 		git?.log()?.addRange(since, until)?.call() ?: []
 	}
 
@@ -162,6 +175,18 @@ class GitProviderImpl implements GitProvider {
 	@Override
 	String getBranch() {
 		git?.getRepository()?.getBranch()
+	}
+
+	void checkoutBranch(String name) {
+		git?.checkout()?.setName(name)?.call()
+	}
+
+	void createAndSwitchToBranch(String name) {
+		git?.checkout()?.setName(name)?.setCreateBranch(true)?.call()
+	}
+
+	void mergeBranch(String branch) {
+		git?.merge()?.include(git?.repository?.findRef(branch))?.setFastForward(MergeCommand.FastForwardMode.NO_FF)?.call()
 	}
 
 	@Override

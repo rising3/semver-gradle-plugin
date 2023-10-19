@@ -24,6 +24,7 @@ import com.github.rising3.gradle.semver.tasks.LogOperation
 import org.eclipse.jgit.api.errors.NoHeadException
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.revwalk.RevCommit
+import org.eclipse.jgit.revwalk.filter.RevFilter
 
 /**
  * Default log operation.
@@ -73,12 +74,12 @@ class DefaultLogOperation implements LogOperation {
         try {
             final currentVersion = git.findRef("${Constants.R_TAGS}${ext.versionTagPrefix}${version}")
             if (Objects.isNull(currentVersion)) {
-                git.log()
+                git.log(RevFilter.NO_MERGES)
             } else {
                 final from = currentVersion.isPeeled()
                         ? currentVersion.getPeeledObjectId()
                         : git.peel(currentVersion).getPeeledObjectId()
-                git.log(from, git.head())
+                git.log(from, git.head(), RevFilter.NO_MERGES)
             }
         } catch(NoHeadException e) {
             []
