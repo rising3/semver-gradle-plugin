@@ -23,6 +23,7 @@ import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.ReflogEntry
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
+import org.eclipse.jgit.revwalk.filter.RevFilter
 
 /**
  * Git Provider.
@@ -128,6 +129,8 @@ interface GitProvider {
 	 */
 	Iterable<RevCommit> log()
 
+	Iterable<RevCommit> log(RevFilter revFilter)
+
 	/**
 	 * Get git log list.
 	 *
@@ -136,6 +139,8 @@ interface GitProvider {
 	 * @return RevCommits
 	 */
 	Iterable<RevCommit> log(AnyObjectId since, AnyObjectId until)
+
+	Iterable<RevCommit> log(AnyObjectId since, AnyObjectId until, RevFilter revFilter)
 
 	/**
 	 * Get git tag list.

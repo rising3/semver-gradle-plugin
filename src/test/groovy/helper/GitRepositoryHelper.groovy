@@ -99,6 +99,16 @@ class GitRepositoryHelper {
         local.commit(message)
     }
 
+    void commitAndMerge(String filename, String message) {
+        writeFile(localDir, filename, UUID.randomUUID().toString())
+        def local = new GitProviderImpl(getLocalDirectory())
+        def oldBranch = local.getBranch()
+        local.createAndSwitchToBranch('some-branch')
+        local.commit(message)
+        local.checkoutBranch(oldBranch)
+        local.mergeBranch('some-branch')
+    }
+
     private def newWorkRepository(File dir) {
         if (!Paths.get(dir.toString(), ".git").toFile().exists()) {
             Git.init().setDirectory(dir)?.setBare(false)?.setInitialBranch('master')?.call()

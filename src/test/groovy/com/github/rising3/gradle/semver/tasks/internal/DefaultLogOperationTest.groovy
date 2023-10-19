@@ -73,7 +73,7 @@ class DefaultLogOperationTest extends Specification {
         gitRepo.commit('README.md', 'test: commit')
         gitRepo.commit('README.md', 'build!: commit')
         gitRepo.commit('README.md', 'revert: commit')
-        gitRepo.commit('README.md', 'other: commit')
+        gitRepo.commitAndMerge('README.md', 'other: commit')
     }
 
     def "Should generate changelog"() {
@@ -110,6 +110,7 @@ class DefaultLogOperationTest extends Specification {
         actual.count('revert:') == 1
         actual.count(ext.changeLogTitle['__undefined__']) == 1
         actual.count('other:') == 1
+        actual.count('Merge branch') == 0
     }
 
     def "Should generate changelog with custom order"() {
